@@ -46,12 +46,12 @@ class Pmf(pd.Series):
             underride(kwargs, dtype=np.float64)
             super().__init__([], **kwargs)
 
-    def copy(self, **kwargs):
+    def copy(self, deep=True):
         """Make a copy.
 
         returns: new Pmf
         """
-        return Pmf(self, **kwargs)
+        return Pmf(self, copy=deep)
 
     def __getitem__(self, qs):
         """Look up qs and return ps."""
@@ -99,6 +99,7 @@ class Pmf(pd.Series):
         returns: float
         """
         #TODO: error if not normalized
+        #TODO: error if the quantities are not numeric
         return np.sum(self.ps * self.qs)
 
     def median(self):
@@ -134,30 +135,37 @@ class Pmf(pd.Series):
         """
         return np.sqrt(self.var())
 
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        args: same as ps.Series.sample
-        options: same as ps.Series.sample
-
-        returns: Series
-        """
-        # TODO: finish this
-        underride(kwargs, weights=self.ps)
-        return self.index.sample(*args, **kwargs)
-
     def choice(self, *args, **kwargs):
         """Makes a random sample.
 
         Uses the probabilities as weights unless `p` is provided.
 
         args: same as np.random.choice
-        options: same as np.random.choice
+        kwargs: same as np.random.choice
 
         returns: NumPy array
         """
         underride(kwargs, p=self.ps)
         return np.random.choice(self.qs, *args, **kwargs)
+
+    def sample(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `weights` is provided.
+
+        This function returns an array containing a sample of the quantities in this Pmf,
+        which is different from Series.sample, which returns a Series with a sample of
+        the rows in the original Series.
+
+        args: same as Series.sample
+        options: same as Series.sample
+
+        returns: NumPy array
+        """
+        series = pd.Series(self.qs)
+        underride(kwargs, weights=self.ps)
+        sample = series.sample(*args, **kwargs)
+        return sample.values
 
     def bar(self, **options):
         """Makes a bar plot.

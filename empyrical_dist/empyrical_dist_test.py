@@ -11,7 +11,7 @@ import random
 from collections import Counter
 import numpy as np
 
-from distribution import Pmf, Cdf
+from empyrical_dist import Pmf, Cdf
 
 class Test(unittest.TestCase):
 
@@ -51,6 +51,17 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(cdf.var(), 2.91666666)
         self.assertAlmostEqual(cdf.std(), 1.70782512)
         self.assertAlmostEqual(cdf.median(), 3)
+
+    def testSampling(self):
+        pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+
+        np.random.seed(17)
+        a = pmf.choice(10)
+        self.assertTrue(np.all((a == expected)))
+
+        a = pmf.sample(10, replace=True, random_state=17)
+        self.assertTrue(np.all((a == expected)))
 
     def testAdd(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
