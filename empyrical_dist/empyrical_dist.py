@@ -175,39 +175,99 @@ class Pmf(pd.Series):
         underride(options, label=self.name)
         plt.bar(self.qs, self.ps, **options)
 
-    def __add__(self, x):
+    def add(self, x):
         """Computes the Pmf of the sum of values drawn from self and x.
 
-        x: another Pmf or a scalar
+        x: another Pmf or a scalar or a sequence
 
         returns: new Pmf
         """
         if isinstance(x, Pmf):
-            return pmf_add(self, x)
+            return pmf_conv(self, x, np.add.outer)
         else:
             return Pmf(self.ps, index=self.qs + x)
 
-    __radd__ = __add__
+    __add__ = add
+    __radd__ = add
 
-    def __sub__(self, x):
+    def sub(self, x):
         """Computes the Pmf of the diff of values drawn from self and other.
 
-        x: another Pmf
+        x: another Pmf or a scalar or a sequence
 
         returns: new Pmf
         """
         if isinstance(x, Pmf):
-            return pmf_sub(self, x)
+            return pmf_conv(self, x, np.subtract.outer)
         else:
             return Pmf(self.ps, index=self.qs - x)
 
-    # TODO: implement rsub
-    # __rsub__ = __sub__
+    subtract = sub
+    __sub__ = sub
 
-    # TODO: mul, div, truediv, divmod?
+    def rsub(self, x):
+        """Computes the Pmf of the diff of values drawn from self and other.
+
+        x: another Pmf or a scalar or a sequence
+
+        returns: new Pmf
+        """
+        if isinstance(x, Pmf):
+            return pmf_conv(x, self, np.subtract.outer)
+        else:
+            return Pmf(self.ps, index=x - self.qs)
+
+    __rsub__ = rsub
+
+    def mul(self, x):
+        """Computes the Pmf of the product of values drawn from self and x.
+
+        x: another Pmf or a scalar or a sequence
+
+        returns: new Pmf
+        """
+        if isinstance(x, Pmf):
+            return pmf_conv(self, x, np.multiply.outer)
+        else:
+            return Pmf(self.ps, index=self.qs * x)
+
+    multiply = mul
+    __mul__ = mul
+    __rmul__ = mul
+
+    def div(self, x):
+        """Computes the Pmf of the ratio of values drawn from self and x.
+
+        x: another Pmf or a scalar or a sequence
+
+        returns: new Pmf
+        """
+        if isinstance(x, Pmf):
+            return pmf_conv(self, x, np.divide.outer)
+        else:
+            return Pmf(self.ps, index=self.qs / x)
+
+    divide = div
+    __div = div
+    __truediv__ = div
+
+    def rdiv(self, x):
+        """Computes the Pmf of the ratio of values drawn from self and x.
+
+        x: another Pmf or a scalar or a sequence
+
+        returns: new Pmf
+        """
+        if isinstance(x, Pmf):
+            return pmf_conv(x, self, np.divide.outer)
+        else:
+            return Pmf(self.ps, index=x / self.qs)
+
+    __rdiv__ = rdiv
+    __rtruediv__ = rdiv
 
     def make_joint(self, other, **options):
-        """Make joint distribution
+        """Make joint distribution (assuming independence).
 
         :param self:
         :param other:
@@ -227,7 +287,7 @@ class Pmf(pd.Series):
 
         Returns: Pmf
         """
-        # TODO: rewrite this using multiindex operations
+        # TODO: rewrite this using MultiIndex operations
         pmf = Pmf(name=name)
         for vs, p in self.items():
             pmf[vs[i]] += p
@@ -245,7 +305,7 @@ class Pmf(pd.Series):
 
         Returns: Pmf
         """
-        # TODO: rewrite this using multiindex operations
+        # TODO: rewrite this using MultiIndex operations
         pmf = Pmf(name=name)
         for vs, p in self.items():
             if vs[j] == val:
@@ -295,14 +355,8 @@ class Pmf(pd.Series):
 
         return: sequence of quantities
         """
-        cdf = self.sort_index().cumsum()
-        interp = interp1d(cdf.values, cdf.index,
-                          kind='next',
-                          copy=False,
-                          assume_sorted=True,
-                          bounds_error=False,
-                          fill_value=(self.qs[0], np.nan))
-        return interp(ps)
+        cdf = self.make_cdf()
+        return cdf.quantile(ps)
 
     def credible_interval(self, p):
         """Credible interval containing the given probability.
@@ -462,6 +516,26 @@ def pmf_sub(pmf1, pmf2):
     """
     return pmf_conv(pmf1, pmf2, np.subtract.outer)
 
+
+def pmf_mul(pmf1, pmf2):
+    """Distribution of the product.
+
+    pmf1:
+    pmf2:
+
+    returns: new Pmf
+    """
+    return pmf_conv(pmf1, pmf2, np.multiply.outer)
+
+def pmf_div(pmf1, pmf2):
+    """Distribution of the ratio.
+
+    pmf1:
+    pmf2:
+
+    returns: new Pmf
+    """
+    return pmf_conv(pmf1, pmf2, np.divide.outer)
 
 def pmf_outer(pmf1, pmf2, ufunc):
     """Computes the outer product of two PMFs.

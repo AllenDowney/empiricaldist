@@ -81,12 +81,35 @@ class Test(unittest.TestCase):
         pmf3 = pmf - 1
         self.assertAlmostEqual(pmf3.mean(), 2.5)
 
-        # TODO: implement rsub correctly
-        #pmf3 = 1 - pmf
-        #self.assertAlmostEqual(pmf3.mean(), -2.5)
+        pmf3 = 1 - pmf
+        self.assertAlmostEqual(pmf3.mean(), -2.5)
 
         pmf4 = pmf - pmf
         self.assertAlmostEqual(pmf4.mean(), 0)
+
+    def testMul(self):
+        pmf = Pmf.from_seq([1, 2, 3, 4])
+
+        pmf3 = pmf * 2
+        self.assertAlmostEqual(pmf3.mean(), 5)
+
+        pmf3 = 2 * pmf
+        self.assertAlmostEqual(pmf3.mean(), 5)
+
+        pmf4 = pmf * pmf
+        self.assertAlmostEqual(pmf4.mean(), 6.25)
+
+    def testDiv(self):
+        pmf = Pmf.from_seq([1, 2, 3, 4])
+
+        pmf3 = pmf / 2
+        self.assertAlmostEqual(pmf3.mean(), 1.25)
+
+        pmf3 = 2 / pmf
+        self.assertAlmostEqual(pmf3.mean(), 1.04166666)
+
+        pmf4 = pmf / pmf
+        self.assertAlmostEqual(pmf4.mean(), 1.3020833333)
 
     def test_joint(self):
         pmf1 = Pmf.from_seq([1, 2, 2])
