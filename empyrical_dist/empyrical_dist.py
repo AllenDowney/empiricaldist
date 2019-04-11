@@ -22,7 +22,7 @@ def underride(d, **options):
     d: dictionary
     options: keyword args to add to d
 
-    returns: modified d
+    :return: modified d
     """
     for key, val in options.items():
         d.setdefault(key, val)
@@ -49,7 +49,7 @@ class Pmf(pd.Series):
     def copy(self, deep=True):
         """Make a copy.
 
-        returns: new Pmf
+        :return: new Pmf
         """
         return Pmf(self, copy=deep)
 
@@ -64,7 +64,7 @@ class Pmf(pd.Series):
     def qs(self):
         """Get the quantities.
 
-        returns: NumPy array
+        :return: NumPy array
         """
         return self.index.values
 
@@ -72,7 +72,7 @@ class Pmf(pd.Series):
     def ps(self):
         """Get the probabilities.
 
-        returns: NumPy array
+        :return: NumPy array
         """
         return self.values
 
@@ -87,7 +87,7 @@ class Pmf(pd.Series):
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
 
-        returns: normalizing constant
+        :return: normalizing constant
         """
         total = self.sum()
         self /= total
@@ -96,7 +96,7 @@ class Pmf(pd.Series):
     def mean(self):
         """Computes expected value.
 
-        returns: float
+        :return: float
         """
         #TODO: error if not normalized
         #TODO: error if the quantities are not numeric
@@ -105,24 +105,24 @@ class Pmf(pd.Series):
     def median(self):
         """Median (50th percentile).
 
-        returns: float
+        :return: float
         """
         return self.quantile(0.5)
 
-    def quantile(self, ps):
+    def quantile(self, ps, **kwargs):
         """Quantiles.
 
         Computes the inverse CDF of ps, that is,
         the values that correspond to the given probabilities.
 
-        returns: float
+        :return: float
         """
-        return self.make_cdf().quantile(ps)
+        return self.make_cdf().quantile(ps, **kwargs)
 
     def var(self):
         """Variance of a PMF.
 
-        returns: float
+        :return: float
         """
         m = self.mean()
         d = self.qs - m
@@ -131,7 +131,7 @@ class Pmf(pd.Series):
     def std(self):
         """Standard deviation of a PMF.
 
-        returns: float
+        :return: float
         """
         return np.sqrt(self.var())
 
@@ -143,7 +143,7 @@ class Pmf(pd.Series):
         args: same as np.random.choice
         kwargs: same as np.random.choice
 
-        returns: NumPy array
+        :return: NumPy array
         """
         underride(kwargs, p=self.ps)
         return np.random.choice(self.qs, *args, **kwargs)
@@ -160,17 +160,26 @@ class Pmf(pd.Series):
         args: same as Series.sample
         options: same as Series.sample
 
-        returns: NumPy array
+        :return: NumPy array
         """
         series = pd.Series(self.qs)
         underride(kwargs, weights=self.ps)
         sample = series.sample(*args, **kwargs)
         return sample.values
 
+    def plot(self, **options):
+        """Plot the Pmf as a line.
+
+        :param options: passed to plt.plot
+        :return:
+        """
+        underride(options, label=self.name)
+        plt.plot(self.qs, self.ps, **options)
+
     def bar(self, **options):
         """Makes a bar plot.
 
-        options: same as plt.bar
+        options: passed to plt.bar
         """
         underride(options, label=self.name)
         plt.bar(self.qs, self.ps, **options)
@@ -180,7 +189,7 @@ class Pmf(pd.Series):
 
         x: another Pmf or a scalar or a sequence
 
-        returns: new Pmf
+        :return: new Pmf
         """
         if isinstance(x, Pmf):
             return pmf_conv(self, x, np.add.outer)
@@ -195,7 +204,7 @@ class Pmf(pd.Series):
 
         x: another Pmf or a scalar or a sequence
 
-        returns: new Pmf
+        :return: new Pmf
         """
         if isinstance(x, Pmf):
             return pmf_conv(self, x, np.subtract.outer)
@@ -210,7 +219,7 @@ class Pmf(pd.Series):
 
         x: another Pmf or a scalar or a sequence
 
-        returns: new Pmf
+        :return: new Pmf
         """
         if isinstance(x, Pmf):
             return pmf_conv(x, self, np.subtract.outer)
@@ -224,7 +233,7 @@ class Pmf(pd.Series):
 
         x: another Pmf or a scalar or a sequence
 
-        returns: new Pmf
+        :return: new Pmf
         """
         if isinstance(x, Pmf):
             return pmf_conv(self, x, np.multiply.outer)
@@ -240,7 +249,7 @@ class Pmf(pd.Series):
 
         x: another Pmf or a scalar or a sequence
 
-        returns: new Pmf
+        :return: new Pmf
         """
         if isinstance(x, Pmf):
             return pmf_conv(self, x, np.divide.outer)
@@ -256,7 +265,7 @@ class Pmf(pd.Series):
 
         x: another Pmf or a scalar or a sequence
 
-        returns: new Pmf
+        :return: new Pmf
         """
         if isinstance(x, Pmf):
             return pmf_conv(x, self, np.divide.outer)
@@ -285,7 +294,7 @@ class Pmf(pd.Series):
         i: index of the variable we want
         name: string
 
-        Returns: Pmf
+        :return: Pmf
         """
         # TODO: rewrite this using MultiIndex operations
         pmf = Pmf(name=name)
@@ -303,7 +312,7 @@ class Pmf(pd.Series):
         val: the value the jth variable has to have
         name: string
 
-        Returns: Pmf
+        :return: Pmf
         """
         # TODO: rewrite this using MultiIndex operations
         pmf = Pmf(name=name)
@@ -321,7 +330,7 @@ class Pmf(pd.Series):
                     likelihood of data under hypo
         data: whatever format like_func understands
 
-        returns: normalizing constant
+        :return: normalizing constant
         """
         for hypo in self.qs:
             self[hypo] *= likelihood(data, hypo)
@@ -331,7 +340,7 @@ class Pmf(pd.Series):
     def max_prob(self):
         """Value with the highest probability.
 
-        returns: the value with the highest probability
+        :return: the value with the highest probability
         """
         return self.idxmax()
 
@@ -341,7 +350,7 @@ class Pmf(pd.Series):
         It can be good to normalize the cdf even if the Pmf was normalized,
         to guarantee that the last element of `ps` is 1.
 
-        returns: Cdf
+        :return: Cdf
         """
         cdf = Cdf(self.cumsum())
         if normalize:
@@ -363,7 +372,7 @@ class Pmf(pd.Series):
 
         p: float 0-1
 
-        returns: array of two quantities
+        :return: array of two quantities
         """
         tail = (1-p) / 2
         ps = [tail, 1-tail]
@@ -378,7 +387,7 @@ class Pmf(pd.Series):
         sort: whether to sort the Pmf by values, default True
         options: passed to the pd.Series constructor
 
-        returns: Pmf object
+        :return: Pmf object
         """
         series = pd.Series(seq).value_counts(sort=False)
 
@@ -400,7 +409,7 @@ class Pmf(pd.Series):
 
         x: number
 
-        returns: float probability
+        :return: float probability
         """
         if isinstance(x, Pmf):
             return pmf_gt(self, x)
@@ -414,7 +423,7 @@ class Pmf(pd.Series):
 
         x: number
 
-        returns: float probability
+        :return: float probability
         """
         if isinstance(x, Pmf):
             return pmf_lt(self, x)
@@ -428,7 +437,7 @@ class Pmf(pd.Series):
 
         x: number
 
-        returns: float probability
+        :return: float probability
         """
         if isinstance(x, Pmf):
             return pmf_ge(self, x)
@@ -442,7 +451,7 @@ class Pmf(pd.Series):
 
         x: number
 
-        returns: float probability
+        :return: float probability
         """
         if isinstance(x, Pmf):
             return pmf_le(self, x)
@@ -456,7 +465,7 @@ class Pmf(pd.Series):
 
         x: number
 
-        returns: float probability
+        :return: float probability
         """
         if isinstance(x, Pmf):
             return pmf_eq(self, x)
@@ -470,7 +479,7 @@ class Pmf(pd.Series):
 
         x: number
 
-        returns: float probability
+        :return: float probability
         """
         if isinstance(x, Pmf):
             return pmf_ne(self, x)
@@ -487,7 +496,7 @@ def pmf_conv(pmf1, pmf2, ufunc):
     pmf2:
     ufunc: elementwise function for arrays
 
-    returns: new Pmf
+    :return: new Pmf
     """
     qs = ufunc(pmf1.qs, pmf2.qs).flatten()
     ps = np.multiply.outer(pmf1.ps, pmf2.ps).flatten()
@@ -501,7 +510,7 @@ def pmf_add(pmf1, pmf2):
     pmf1:
     pmf2:
 
-    returns: new Pmf
+    :return: new Pmf
     """
     return pmf_conv(pmf1, pmf2, np.add.outer)
 
@@ -512,7 +521,7 @@ def pmf_sub(pmf1, pmf2):
     pmf1:
     pmf2:
 
-    returns: new Pmf
+    :return: new Pmf
     """
     return pmf_conv(pmf1, pmf2, np.subtract.outer)
 
@@ -523,7 +532,7 @@ def pmf_mul(pmf1, pmf2):
     pmf1:
     pmf2:
 
-    returns: new Pmf
+    :return: new Pmf
     """
     return pmf_conv(pmf1, pmf2, np.multiply.outer)
 
@@ -533,7 +542,7 @@ def pmf_div(pmf1, pmf2):
     pmf1:
     pmf2:
 
-    returns: new Pmf
+    :return: new Pmf
     """
     return pmf_conv(pmf1, pmf2, np.divide.outer)
 
@@ -544,7 +553,7 @@ def pmf_outer(pmf1, pmf2, ufunc):
     pmf2:
     ufunc: function to apply to the qs
 
-    returns: NumPy array
+    :return: NumPy array
     """
     qs = ufunc.outer(pmf1.qs, pmf2.qs)
     ps = np.multiply.outer(pmf1.ps, pmf2.ps)
@@ -557,7 +566,7 @@ def pmf_gt(pmf1, pmf2):
     pmf1: Pmf object
     pmf2: Pmf object
 
-    returns: float probability
+    :return: float probability
     """
     outer = pmf_outer(pmf1, pmf2, np.greater)
     return outer.sum()
@@ -569,7 +578,7 @@ def pmf_lt(pmf1, pmf2):
     pmf1: Pmf object
     pmf2: Pmf object
 
-    returns: float probability
+    :return: float probability
     """
     outer = pmf_outer(pmf1, pmf2, np.less)
     return outer.sum()
@@ -581,7 +590,7 @@ def pmf_ge(pmf1, pmf2):
     pmf1: Pmf object
     pmf2: Pmf object
 
-    returns: float probability
+    :return: float probability
     """
     outer = pmf_outer(pmf1, pmf2, np.greater_equal)
     return outer.sum()
@@ -593,7 +602,7 @@ def pmf_le(pmf1, pmf2):
     pmf1: Pmf object
     pmf2: Pmf object
 
-    returns: float probability
+    :return: float probability
     """
     outer = pmf_outer(pmf1, pmf2, np.less_equal)
     return outer.sum()
@@ -605,7 +614,7 @@ def pmf_eq(pmf1, pmf2):
     pmf1: Pmf object
     pmf2: Pmf object
 
-    returns: float probability
+    :return: float probability
     """
     outer = pmf_outer(pmf1, pmf2, np.equal)
     return outer.sum()
@@ -617,7 +626,7 @@ def pmf_ne(pmf1, pmf2):
     pmf1: Pmf object
     pmf2: Pmf object
 
-    returns: float probability
+    :return: float probability
     """
     outer = pmf_outer(pmf1, pmf2, np.not_equal)
     return outer.sum()
@@ -639,38 +648,12 @@ class Cdf(pd.Series):
             underride(kwargs, dtype=np.float64)
             super().__init__([], **kwargs)
 
-    def copy(self, **kwargs):
+    def copy(self, deep=True):
         """Make a copy.
 
-        returns: new Cdf
+        :return: new Pmf
         """
-        return Cdf(self, **kwargs)
-
-    @property
-    def forward(self):
-        interp = interp1d(self.qs, self.ps,
-                          kind='previous',
-                          copy=False,
-                          assume_sorted=True,
-                          bounds_error=False,
-                          fill_value=(0,1))
-        return interp
-
-    @property
-    def inverse(self):
-        interp = interp1d(self.ps, self.qs,
-                          kind='next',
-                          copy=False,
-                          assume_sorted=True,
-                          bounds_error=False,
-                          fill_value=(self.qs[0], np.nan))
-        return interp
-
-    # calling a Cdf like a function does forward lookup
-    __call__ = forward
-
-    # quantile is the same as an inverse lookup
-    quantile = inverse
+        return Cdf(self, copy=deep)
 
     @staticmethod
     def from_seq(seq, normalize=True, sort=True, **options):
@@ -681,7 +664,7 @@ class Cdf(pd.Series):
         sort: whether to sort the Cdf by values, default True
         options: passed to the pd.Series constructor
 
-        returns: CDF object
+        :return: CDF object
         """
         pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
         return pmf.make_cdf(normalize=normalize)
@@ -690,7 +673,7 @@ class Cdf(pd.Series):
     def qs(self):
         """Get the quantities.
 
-        returns: NumPy array
+        :return: NumPy array
         """
         return self.index.values
 
@@ -698,7 +681,7 @@ class Cdf(pd.Series):
     def ps(self):
         """Get the probabilities.
 
-        returns: NumPy array
+        :return: NumPy array
         """
         return self.values
 
@@ -710,19 +693,78 @@ class Cdf(pd.Series):
         df = pd.DataFrame(dict(probs=self))
         return df._repr_html_()
 
+    def plot(self, **options):
+        """Plot the Cdf as a line.
+
+        :param options: passed to plt.plot
+        :return:
+        """
+        underride(options, label=self.name)
+        plt.plot(self.qs, self.ps, **options)
+
+    def step(self, **options):
+        """Plot the Cdf as a step function.
+
+        :param options: passed to plt.step
+        :return:
+        """
+        underride(options, label=self.name, where='post')
+        plt.step(self.qs, self.ps, **options)
+
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
 
-        returns: normalizing constant
+        :return: normalizing constant
         """
         total = self.ps[-1]
         self /= total
         return total
 
+    @property
+    def forward(self, **kwargs):
+        """Compute the forward Cdf
+
+        :param kwargs: keyword arguments passed to interp1d
+
+        :return array of probabilities
+        """
+
+        underride(kwargs, kind='previous',
+                  copy=False,
+                  assume_sorted=True,
+                  bounds_error=False,
+                  fill_value=(0, 1))
+
+        interp = interp1d(self.qs, self.ps, **kwargs)
+        return interp
+
+    @property
+    def inverse(self, **kwargs):
+        """Compute the inverse Cdf
+
+        :param kwargs: keyword arguments passed to interp1d
+
+        :return array of quantities
+        """
+        underride(kwargs, kind='next',
+                  copy=False,
+                  assume_sorted=True,
+                  bounds_error=False,
+                  fill_value=(self.qs[0], np.nan))
+
+        interp = interp1d(self.ps, self.qs, **kwargs)
+        return interp
+
+    # calling a Cdf like a function does forward lookup
+    __call__ = forward
+
+    # quantile is the same as an inverse lookup
+    quantile = inverse
+
     def make_pmf(self, normalize=False):
         """Make a Pmf from the Cdf.
 
-        returns: Cdf
+        :return: Cdf
         """
         ps = self.ps
         diff = np.ediff1d(ps, to_begin=ps[0])
@@ -739,37 +781,55 @@ class Cdf(pd.Series):
         args: same as np.random.choice
         options: same as np.random.choice
 
-        returns: NumPy array
+        :return: NumPy array
         """
         # TODO: Make this more efficient by implementing the inverse CDF method.
         pmf = self.make_pmf()
-        return pmf.choice(*args, *kwargs)
+        return pmf.choice(*args, **kwargs)
+
+    def sample(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `weights` is provided.
+
+        This function returns an array containing a sample of the quantities in this Pmf,
+        which is different from Series.sample, which returns a Series with a sample of
+        the rows in the original Series.
+
+        args: same as Series.sample
+        options: same as Series.sample
+
+        :return: NumPy array
+        """
+        # TODO: Make this more efficient by implementing the inverse CDF method.
+        pmf = self.make_pmf()
+        return pmf.sample(*args, **kwargs)
 
     def mean(self):
         """Expected value.
 
-        returns: float
+        :return: float
         """
         return self.make_pmf().mean()
 
     def var(self):
         """Variance.
 
-        returns: float
+        :return: float
         """
         return self.make_pmf().var()
 
     def std(self):
         """Standard deviation.
 
-        returns: float
+        :return: float
         """
         return self.make_pmf().std()
 
     def median(self):
         """Median (50th percentile).
 
-        returns: float
+        :return: float
         """
         return self.quantile(0.5)
 

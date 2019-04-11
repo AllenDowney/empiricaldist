@@ -52,7 +52,7 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(cdf.std(), 1.70782512)
         self.assertAlmostEqual(cdf.median(), 3)
 
-    def testSampling(self):
+    def testPmfSampling(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
@@ -61,6 +61,17 @@ class Test(unittest.TestCase):
         self.assertTrue(np.all((a == expected)))
 
         a = pmf.sample(10, replace=True, random_state=17)
+        self.assertTrue(np.all((a == expected)))
+
+    def testCdfSampling(self):
+        cdf = Cdf.from_seq([1, 2, 3, 4, 5, 6])
+        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+
+        np.random.seed(17)
+        a = cdf.choice(10)
+        self.assertTrue(np.all((a == expected)))
+
+        a = cdf.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
     def testAdd(self):
@@ -127,8 +138,7 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(cond1.mean(), pmf1.mean())
         self.assertAlmostEqual(cond2.mean(), pmf2.mean())
 
-
-    def testCamparison(self):
+    def testComparison(self):
         pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         pmf2 = Pmf.from_seq([1, 2, 3, 4])
 
@@ -167,9 +177,17 @@ class Test(unittest.TestCase):
         self.assertEqual(d4.ne(d4), 0.75)
 
     def testCdf(self):
+        # if the quantities are not numeric, you can use [] but not ()
+        cdf = Cdf.from_seq(list('allen'))
+        self.assertAlmostEqual(cdf['a'], 0.2)
+        self.assertAlmostEqual(cdf['e'], 0.4)
+        self.assertAlmostEqual(cdf['l'], 0.8)
+        self.assertAlmostEqual(cdf['n'], 1.0)
+
         t = [1, 2, 2, 3, 5]
         cdf = Cdf.from_seq(t)
 
+        # () uses forward to interpolate
         self.assertEqual(cdf(0), 0)
         self.assertAlmostEqual(cdf(1), 0.2)
         self.assertAlmostEqual(cdf(2), 0.6)
