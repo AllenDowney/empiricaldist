@@ -17,7 +17,7 @@ steps:
   displayName: Add conda to PATH
 - script: |
     conda env create --quiet --file environment.yml
-    conda activate EmpyricalDistributions
+    source activate EmpyricalDistributions
     which conda
     which python
     python empyrical_dist/empyrical_dist_test.py
