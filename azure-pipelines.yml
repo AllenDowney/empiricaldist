@@ -3,6 +3,9 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+# ABD: Instructions for Anaconda at https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/anaconda?view=azure-devops&tabs=ubuntu-16-04
+
+
 trigger:
 - master
 
@@ -12,6 +15,10 @@ pool:
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
+- bash: echo "##vso[task.prependpath]$CONDA/bin"
+  displayName: Add conda to PATH
+- script: conda env create --quiet --file environment.yml
+  displayName: Create Anaconda environment
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
