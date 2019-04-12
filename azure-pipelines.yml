@@ -21,4 +21,4 @@ steps:
     which conda
     which python
     python empyrical_dist/empyrical_dist_test.py
-  displayName: Create conda environment
+  displayName: Run unit test
