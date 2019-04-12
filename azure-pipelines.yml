@@ -13,11 +13,13 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 - bash: echo "##vso[task.prependpath]$CONDA/bin"
   displayName: Add conda to PATH
 - script: conda env create --quiet --file environment.yml
   displayName: Create Anaconda environment
+- script: which conda
+  displayName: Check path to conda
+- script: which python
+  displayName: Check path to python
 - script: python empyrical_dist/empyrical_dist_test.py
   displayName: Run unit tests
