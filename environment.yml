@@ -8,6 +8,7 @@ dependencies:
   - seaborn
   - pandas
   - scipy
+  - pip
   - pip:
     - .
 
