@@ -327,8 +327,8 @@ class Pmf(pd.Series):
         """Bayesian update.
 
         likelihood: function that takes (data, hypo) and returns
-                    likelihood of data under hypo
-        data: whatever format like_func understands
+                    likelihood of data under hypo, P(data|hypo)
+        data: in whatever format likelihood understands
 
         :return: normalizing constant
         """
@@ -407,7 +407,7 @@ class Pmf(pd.Series):
     def gt(self, x):
         """Probability that a sample from this Pmf > x.
 
-        x: number
+        :param x: number or another Pmf
 
         :return: float probability
         """
@@ -421,7 +421,7 @@ class Pmf(pd.Series):
     def lt(self, x):
         """Probability that a sample from this Pmf < x.
 
-        x: number
+        :param x: number or another Pmf
 
         :return: float probability
         """
@@ -435,7 +435,7 @@ class Pmf(pd.Series):
     def ge(self, x):
         """Probability that a sample from this Pmf >= x.
 
-        x: number
+        :param x: number or another Pmf
 
         :return: float probability
         """
@@ -449,7 +449,7 @@ class Pmf(pd.Series):
     def le(self, x):
         """Probability that a sample from this Pmf <= x.
 
-        x: number
+        :param x: number or another Pmf
 
         :return: float probability
         """
@@ -463,7 +463,7 @@ class Pmf(pd.Series):
     def eq(self, x):
         """Probability that a sample from this Pmf == x.
 
-        x: number
+        :param x: number or another Pmf
 
         :return: float probability
         """
@@ -477,7 +477,7 @@ class Pmf(pd.Series):
     def ne(self, x):
         """Probability that a sample from this Pmf != x.
 
-        x: number
+        :param x: number or another Pmf
 
         :return: float probability
         """
@@ -697,6 +697,7 @@ class Cdf(pd.Series):
         """Plot the Cdf as a line.
 
         :param options: passed to plt.plot
+
         :return:
         """
         underride(options, label=self.name)
@@ -706,6 +707,7 @@ class Cdf(pd.Series):
         """Plot the Cdf as a step function.
 
         :param options: passed to plt.step
+
         :return:
         """
         underride(options, label=self.name, where='post')
@@ -764,7 +766,7 @@ class Cdf(pd.Series):
     def make_pmf(self, normalize=False):
         """Make a Pmf from the Cdf.
 
-        :return: Cdf
+        :return: Pmf
         """
         ps = self.ps
         diff = np.ediff1d(ps, to_begin=ps[0])
