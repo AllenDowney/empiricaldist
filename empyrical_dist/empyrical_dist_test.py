@@ -11,7 +11,7 @@ import random
 from collections import Counter
 import numpy as np
 
-from empyrical_dist import Pmf, Cdf
+from empyrical_dist import Pmf, Cdf, Surv, Hazard
 
 class Test(unittest.TestCase):
 
@@ -219,6 +219,51 @@ class Test(unittest.TestCase):
 
         np.random.seed(42)
         xs = cdf.choice(7, replace=True)
+        self.assertListEqual(xs.tolist(), [2, 5, 3, 2, 1, 1, 1])
+
+    def testSurv(self):
+        # if the quantities are not numeric, you can use [] but not ()
+        surv = Surv.from_seq(list('allen'))
+        self.assertAlmostEqual(surv['a'], 0.8)
+        self.assertAlmostEqual(surv['e'], 0.6)
+        self.assertAlmostEqual(surv['l'], 0.2)
+        self.assertAlmostEqual(surv['n'], 0)
+
+        t = [1, 2, 2, 3, 5]
+        surv = Surv.from_seq(t)
+
+        # () uses forward to interpolate
+        self.assertEqual(surv(0), 1)
+        self.assertAlmostEqual(surv(1), 0.8)
+        self.assertAlmostEqual(surv(2), 0.4)
+        self.assertAlmostEqual(surv(3), 0.2)
+        self.assertAlmostEqual(surv(4), 0.2)
+        self.assertAlmostEqual(surv(5), 0)
+        self.assertAlmostEqual(surv(6), 0)
+
+        xs = range(-1, 7)
+        ps = surv(xs)
+        for p1, p2 in zip(ps, [1, 1, 0.8, 0.4, 0.2, 0.2, 0, 0]):
+            self.assertAlmostEqual(p1, p2)
+
+        self.assertEqual(surv.inverse(0), 5)
+        self.assertEqual(surv.inverse(0.1), 5)
+        self.assertEqual(surv.inverse(0.2), 3)
+        self.assertEqual(surv.inverse(0.3), 3)
+        self.assertEqual(surv.inverse(0.4), 2)
+        self.assertEqual(surv.inverse(0.5), 2)
+        self.assertEqual(surv.inverse(0.6), 2)
+        self.assertEqual(surv.inverse(0.7), 2)
+        self.assertEqual(surv.inverse(0.8), 1)
+        self.assertEqual(surv.inverse(0.9), 1)
+        self.assertEqual(surv.inverse(1), 1)
+
+        ps = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        qs = surv.inverse(ps)
+        self.assertTrue((qs == [5, 5, 3, 3, 2, 2, 2, 2, 1, 1, 1]).all())
+
+        np.random.seed(42)
+        xs = surv.choice(7, replace=True)
         self.assertListEqual(xs.tolist(), [2, 5, 3, 2, 1, 1, 1])
         
     def testPmfFromCdf(self):

@@ -29,9 +29,7 @@ def underride(d, **options):
 
     return d
 
-
-class Pmf(pd.Series):
-    """Represents a probability Mass Function (PMF)."""
+class Distribution(pd.Series):
 
     def __init__(self, *args, **kwargs):
         """Initialize a Pmf.
@@ -45,13 +43,6 @@ class Pmf(pd.Series):
         else:
             underride(kwargs, dtype=np.float64)
             super().__init__([], **kwargs)
-
-    def copy(self, deep=True):
-        """Make a copy.
-
-        :return: new Pmf
-        """
-        return Pmf(self, copy=deep)
 
     def __getitem__(self, qs):
         """Look up qs and return ps."""
@@ -83,6 +74,26 @@ class Pmf(pd.Series):
         """
         df = pd.DataFrame(dict(probs=self))
         return df._repr_html_()
+
+
+class Pmf(Distribution):
+    """Represents a probability Mass Function (PMF)."""
+
+
+
+    def copy(self, deep=True):
+        """Make a copy.
+
+        :return: new Pmf
+        """
+        return Pmf(self, copy=deep)
+
+    def __getitem__(self, qs):
+        """Look up qs and return ps."""
+        try:
+            return super().__getitem__(qs)
+        except (KeyError, ValueError, IndexError):
+            return 0
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
@@ -632,26 +643,13 @@ def pmf_ne(pmf1, pmf2):
     return outer.sum()
 
 
-class Cdf(pd.Series):
+class Cdf(Distribution):
     """Represents a Cumulative Distribution Function (CDF)."""
-
-    def __init__(self, *args, **kwargs):
-        """Initialize a Cdf.
-
-        Note: this cleans up a weird Series behavior, which is
-        that Series() and Series([]) yield different results.
-        See: https://github.com/pandas-dev/pandas/issues/16737
-        """
-        if args:
-            super().__init__(*args, **kwargs)
-        else:
-            underride(kwargs, dtype=np.float64)
-            super().__init__([], **kwargs)
 
     def copy(self, deep=True):
         """Make a copy.
 
-        :return: new Pmf
+        :return: new Cdf
         """
         return Cdf(self, copy=deep)
 
@@ -668,30 +666,6 @@ class Cdf(pd.Series):
         """
         pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
         return pmf.make_cdf(normalize=normalize)
-
-    @property
-    def qs(self):
-        """Get the quantities.
-
-        :return: NumPy array
-        """
-        return self.index.values
-
-    @property
-    def ps(self):
-        """Get the probabilities.
-
-        :return: NumPy array
-        """
-        return self.values
-
-    def _repr_html_(self):
-        """Returns an HTML representation of the series.
-
-        Mostly used for Jupyter notebooks.
-        """
-        df = pd.DataFrame(dict(probs=self))
-        return df._repr_html_()
 
     def plot(self, **options):
         """Plot the Cdf as a line.
@@ -775,6 +749,13 @@ class Cdf(pd.Series):
             pmf.normalize()
         return pmf
 
+    def make_surv(cdf):
+        """Make a survival function from the Cdf.
+
+        :return: Surv object
+        """
+        return Surv(1 - cdf.ps, index=cdf.qs)
+
     def choice(self, *args, **kwargs):
         """Makes a random sample.
 
@@ -836,3 +817,312 @@ class Cdf(pd.Series):
         return self.quantile(0.5)
 
 
+from scipy.interpolate import interp1d
+
+class Surv(Distribution):
+    """Represents a survival function (complementary CDF)."""
+
+    def copy(self, deep=True):
+        """Make a copy.
+
+        :return: new Surv
+        """
+        return Surv(self, copy=deep)
+
+    @staticmethod
+    def from_seq(seq, normalize=True, sort=True, **options):
+        """Make a Surv from a sequence of values.
+
+        seq: any kind of sequence
+        normalize: whether to normalize the Surv, default True
+        sort: whether to sort the Surv by values, default True
+        options: passed to the pd.Series constructor
+
+        :return: Surv object
+        """
+        pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
+        cdf = pmf.make_cdf(normalize=normalize)
+        return cdf.make_surv()
+
+    def plot(self, **options):
+        """Plot the Cdf as a line.
+
+        :param options: passed to plt.plot
+        :return:
+        """
+        underride(options, label=self.name)
+        plt.plot(self.qs, self.ps, **options)
+
+    def step(self, **options):
+        """Plot the Cdf as a step function.
+
+        :param options: passed to plt.step
+        :return:
+        """
+        underride(options, label=self.name, where='post')
+        plt.step(self.qs, self.ps, **options)
+
+    def normalize(self):
+        """Make the probabilities add up to 1 (modifies self).
+
+        :return: normalizing constant
+        """
+        total = self.ps[-1]
+        self /= total
+        return total
+
+    @property
+    def forward(self, **kwargs):
+        """Compute the forward Cdf
+
+        :param kwargs: keyword arguments passed to interp1d
+
+        :return array of probabilities
+        """
+
+        underride(kwargs, kind='previous',
+                  copy=False,
+                  assume_sorted=True,
+                  bounds_error=False,
+                  fill_value=(1, 0))
+
+        interp = interp1d(self.qs, self.ps, **kwargs)
+        return interp
+
+    @property
+    def inverse(self, **kwargs):
+        """Compute the inverse Cdf
+
+        :param kwargs: keyword arguments passed to interp1d
+
+        :return array of quantities
+        """
+        interp = self.make_cdf().inverse
+        return lambda ps: interp(1-np.asarray(ps), **kwargs)
+
+    # calling a Cdf like a function does forward lookup
+    __call__ = forward
+
+    # quantile is the same as an inverse lookup
+    quantile = inverse
+
+    def make_cdf(self, normalize=False):
+        """Make a Cdf from the Surv.
+
+        :return: Cdf
+        """
+        cdf = Cdf(1-self.ps, index=self.qs)
+        if normalize:
+            cdf.normalize()
+        return cdf
+
+    def make_pmf(self, normalize=False):
+        """Make a Pmf from the Surv.
+
+        :return: Pmf
+        """
+        cdf = self.make_cdf(normalize=False)
+        pmf = cdf.make_pmf(normalize=normalize)
+        return pmf
+
+    def make_hazard(self, **kwargs):
+        """Make a Hazard object from the Surv.
+
+        :return: Hazard object
+        """
+        pmf = self.make_pmf()
+        ps = pmf.ps / self.ps
+
+        # TODO: make this more efficient and Pandas-idiomatic
+        lams = pd.Series(index=self.qs)
+
+        prev = 1.0
+        for q, p in self.iteritems():
+            lams[q] = (prev - p) / prev
+            prev = p
+
+        return Hazard(ps, index=self.qs, **kwargs)
+
+    def choice(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `p` is provided.
+
+        args: same as np.random.choice
+        options: same as np.random.choice
+
+        :return: NumPy array
+        """
+        # TODO: Make this more efficient by implementing the inverse CDF method.
+        pmf = self.make_pmf()
+        return pmf.choice(*args, **kwargs)
+
+    def sample(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `weights` is provided.
+
+        This function returns an array containing a sample of the quantities in this Pmf,
+        which is different from Series.sample, which returns a Series with a sample of
+        the rows in the original Series.
+
+        args: same as Series.sample
+        options: same as Series.sample
+
+        :return: NumPy array
+        """
+        # TODO: Make this more efficient by implementing the inverse CDF method.
+        pmf = self.make_pmf()
+        return pmf.sample(*args, **kwargs)
+
+    def mean(self):
+        """Expected value.
+
+        :return: float
+        """
+        return self.make_pmf().mean()
+
+    def var(self):
+        """Variance.
+
+        :return: float
+        """
+        return self.make_pmf().var()
+
+    def std(self):
+        """Standard deviation.
+
+        :return: float
+        """
+        return self.make_pmf().std()
+
+    def median(self):
+        """Median (50th percentile).
+
+        :return: float
+        """
+        return self.quantile(0.5)
+
+
+class Hazard(Distribution):
+    """Represents a Hazard function."""
+
+    def copy(self, deep=True):
+        """Make a copy.
+
+        :return: new Pmf
+        """
+        return Hazard(self, copy=deep)
+
+    def __getitem__(self, qs):
+        """Look up qs and return ps."""
+        try:
+            return super().__getitem__(qs)
+        except (KeyError, ValueError, IndexError):
+            return 0
+
+    def mean(self):
+        """Computes expected value.
+
+        :return: float
+        """
+        raise ValueError()
+
+    def median(self):
+        """Median (50th percentile).
+
+        :return: float
+        """
+        raise ValueError()
+
+    def quantile(self, ps, **kwargs):
+        """Quantiles.
+
+        Computes the inverse CDF of ps, that is,
+        the values that correspond to the given probabilities.
+
+        :return: float
+        """
+        raise ValueError()
+
+    def var(self):
+        """Variance of a PMF.
+
+        :return: float
+        """
+        raise ValueError()
+
+    def std(self):
+        """Standard deviation of a PMF.
+
+        :return: float
+        """
+        raise ValueError()
+
+    def choice(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `p` is provided.
+
+        args: same as np.random.choice
+        kwargs: same as np.random.choice
+
+        :return: NumPy array
+        """
+        raise ValueError()
+
+    def sample(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `weights` is provided.
+
+        This function returns an array containing a sample of the quantities,
+        which is different from Series.sample, which returns a Series with a sample of
+        the rows in the original Series.
+
+        args: same as Series.sample
+        options: same as Series.sample
+
+        :return: NumPy array
+        """
+        raise ValueError()
+
+    def plot(self, **options):
+        """Plot the Pmf as a line.
+
+        :param options: passed to plt.plot
+        :return:
+        """
+        underride(options, label=self.name)
+        plt.plot(self.qs, self.ps, **options)
+
+    def bar(self, **options):
+        """Makes a bar plot.
+
+        options: passed to plt.bar
+        """
+        underride(options, label=self.name)
+        plt.bar(self.qs, self.ps, **options)
+
+    def make_surv(self, normalize=True):
+        """Make a Surv from the Hazard.
+
+        :return: Surv
+        """
+        ps = (1 - self.ps).cumprod()
+        return Surv(ps, index=self.qs)
+
+    @staticmethod
+    def from_seq(seq, **options):
+        """Make a PMF from a sequence of values.
+
+        seq: any kind of sequence
+        normalize: whether to normalize the Pmf, default True
+        sort: whether to sort the Pmf by values, default True
+        options: passed to the pd.Series constructor
+
+        :return: Pmf object
+        """
+        cdf = Cdf.from_seq(seq, **options)
+        surv = cdf.make_surv()
+        return surv.make_hazard()
