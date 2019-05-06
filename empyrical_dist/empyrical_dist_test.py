@@ -265,6 +265,18 @@ class Test(unittest.TestCase):
         np.random.seed(42)
         xs = surv.choice(7, replace=True)
         self.assertListEqual(xs.tolist(), [2, 5, 3, 2, 1, 1, 1])
+
+    def testHazard(self):
+        t = [1, 2, 2, 3, 5]
+        haz = Hazard.from_seq(t)
+
+        # () uses forward to interpolate
+        self.assertAlmostEqual(haz(1), 0.2)
+        self.assertAlmostEqual(haz(2), 0.5)
+        self.assertAlmostEqual(haz(3), 0.5)
+        self.assertAlmostEqual(haz(4), 0)
+        self.assertAlmostEqual(haz(5), 1.0)
+        self.assertAlmostEqual(haz(6), 0)
         
     def testPmfFromCdf(self):
         t = [1, 2, 2, 3, 5]

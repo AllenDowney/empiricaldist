@@ -44,13 +44,6 @@ class Distribution(pd.Series):
             underride(kwargs, dtype=np.float64)
             super().__init__([], **kwargs)
 
-    def __getitem__(self, qs):
-        """Look up qs and return ps."""
-        try:
-            return super().__getitem__(qs)
-        except (KeyError, ValueError, IndexError):
-            return 0
-
     @property
     def qs(self):
         """Get the quantities.
@@ -79,8 +72,6 @@ class Distribution(pd.Series):
 class Pmf(Distribution):
     """Represents a probability Mass Function (PMF)."""
 
-
-
     def copy(self, deep=True):
         """Make a copy.
 
@@ -94,6 +85,9 @@ class Pmf(Distribution):
             return super().__getitem__(qs)
         except (KeyError, ValueError, IndexError):
             return 0
+
+    # You can also call a Pmf like a function
+    __call__ = __getitem__
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
@@ -184,7 +178,7 @@ class Pmf(Distribution):
         :param options: passed to plt.plot
         :return:
         """
-        underride(options, label=self.name)
+        underride(options, label=self.name, color='C1')
         plt.plot(self.qs, self.ps, **options)
 
     def bar(self, **options):
@@ -192,7 +186,7 @@ class Pmf(Distribution):
 
         options: passed to plt.bar
         """
-        underride(options, label=self.name)
+        underride(options, label=self.name, color='C1')
         plt.bar(self.qs, self.ps, **options)
 
     def add(self, x):
@@ -358,8 +352,8 @@ class Pmf(Distribution):
     def make_cdf(self, normalize=True):
         """Make a Cdf from the Pmf.
 
-        It can be good to normalize the cdf even if the Pmf was normalized,
-        to guarantee that the last element of `ps` is 1.
+        It can be good to normalize the Cdf even if the Pmf was normalized,
+        to guarantee that the last element is 1.
 
         :return: Cdf
         """
@@ -367,6 +361,28 @@ class Pmf(Distribution):
         if normalize:
             cdf.normalize()
         return cdf
+
+    def make_surv(self, normalize=True):
+        """Make a Surv object from the Pmf.
+
+        It can be good to normalize the Cdf even if the Pmf was normalized,
+        to guarantee that the last element is 1.
+
+        :return: Cdf
+        """
+        cdf = self.make_cdf(normalize=normalize)
+        return cdf.make_surv()
+
+    def make_hazard(self, normalize=True):
+        """Make a Hazard object from the Pmf.
+
+        It can be good to normalize the Cdf even if the Pmf was normalized,
+        to guarantee that the last element is 1.
+
+        :return: Cdf
+        """
+        cdf = self.make_cdf(normalize=normalize)
+        return cdf.make_surv().make_hazard()
 
     def quantile(self, ps):
         """Quantities corresponding to given probabilities.
@@ -674,7 +690,7 @@ class Cdf(Distribution):
 
         :return:
         """
-        underride(options, label=self.name)
+        underride(options, label=self.name, color='C0')
         plt.plot(self.qs, self.ps, **options)
 
     def step(self, **options):
@@ -684,7 +700,7 @@ class Cdf(Distribution):
 
         :return:
         """
-        underride(options, label=self.name, where='post')
+        underride(options, label=self.name, where='post', color='C0')
         plt.step(self.qs, self.ps, **options)
 
     def normalize(self):
@@ -740,6 +756,8 @@ class Cdf(Distribution):
     def make_pmf(self, normalize=False):
         """Make a Pmf from the Cdf.
 
+        :param normalize: Boolean, whether to normalize the Pmf
+
         :return: Pmf
         """
         ps = self.ps
@@ -749,12 +767,19 @@ class Cdf(Distribution):
             pmf.normalize()
         return pmf
 
-    def make_surv(cdf):
-        """Make a survival function from the Cdf.
+    def make_surv(self):
+        """Make a Surv object from the Cdf.
 
         :return: Surv object
         """
-        return Surv(1 - cdf.ps, index=cdf.qs)
+        return Surv(1 - self)
+
+    def make_hazard(self):
+        """Make a Hazard object from the Cdf.
+
+        :return: Hazard object
+        """
+        return self.make_surv().make_hazard()
 
     def choice(self, *args, **kwargs):
         """Makes a random sample.
@@ -850,7 +875,7 @@ class Surv(Distribution):
         :param options: passed to plt.plot
         :return:
         """
-        underride(options, label=self.name)
+        underride(options, label=self.name, color='C2')
         plt.plot(self.qs, self.ps, **options)
 
     def step(self, **options):
@@ -859,7 +884,7 @@ class Surv(Distribution):
         :param options: passed to plt.step
         :return:
         """
-        underride(options, label=self.name, where='post')
+        underride(options, label=self.name, where='post', color='C2')
         plt.step(self.qs, self.ps, **options)
 
     def normalize(self):
@@ -911,7 +936,7 @@ class Surv(Distribution):
 
         :return: Cdf
         """
-        cdf = Cdf(1-self.ps, index=self.qs)
+        cdf = Cdf(1 - self)
         if normalize:
             cdf.normalize()
         return cdf
@@ -931,17 +956,9 @@ class Surv(Distribution):
         :return: Hazard object
         """
         pmf = self.make_pmf()
-        ps = pmf.ps / self.ps
-
-        # TODO: make this more efficient and Pandas-idiomatic
-        lams = pd.Series(index=self.qs)
-
-        prev = 1.0
-        for q, p in self.iteritems():
-            lams[q] = (prev - p) / prev
-            prev = p
-
-        return Hazard(ps, index=self.qs, **kwargs)
+        at_risk = self + pmf
+        haz = pmf.ps / at_risk
+        return Hazard(haz, **kwargs)
 
     def choice(self, *args, **kwargs):
         """Makes a random sample.
@@ -1021,6 +1038,9 @@ class Hazard(Distribution):
         except (KeyError, ValueError, IndexError):
             return 0
 
+    # You can also call a Hazard object like a function
+    __call__ = __getitem__
+
     def mean(self):
         """Computes expected value.
 
@@ -1093,7 +1113,7 @@ class Hazard(Distribution):
         :param options: passed to plt.plot
         :return:
         """
-        underride(options, label=self.name)
+        underride(options, label=self.name, color='C3')
         plt.plot(self.qs, self.ps, **options)
 
     def bar(self, **options):
@@ -1102,15 +1122,29 @@ class Hazard(Distribution):
         options: passed to plt.bar
         """
         underride(options, label=self.name)
-        plt.bar(self.qs, self.ps, **options)
+        plt.bar(self.qs, self.ps, **options, color='C3')
 
-    def make_surv(self, normalize=True):
+    def make_surv(self):
         """Make a Surv from the Hazard.
 
         :return: Surv
         """
-        ps = (1 - self.ps).cumprod()
-        return Surv(ps, index=self.qs)
+        ps = (1 - self).cumprod()
+        return Surv(ps)
+
+    def make_cdf(self):
+        """Make a Cdf from the Hazard.
+
+        :return: Cdf
+        """
+        return self.make_surv().make_cdf()
+
+    def make_surv(self, normalize=True):
+        """Make a Pmf from the Hazard.
+
+        :return: Pmf
+        """
+        return self.make_surv().make_cdf().make_pmf()
 
     @staticmethod
     def from_seq(seq, **options):
