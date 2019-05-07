@@ -1139,7 +1139,7 @@ class Hazard(Distribution):
         """
         return self.make_surv().make_cdf()
 
-    def make_surv(self, normalize=True):
+    def make_pmf(self, normalize=True):
         """Make a Pmf from the Hazard.
 
         :return: Pmf

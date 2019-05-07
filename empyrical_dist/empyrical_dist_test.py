@@ -283,8 +283,37 @@ class Test(unittest.TestCase):
         pmf = Pmf.from_seq(t)
         cdf = Cdf.from_seq(t)
         pmf2 = cdf.make_pmf()
-        for x in pmf.qs:
-            self.assertAlmostEqual(pmf[x], pmf2[x])
+        self.almost_equal_dist(pmf, pmf2)
+
+    def testConversionFunctions(self):
+        t = [1, 2, 2, 3, 5, 5, 7, 10]
+        pmf = Pmf.from_seq(t)
+        cdf = Cdf.from_seq(t)
+        surv = Surv.from_seq(t)
+        haz = Hazard.from_seq(t)
+
+        cdf2 = pmf.make_cdf()
+        self.almost_equal_dist(cdf, cdf2)
+
+        surv2 = pmf.make_surv()
+        self.almost_equal_dist(surv, surv2)
+
+        haz2 = pmf.make_hazard()
+        self.almost_equal_dist(haz, haz2)
+
+        surv3 = haz2.make_surv()
+        self.almost_equal_dist(surv, surv3)
+
+        cdf3 = haz2.make_cdf()
+        self.almost_equal_dist(cdf, cdf3)
+
+        pmf3 = haz2.make_pmf()
+        self.almost_equal_dist(pmf, pmf3)
+
+
+    def almost_equal_dist(self, dist1, dist2):
+        for x in dist1.qs:
+            self.assertAlmostEqual(dist1[x], dist2[x])
 
     def testCopy(self):
         t = [1, 2, 2, 3, 5]
