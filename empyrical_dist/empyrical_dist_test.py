@@ -130,39 +130,39 @@ class Test(unittest.TestCase):
         pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         pmf2 = Pmf.from_seq([1, 2, 3, 4])
 
-        self.assertAlmostEqual(pmf1 == 3, 1 / 6)
-        self.assertAlmostEqual(pmf1 != 3, 5 / 6)
-        self.assertAlmostEqual(pmf1 > 3, 3 / 6)
-        self.assertAlmostEqual(pmf1 >= 3, 4 / 6)
-        self.assertAlmostEqual(pmf1 < 3, 2 / 6)
-        self.assertAlmostEqual(pmf1 <= 3, 3 / 6)
+        self.assertAlmostEqual(pmf1.eq_dist(3), 1 / 6)
+        self.assertAlmostEqual(pmf1.ne_dist(3), 5 / 6)
+        self.assertAlmostEqual(pmf1.gt_dist(3), 3 / 6)
+        self.assertAlmostEqual(pmf1.ge_dist(3), 4 / 6)
+        self.assertAlmostEqual(pmf1.lt_dist(3), 2 / 6)
+        self.assertAlmostEqual(pmf1.le_dist(3), 3 / 6)
 
-        self.assertAlmostEqual(pmf1 == pmf2, 1/6)
-        self.assertAlmostEqual(pmf1 != pmf2, 5/6)
-        self.assertAlmostEqual(pmf1 > pmf2, 0.5833333)
-        self.assertAlmostEqual(pmf1 >= pmf2, 3/4)
-        self.assertAlmostEqual(pmf1 < pmf2, 1/4)
-        self.assertAlmostEqual(pmf1 <= pmf2, 0.41666666)
+        self.assertAlmostEqual(pmf1.eq_dist(pmf2), 1/6)
+        self.assertAlmostEqual(pmf1.ne_dist(pmf2), 5/6)
+        self.assertAlmostEqual(pmf1.gt_dist(pmf2), 0.5833333)
+        self.assertAlmostEqual(pmf1.ge_dist(pmf2), 3/4)
+        self.assertAlmostEqual(pmf1.lt_dist(pmf2), 1/4)
+        self.assertAlmostEqual(pmf1.le_dist(pmf2), 0.41666666)
 
     def testPmfComparison(self):
         d4 = Pmf.from_seq(range(1,5))
-        self.assertEqual(d4.gt(2), 0.5)
-        self.assertEqual(d4.gt(d4), 0.375)
+        self.assertEqual(d4.gt_dist(2), 0.5)
+        self.assertEqual(d4.gt_dist(d4), 0.375)
 
-        self.assertEqual(d4.lt(2), 0.25)
-        self.assertEqual(d4.lt(d4), 0.375)
+        self.assertEqual(d4.lt_dist(2), 0.25)
+        self.assertEqual(d4.lt_dist(d4), 0.375)
 
-        self.assertEqual(d4.ge(2), 0.75)
-        self.assertEqual(d4.ge(d4), 0.625)
+        self.assertEqual(d4.ge_dist(2), 0.75)
+        self.assertEqual(d4.ge_dist(d4), 0.625)
 
-        self.assertEqual(d4.le(2), 0.5)
-        self.assertEqual(d4.le(d4), 0.625)
+        self.assertEqual(d4.le_dist(2), 0.5)
+        self.assertEqual(d4.le_dist(d4), 0.625)
 
-        self.assertEqual(d4.eq(2), 0.25)
-        self.assertEqual(d4.eq(d4), 0.25)
+        self.assertEqual(d4.eq_dist(2), 0.25)
+        self.assertEqual(d4.eq_dist(d4), 0.25)
 
-        self.assertEqual(d4.ne(2), 0.75)
-        self.assertEqual(d4.ne(d4), 0.75)
+        self.assertEqual(d4.ne_dist(2), 0.75)
+        self.assertEqual(d4.ne_dist(d4), 0.75)
 
     def testCdf(self):
         # if the quantities are not numeric, you can use [] but not ()

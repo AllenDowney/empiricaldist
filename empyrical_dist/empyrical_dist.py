@@ -76,7 +76,7 @@ class Distribution(pd.Series):
         :return: new Pmf
         """
         if isinstance(x, Distribution):
-            return convolve_dist(self, x, np.add.outer)
+            return self.convolve_dist(x, np.add.outer)
         else:
             return Pmf(self.ps, index=self.qs + x)
 
@@ -88,7 +88,7 @@ class Distribution(pd.Series):
         :return: new Pmf
         """
         if isinstance(x, Distribution):
-            return convolve_dist(self, x, np.subtract.outer)
+            return self.convolve_dist(x, np.subtract.outer)
         else:
             return Pmf(self.ps, index=self.qs - x)
 
@@ -100,7 +100,7 @@ class Distribution(pd.Series):
         :return: new Pmf
         """
         if isinstance(x, Distribution):
-            return convolve_dist(self, x, np.multiply.outer)
+            return self.convolve_dist(x, np.multiply.outer)
         else:
             return Pmf(self.ps, index=self.qs * x)
 
@@ -112,160 +112,125 @@ class Distribution(pd.Series):
         :return: new Pmf
         """
         if isinstance(x, Distribution):
-            return convolve_dist(self, x, np.divide.outer)
+            return self.convolve_dist(x, np.divide.outer)
         else:
             return Pmf(self.ps, index=self.qs / x)
 
+    def convolve_dist(dist1, dist2, ufunc):
+        """Convolve two distributions.
 
-def convolve_dist(dist1, dist2, ufunc):
-    """Convolve two distributions.
+        dist1: Distribution
+        dist2: Distribution
+        ufunc: elementwise function for arrays
 
-    dist1: Distribution
-    dist2: Distribution
-    ufunc: elementwise function for arrays
+        :return: new instance of the type of dist1
+        """
+        #TODO: Convert to Pmf
+        pmf1 = dist1
+        pmf2 = dist2
 
-    :return: new instance of the type of dist1
-    """
-    #TODO: Convert to Pmf
-    pmf1 = dist1
-    pmf2 = dist2
+        qs = ufunc(pmf1.qs, pmf2.qs).flatten()
+        ps = np.multiply.outer(pmf1.ps, pmf2.ps).flatten()
+        series = pd.Series(ps).groupby(qs).sum()
 
-    qs = ufunc(pmf1.qs, pmf2.qs).flatten()
-    ps = np.multiply.outer(pmf1.ps, pmf2.ps).flatten()
-    series = pd.Series(ps).groupby(qs).sum()
+        # TODO: return correct type
+        return Pmf(series)
 
-    # TODO: return correct type
-    return Pmf(series)
+    def pmf_outer(dist1, dist2, ufunc):
+        """Computes the outer product of two PMFs.
 
+        dist1: Distribution object
+        dist2: Distribution object
+        ufunc: function to apply to the qs
 
-def pmf_add(pmf1, pmf2):
-    """Distribution of the sum.
+        :return: NumPy array
+        """
+        #TODO: convert other types to Pmf
+        pmf1 = dist1
+        pmf2 = dist2
 
-    pmf1:
-    pmf2:
+        qs = ufunc.outer(pmf1.qs, pmf2.qs)
+        ps = np.multiply.outer(pmf1.ps, pmf2.ps)
+        return qs * ps
 
-    :return: new Pmf
-    """
-    return pmf_conv(pmf1, pmf2, np.add.outer)
+    def gt_dist(self, x):
+        """Probability that a value from pmf1 is greater than a value from pmf2.
 
+        dist1: Distribution object
+        dist2: Distribution object
 
-def pmf_sub(pmf1, pmf2):
-    """Distribution of the difference.
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.greater).sum()
+        else:
+            return self[self.qs > x].sum()
 
-    pmf1:
-    pmf2:
+    def lt_dist(self, x):
+        """Probability that a value from pmf1 is less than a value from pmf2.
 
-    :return: new Pmf
-    """
-    return pmf_conv(pmf1, pmf2, np.subtract.outer)
+        dist1: Distribution object
+        dist2: Distribution object
 
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.less).sum()
+        else:
+            return self[self.qs < x].sum()
 
-def pmf_mul(pmf1, pmf2):
-    """Distribution of the product.
+    def ge_dist(self, x):
+        """Probability that a value from pmf1 is >= than a value from pmf2.
 
-    pmf1:
-    pmf2:
+        dist1: Distribution object
+        dist2: Distribution object
 
-    :return: new Pmf
-    """
-    return pmf_conv(pmf1, pmf2, np.multiply.outer)
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.greater_equal).sum()
+        else:
+            return self[self.qs >= x].sum()
 
+    def le_dist(self, x):
+        """Probability that a value from pmf1 is <= than a value from pmf2.
 
-def pmf_div(pmf1, pmf2):
-    """Distribution of the ratio.
+        dist1: Distribution object
+        dist2: Distribution object
 
-    pmf1:
-    pmf2:
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.less_equal).sum()
+        else:
+            return self[self.qs <= x].sum()
 
-    :return: new Pmf
-    """
-    return pmf_conv(pmf1, pmf2, np.divide.outer)
+    def eq_dist(self, x):
+        """Probability that a value from pmf1 equals a value from pmf2.
 
+        dist1: Distribution object
+        dist2: Distribution object
 
-def pmf_outer(pmf1, pmf2, ufunc):
-    """Computes the outer product of two PMFs.
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.equal).sum()
+        else:
+            return self[self.qs == x].sum()
 
-    pmf1:
-    pmf2:
-    ufunc: function to apply to the qs
+    def ne_dist(self, x):
+        """Probability that a value from pmf1 is <= than a value from pmf2.
 
-    :return: NumPy array
-    """
-    qs = ufunc.outer(pmf1.qs, pmf2.qs)
-    ps = np.multiply.outer(pmf1.ps, pmf2.ps)
-    return qs * ps
+        dist1: Distribution object
+        dist2: Distribution object
 
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.not_equal).sum()
+        else:
+            return self[self.qs != x].sum()
 
-def pmf_gt(pmf1, pmf2):
-    """Probability that a value from pmf1 is greater than a value from pmf2.
-
-    pmf1: Pmf object
-    pmf2: Pmf object
-
-    :return: float probability
-    """
-    outer = pmf_outer(pmf1, pmf2, np.greater)
-    return outer.sum()
-
-
-def pmf_lt(pmf1, pmf2):
-    """Probability that a value from pmf1 is less than a value from pmf2.
-
-    pmf1: Pmf object
-    pmf2: Pmf object
-
-    :return: float probability
-    """
-    outer = pmf_outer(pmf1, pmf2, np.less)
-    return outer.sum()
-
-
-def pmf_ge(pmf1, pmf2):
-    """Probability that a value from pmf1 is >= than a value from pmf2.
-
-    pmf1: Pmf object
-    pmf2: Pmf object
-
-    :return: float probability
-    """
-    outer = pmf_outer(pmf1, pmf2, np.greater_equal)
-    return outer.sum()
-
-
-def pmf_le(pmf1, pmf2):
-    """Probability that a value from pmf1 is <= than a value from pmf2.
-
-    pmf1: Pmf object
-    pmf2: Pmf object
-
-    :return: float probability
-    """
-    outer = pmf_outer(pmf1, pmf2, np.less_equal)
-    return outer.sum()
-
-
-def pmf_eq(pmf1, pmf2):
-    """Probability that a value from pmf1 equals a value from pmf2.
-
-    pmf1: Pmf object
-    pmf2: Pmf object
-
-    :return: float probability
-    """
-    outer = pmf_outer(pmf1, pmf2, np.equal)
-    return outer.sum()
-
-
-def pmf_ne(pmf1, pmf2):
-    """Probability that a value from pmf1 is <= than a value from pmf2.
-
-    pmf1: Pmf object
-    pmf2: Pmf object
-
-    :return: float probability
-    """
-    outer = pmf_outer(pmf1, pmf2, np.not_equal)
-    return outer.sum()
 
 class Pmf(Distribution):
     """Represents a probability Mass Function (PMF)."""
@@ -530,92 +495,6 @@ class Pmf(Distribution):
             pmf.normalize()
 
         return pmf
-
-    # Comparison operators
-
-    def gt(self, x):
-        """Probability that a sample from this Pmf > x.
-
-        :param x: number or another Pmf
-
-        :return: float probability
-        """
-        if isinstance(x, Pmf):
-            return pmf_gt(self, x)
-        else:
-            return self[self.qs > x].sum()
-
-    __gt__ = gt
-
-    def lt(self, x):
-        """Probability that a sample from this Pmf < x.
-
-        :param x: number or another Pmf
-
-        :return: float probability
-        """
-        if isinstance(x, Pmf):
-            return pmf_lt(self, x)
-        else:
-            return self[self.qs < x].sum()
-
-    __lt__ = lt
-
-    def ge(self, x):
-        """Probability that a sample from this Pmf >= x.
-
-        :param x: number or another Pmf
-
-        :return: float probability
-        """
-        if isinstance(x, Pmf):
-            return pmf_ge(self, x)
-        else:
-            return self[self.qs >= x].sum()
-
-    __ge__ = ge
-
-    def le(self, x):
-        """Probability that a sample from this Pmf <= x.
-
-        :param x: number or another Pmf
-
-        :return: float probability
-        """
-        if isinstance(x, Pmf):
-            return pmf_le(self, x)
-        else:
-            return self[self.qs <= x].sum()
-
-    __le__ = le
-
-    def eq(self, x):
-        """Probability that a sample from this Pmf == x.
-
-        :param x: number or another Pmf
-
-        :return: float probability
-        """
-        if isinstance(x, Pmf):
-            return pmf_eq(self, x)
-        else:
-            return self[self.qs == x].sum()
-
-    __eq__ = eq
-
-    def ne(self, x):
-        """Probability that a sample from this Pmf != x.
-
-        :param x: number or another Pmf
-
-        :return: float probability
-        """
-        if isinstance(x, Pmf):
-            return pmf_ne(self, x)
-        else:
-            return self[self.qs != x].sum()
-
-    __ne__ = ne
 
 
 
