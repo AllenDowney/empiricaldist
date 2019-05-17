@@ -77,49 +77,37 @@ class Test(unittest.TestCase):
     def testAdd(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
-        pmf1 = pmf + 1
+        pmf1 = pmf.add_dist(1)
         self.assertAlmostEqual(pmf1.mean(), 4.5)
 
-        pmf1 = 1 + pmf
-        self.assertAlmostEqual(pmf1.mean(), 4.5)
-
-        pmf2 = pmf + pmf
+        pmf2 = pmf.add_dist(pmf)
         self.assertAlmostEqual(pmf2.mean(), 7.0)
 
     def testSub(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
-        pmf3 = pmf - 1
+        pmf3 = pmf.sub_dist(1)
         self.assertAlmostEqual(pmf3.mean(), 2.5)
 
-        pmf3 = 1 - pmf
-        self.assertAlmostEqual(pmf3.mean(), -2.5)
-
-        pmf4 = pmf - pmf
+        pmf4 = pmf.sub_dist(pmf)
         self.assertAlmostEqual(pmf4.mean(), 0)
 
     def testMul(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
-        pmf3 = pmf * 2
+        pmf3 = pmf.mul_dist(2)
         self.assertAlmostEqual(pmf3.mean(), 5)
 
-        pmf3 = 2 * pmf
-        self.assertAlmostEqual(pmf3.mean(), 5)
-
-        pmf4 = pmf * pmf
+        pmf4 = pmf.mul_dist(pmf)
         self.assertAlmostEqual(pmf4.mean(), 6.25)
 
     def testDiv(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
-        pmf3 = pmf / 2
+        pmf3 = pmf.div_dist(2)
         self.assertAlmostEqual(pmf3.mean(), 1.25)
 
-        pmf3 = 2 / pmf
-        self.assertAlmostEqual(pmf3.mean(), 1.04166666)
-
-        pmf4 = pmf / pmf
+        pmf4 = pmf.div_dist(pmf)
         self.assertAlmostEqual(pmf4.mean(), 1.3020833333)
 
     def test_joint(self):
