@@ -68,6 +68,47 @@ class Distribution(pd.Series):
         df = pd.DataFrame(dict(probs=self))
         return df._repr_html_()
 
+    def mean(self):
+        """Expected value.
+
+        :return: float
+        """
+        return self.make_pmf().mean()
+
+    def var(self):
+        """Variance.
+
+        :return: float
+        """
+        return self.make_pmf().var()
+
+    def std(self):
+        """Standard deviation.
+
+        :return: float
+        """
+        return self.make_pmf().std()
+
+    def median(self):
+        """Median (50th percentile).
+
+        There are several definitions of median;
+        the one implemented here is just the 50th percentile.
+
+        :return: float
+        """
+        return self.make_cdf().median()
+
+    def quantile(self, ps, **kwargs):
+        """Quantiles.
+
+        Computes the inverse CDF of ps, that is,
+        the values that correspond to the given probabilities.
+
+        :return: float
+        """
+        return self.make_cdf().quantile(ps, **kwargs)
+
     def add_dist(self, x):
         """Computes the Pmf of the sum of values drawn from self and x.
 
@@ -270,23 +311,6 @@ class Pmf(Distribution):
         # TODO: error if the quantities are not numeric
         return np.sum(self.ps * self.qs)
 
-    def median(self):
-        """Median (50th percentile).
-
-        :return: float
-        """
-        return self.quantile(0.5)
-
-    def quantile(self, ps, **kwargs):
-        """Quantiles.
-
-        Computes the inverse CDF of ps, that is,
-        the values that correspond to the given probabilities.
-
-        :return: float
-        """
-        return self.make_cdf().quantile(ps, **kwargs)
-
     def var(self):
         """Variance of a PMF.
 
@@ -451,16 +475,6 @@ class Pmf(Distribution):
         cdf = self.make_cdf()
         return cdf.make_surv().make_hazard(**kwargs)
 
-    def quantile(self, ps):
-        """Quantities corresponding to given probabilities.
-
-        ps: sequence of probabilities
-
-        return: sequence of quantities
-        """
-        cdf = self.make_cdf()
-        return cdf.quantile(ps)
-
     def credible_interval(self, p):
         """Credible interval containing the given probability.
 
@@ -495,9 +509,6 @@ class Pmf(Distribution):
             pmf.normalize()
 
         return pmf
-
-
-
 
 
 class Cdf(Distribution):
@@ -859,27 +870,6 @@ class Surv(Distribution):
         pmf = self.make_pmf()
         return pmf.sample(*args, **kwargs)
 
-    def mean(self):
-        """Expected value.
-
-        :return: float
-        """
-        return self.make_pmf().mean()
-
-    def var(self):
-        """Variance.
-
-        :return: float
-        """
-        return self.make_pmf().var()
-
-    def std(self):
-        """Standard deviation.
-
-        :return: float
-        """
-        return self.make_pmf().std()
-
     def median(self):
         """Median (50th percentile).
 
@@ -908,71 +898,6 @@ class Hazard(Distribution):
     # You can also call a Hazard object like a function
     __call__ = __getitem__
 
-    def mean(self):
-        """Computes expected value.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def median(self):
-        """Median (50th percentile).
-
-        :return: float
-        """
-        raise ValueError()
-
-    def quantile(self, ps, **kwargs):
-        """Quantiles.
-
-        Computes the inverse CDF of ps, that is,
-        the values that correspond to the given probabilities.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def var(self):
-        """Variance of a PMF.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def std(self):
-        """Standard deviation of a PMF.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def choice(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `p` is provided.
-
-        args: same as np.random.choice
-        kwargs: same as np.random.choice
-
-        :return: NumPy array
-        """
-        raise ValueError()
-
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the quantities,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
-
-        :return: NumPy array
-        """
-        raise ValueError()
 
     def plot(self, **options):
         """Plot the Pmf as a line.
