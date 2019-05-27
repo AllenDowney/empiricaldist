@@ -204,82 +204,64 @@ class Distribution(pd.Series):
         return qs * ps
 
     def gt_dist(self, x):
-        """Probability that a value from pmf1 is greater than a value from pmf2.
+        """Probability that a value from self is greater than a value from x.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution, scalar, or sequence
 
         :return: float probability
         """
-        if isinstance(x, Distribution):
-            return self.pmf_outer(x, np.greater).sum()
-        else:
-            return self[self.qs > x].sum()
+        pmf = self.make_pmf()
+        return pmf.gt_dist(x)
 
     def lt_dist(self, x):
-        """Probability that a value from pmf1 is less than a value from pmf2.
+        """Probability that a value from self is less than a value from x.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution, scalar, or sequence
 
         :return: float probability
         """
-        if isinstance(x, Distribution):
-            return self.pmf_outer(x, np.less).sum()
-        else:
-            return self[self.qs < x].sum()
+        pmf = self.make_pmf()
+        return pmf.lt_dist(x)
 
     def ge_dist(self, x):
-        """Probability that a value from pmf1 is >= than a value from pmf2.
+        """Probability that a value from self is >= than a value from x.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution, scalar, or sequence
 
         :return: float probability
         """
-        if isinstance(x, Distribution):
-            return self.pmf_outer(x, np.greater_equal).sum()
-        else:
-            return self[self.qs >= x].sum()
+        pmf = self.make_pmf()
+        return pmf.ge_dist(x)
 
     def le_dist(self, x):
-        """Probability that a value from pmf1 is <= than a value from pmf2.
+        """Probability that a value from self is <= than a value from x.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution, scalar, or sequence
 
         :return: float probability
         """
-        if isinstance(x, Distribution):
-            return self.pmf_outer(x, np.less_equal).sum()
-        else:
-            return self[self.qs <= x].sum()
+        pmf = self.make_pmf()
+        return pmf.le_dist(x)
 
     def eq_dist(self, x):
-        """Probability that a value from pmf1 equals a value from pmf2.
+        """Probability that a value from self equals a value from x.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution, scalar, or sequence
 
         :return: float probability
         """
-        if isinstance(x, Distribution):
-            return self.pmf_outer(x, np.equal).sum()
-        else:
-            return self[self.qs == x].sum()
+        pmf = self.make_pmf()
+        return pmf.eq_dist(x)
 
     def ne_dist(self, x):
-        """Probability that a value from pmf1 is <= than a value from pmf2.
+        """Probability that a value from self is <= than a value from x.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution, scalar, or sequence
 
         :return: float probability
         """
-        if isinstance(x, Distribution):
-            return self.pmf_outer(x, np.not_equal).sum()
-        else:
-            return self[self.qs != x].sum()
+        pmf = self.make_pmf()
+        return pmf.ne_dist(x)
 
 
 class Pmf(Distribution):
@@ -432,6 +414,99 @@ class Pmf(Distribution):
         series = pd.Series(ps).groupby(qs).sum()
 
         return Pmf(series)
+
+    def gt_dist(self, x):
+        """Probability that a value from pmf1 is greater than a value from pmf2.
+
+        dist1: Distribution object
+        dist2: Distribution object
+
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.greater).sum()
+        else:
+            return self[self.qs > x].sum()
+
+    def lt_dist(self, x):
+        """Probability that a value from pmf1 is less than a value from pmf2.
+
+        dist1: Distribution object
+        dist2: Distribution object
+
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.less).sum()
+        else:
+            return self[self.qs < x].sum()
+
+    def ge_dist(self, x):
+        """Probability that a value from pmf1 is >= than a value from pmf2.
+
+        dist1: Distribution object
+        dist2: Distribution object
+
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.greater_equal).sum()
+        else:
+            return self[self.qs >= x].sum()
+
+    def le_dist(self, x):
+        """Probability that a value from pmf1 is <= than a value from pmf2.
+
+        dist1: Distribution object
+        dist2: Distribution object
+
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.less_equal).sum()
+        else:
+            return self[self.qs <= x].sum()
+
+    def eq_dist(self, x):
+        """Probability that a value from pmf1 equals a value from pmf2.
+
+        dist1: Distribution object
+        dist2: Distribution object
+
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.equal).sum()
+        else:
+            return self[self.qs == x].sum()
+
+    def ne_dist(self, x):
+        """Probability that a value from pmf1 is <= than a value from pmf2.
+
+        dist1: Distribution object
+        dist2: Distribution object
+
+        :return: float probability
+        """
+        if isinstance(x, Distribution):
+            return self.pmf_outer(x, np.not_equal).sum()
+        else:
+            return self[self.qs != x].sum()
+
+    def pmf_outer(self, dist, ufunc):
+        """Computes the outer product of two PMFs.
+
+        dist: Distribution object
+        ufunc: function to apply to the qs
+
+        :return: NumPy array
+        """
+        if not isinstance(dist, Pmf):
+            dist = dist.make_pmf()
+
+        qs = ufunc.outer(self.qs, dist.qs)
+        ps = np.multiply.outer(self.ps, dist.ps)
+        return qs * ps
 
     def plot(self, **options):
         """Plot the Pmf as a line.

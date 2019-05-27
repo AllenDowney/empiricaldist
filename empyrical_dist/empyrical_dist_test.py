@@ -45,12 +45,28 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(pmf.var(), 2.91666666)
         self.assertAlmostEqual(pmf.std(), 1.70782512)
         self.assertAlmostEqual(pmf.median(), 3)
+        self.assertAlmostEqual(pmf.quantile(0.8), 5)
 
         cdf = pmf.make_cdf()
         self.assertAlmostEqual(cdf.mean(), 3.5)
         self.assertAlmostEqual(cdf.var(), 2.91666666)
         self.assertAlmostEqual(cdf.std(), 1.70782512)
         self.assertAlmostEqual(cdf.median(), 3)
+        self.assertAlmostEqual(cdf.quantile(0.8), 5)
+
+        surv = pmf.make_surv()
+        self.assertAlmostEqual(surv.mean(), 3.5)
+        self.assertAlmostEqual(surv.var(), 2.91666666)
+        self.assertAlmostEqual(surv.std(), 1.70782512)
+        self.assertAlmostEqual(surv.median(), 3)
+        self.assertAlmostEqual(surv.quantile(0.8), 5)
+
+        haz = pmf.make_hazard()
+        self.assertAlmostEqual(haz.mean(), 3.5)
+        self.assertAlmostEqual(haz.var(), 2.91666666)
+        self.assertAlmostEqual(haz.std(), 1.70782512)
+        self.assertAlmostEqual(haz.median(), 3)
+        self.assertAlmostEqual(haz.quantile(0.8), 5)
 
     def testPmfSampling(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -74,6 +90,28 @@ class Test(unittest.TestCase):
         a = cdf.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
+    def testSurvSampling(self):
+        surv = Surv.from_seq([1, 2, 3, 4, 5, 6])
+        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+
+        np.random.seed(17)
+        a = surv.choice(10)
+        self.assertTrue(np.all((a == expected)))
+
+        a = surv.sample(10, replace=True, random_state=17)
+        self.assertTrue(np.all((a == expected)))
+
+    def testHazardSampling(self):
+        haz = Hazard.from_seq([1, 2, 3, 4, 5, 6])
+        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+
+        np.random.seed(17)
+        a = haz.choice(10)
+        self.assertTrue(np.all((a == expected)))
+
+        a = haz.sample(10, replace=True, random_state=17)
+        self.assertTrue(np.all((a == expected)))
+
     def testAdd(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
@@ -82,6 +120,18 @@ class Test(unittest.TestCase):
 
         pmf2 = pmf.add_dist(pmf)
         self.assertAlmostEqual(pmf2.mean(), 7.0)
+
+        cdf = pmf.make_cdf()
+        cdf2 = cdf.add_dist(cdf)
+        self.assertAlmostEqual(cdf2.mean(), 7.0)
+
+        surv = pmf.make_surv()
+        surv2 = surv.add_dist(surv)
+        self.assertAlmostEqual(surv2.mean(), 7.0)
+
+        haz = pmf.make_hazard()
+        haz2 = haz.add_dist(haz)
+        self.assertAlmostEqual(haz2.mean(), 7.0)
 
     def testSub(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -92,6 +142,18 @@ class Test(unittest.TestCase):
         pmf4 = pmf.sub_dist(pmf)
         self.assertAlmostEqual(pmf4.mean(), 0)
 
+        cdf = pmf.make_cdf()
+        cdf2 = cdf.sub_dist(cdf)
+        self.assertAlmostEqual(cdf2.mean(), 0)
+
+        surv = pmf.make_surv()
+        surv2 = surv.sub_dist(surv)
+        self.assertAlmostEqual(surv2.mean(), 0)
+
+        haz = pmf.make_hazard()
+        haz2 = haz.sub_dist(haz)
+        self.assertAlmostEqual(haz2.mean(), 0)
+
     def testMul(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
@@ -101,6 +163,18 @@ class Test(unittest.TestCase):
         pmf4 = pmf.mul_dist(pmf)
         self.assertAlmostEqual(pmf4.mean(), 6.25)
 
+        cdf = pmf.make_cdf()
+        cdf2 = cdf.mul_dist(cdf)
+        self.assertAlmostEqual(cdf2.mean(), 6.25)
+
+        surv = pmf.make_surv()
+        surv2 = surv.mul_dist(surv)
+        self.assertAlmostEqual(surv2.mean(), 6.25)
+
+        haz = pmf.make_hazard()
+        haz2 = haz.mul_dist(haz)
+        self.assertAlmostEqual(haz2.mean(), 6.25)
+
     def testDiv(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
@@ -109,6 +183,18 @@ class Test(unittest.TestCase):
 
         pmf4 = pmf.div_dist(pmf)
         self.assertAlmostEqual(pmf4.mean(), 1.3020833333)
+
+        cdf = pmf.make_cdf()
+        cdf2 = cdf.div_dist(cdf)
+        self.assertAlmostEqual(cdf2.mean(), 1.3020833333)
+
+        surv = pmf.make_surv()
+        surv2 = surv.div_dist(surv)
+        self.assertAlmostEqual(surv2.mean(), 1.3020833333)
+
+        haz = pmf.make_hazard()
+        haz2 = haz.div_dist(haz)
+        self.assertAlmostEqual(haz2.mean(), 1.3020833333)
 
     def test_joint(self):
         pmf1 = Pmf.from_seq([1, 2, 2])
@@ -146,6 +232,66 @@ class Test(unittest.TestCase):
 
     def testPmfComparison(self):
         d4 = Pmf.from_seq(range(1,5))
+        self.assertEqual(d4.gt_dist(2), 0.5)
+        self.assertEqual(d4.gt_dist(d4), 0.375)
+
+        self.assertEqual(d4.lt_dist(2), 0.25)
+        self.assertEqual(d4.lt_dist(d4), 0.375)
+
+        self.assertEqual(d4.ge_dist(2), 0.75)
+        self.assertEqual(d4.ge_dist(d4), 0.625)
+
+        self.assertEqual(d4.le_dist(2), 0.5)
+        self.assertEqual(d4.le_dist(d4), 0.625)
+
+        self.assertEqual(d4.eq_dist(2), 0.25)
+        self.assertEqual(d4.eq_dist(d4), 0.25)
+
+        self.assertEqual(d4.ne_dist(2), 0.75)
+        self.assertEqual(d4.ne_dist(d4), 0.75)
+
+    def testCdfComparison(self):
+        d4 = Cdf.from_seq(range(1,5))
+        self.assertEqual(d4.gt_dist(2), 0.5)
+        self.assertEqual(d4.gt_dist(d4), 0.375)
+
+        self.assertEqual(d4.lt_dist(2), 0.25)
+        self.assertEqual(d4.lt_dist(d4), 0.375)
+
+        self.assertEqual(d4.ge_dist(2), 0.75)
+        self.assertEqual(d4.ge_dist(d4), 0.625)
+
+        self.assertEqual(d4.le_dist(2), 0.5)
+        self.assertEqual(d4.le_dist(d4), 0.625)
+
+        self.assertEqual(d4.eq_dist(2), 0.25)
+        self.assertEqual(d4.eq_dist(d4), 0.25)
+
+        self.assertEqual(d4.ne_dist(2), 0.75)
+        self.assertEqual(d4.ne_dist(d4), 0.75)
+
+    def testSurvComparison(self):
+        d4 = Surv.from_seq(range(1,5))
+        self.assertEqual(d4.gt_dist(2), 0.5)
+        self.assertEqual(d4.gt_dist(d4), 0.375)
+
+        self.assertEqual(d4.lt_dist(2), 0.25)
+        self.assertEqual(d4.lt_dist(d4), 0.375)
+
+        self.assertEqual(d4.ge_dist(2), 0.75)
+        self.assertEqual(d4.ge_dist(d4), 0.625)
+
+        self.assertEqual(d4.le_dist(2), 0.5)
+        self.assertEqual(d4.le_dist(d4), 0.625)
+
+        self.assertEqual(d4.eq_dist(2), 0.25)
+        self.assertEqual(d4.eq_dist(d4), 0.25)
+
+        self.assertEqual(d4.ne_dist(2), 0.75)
+        self.assertEqual(d4.ne_dist(d4), 0.75)
+
+    def testHazardComparison(self):
+        d4 = Hazard.from_seq(range(1,5))
         self.assertEqual(d4.gt_dist(2), 0.5)
         self.assertEqual(d4.gt_dist(d4), 0.375)
 
@@ -253,6 +399,19 @@ class Test(unittest.TestCase):
         np.random.seed(42)
         xs = surv.choice(7, replace=True)
         self.assertListEqual(xs.tolist(), [2, 5, 3, 2, 1, 1, 1])
+
+    def testNormalize(self):
+        t = [0, 1, 2, 3, 3, 4, 4, 4, 5]
+
+        pmf = Pmf.from_seq(t, normalize=False)
+        total = pmf.normalize()
+        self.assertAlmostEqual(total, 9)
+        self.assertAlmostEqual(pmf[3], 0.22222222)
+
+        cdf = Cdf.from_seq(t, normalize=False)
+        total = cdf.normalize()
+        self.assertAlmostEqual(total, 9)
+        self.assertAlmostEqual(cdf(3), 0.55555555)
 
     def testHazard(self):
         t = [1, 2, 2, 3, 5]
