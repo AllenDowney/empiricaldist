@@ -786,7 +786,7 @@ class Surv(Distribution):
         :return array of quantities
         """
         p0 = self.ps[0]
-        #TODO: make this work not non-normalized Surv
+        #TODO: make this work with non-normalized Surv
         interp = self.make_cdf().inverse
         return lambda ps: interp(1 - np.asarray(ps), **kwargs)
 
