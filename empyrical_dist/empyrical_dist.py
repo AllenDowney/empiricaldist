@@ -68,73 +68,123 @@ class Distribution(pd.Series):
         df = pd.DataFrame(dict(probs=self))
         return df._repr_html_()
 
-    def add_dist(self, x):
-        """Computes the Pmf of the sum of values drawn from self and x.
+    def mean(self):
+        """Expected value.
 
-        x: another Pmf or a scalar or a sequence
-
-        :return: new Pmf
+        :return: float
         """
-        if isinstance(x, Distribution):
-            return self.convolve_dist(x, np.add.outer)
-        else:
-            return Pmf(self.ps, index=self.qs + x)
+        return self.make_pmf().mean()
+
+    def var(self):
+        """Variance.
+
+        :return: float
+        """
+        return self.make_pmf().var()
+
+    def std(self):
+        """Standard deviation.
+
+        :return: float
+        """
+        return self.make_pmf().std()
+
+    def median(self):
+        """Median (50th percentile).
+
+        There are several definitions of median;
+        the one implemented here is just the 50th percentile.
+
+        :return: float
+        """
+        return self.make_cdf().median()
+
+    def quantile(self, ps, **kwargs):
+        """Quantiles.
+
+        Computes the inverse CDF of ps, that is,
+        the values that correspond to the given probabilities.
+
+        :return: float
+        """
+        return self.make_cdf().quantile(ps, **kwargs)
+
+
+    def choice(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `p` is provided.
+
+        args: same as np.random.choice
+        options: same as np.random.choice
+
+        :return: NumPy array
+        """
+        # TODO: Make this more efficient by implementing the inverse CDF method.
+        pmf = self.make_pmf()
+        return pmf.choice(*args, **kwargs)
+
+    def sample(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `weights` is provided.
+
+        This function returns an array containing a sample of the quantities in this Pmf,
+        which is different from Series.sample, which returns a Series with a sample of
+        the rows in the original Series.
+
+        args: same as Series.sample
+        options: same as Series.sample
+
+        :return: NumPy array
+        """
+        # TODO: Make this more efficient by implementing the inverse CDF method.
+        pmf = self.make_pmf()
+        return pmf.sample(*args, **kwargs)
+
+    def add_dist(self, x):
+        """Computes the distribution of the sum of values drawn from self and x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: new Distribution, same subtype as self
+        """
+        pmf = self.make_pmf()
+        res = pmf.add_dist(x)
+        return self.make_same(res)
 
     def sub_dist(self, x):
         """Computes the Pmf of the diff of values drawn from self and other.
 
-        x: another Pmf or a scalar or a sequence
+        x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        :return: new Distribution, same subtype as self
         """
-        if isinstance(x, Distribution):
-            return self.convolve_dist(x, np.subtract.outer)
-        else:
-            return Pmf(self.ps, index=self.qs - x)
+        pmf = self.make_pmf()
+        res = pmf.sub_dist(x)
+        return self.make_same(res)
 
     def mul_dist(self, x):
         """Computes the Pmf of the product of values drawn from self and x.
 
-        x: another Pmf or a scalar or a sequence
+        x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        :return: new Distribution, same subtype as self
         """
-        if isinstance(x, Distribution):
-            return self.convolve_dist(x, np.multiply.outer)
-        else:
-            return Pmf(self.ps, index=self.qs * x)
+        pmf = self.make_pmf()
+        res = pmf.mul_dist(x)
+        return self.make_same(res)
 
     def div_dist(self, x):
         """Computes the Pmf of the ratio of values drawn from self and x.
 
-        x: another Pmf or a scalar or a sequence
+        x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        :return: new Distribution, same subtype as self
         """
-        if isinstance(x, Distribution):
-            return self.convolve_dist(x, np.divide.outer)
-        else:
-            return Pmf(self.ps, index=self.qs / x)
-
-    def convolve_dist(dist1, dist2, ufunc):
-        """Convolve two distributions.
-
-        dist1: Distribution
-        dist2: Distribution
-        ufunc: elementwise function for arrays
-
-        :return: new instance of the type of dist1
-        """
-        #TODO: Convert to Pmf
-        pmf1 = dist1
-        pmf2 = dist2
-
-        qs = ufunc(pmf1.qs, pmf2.qs).flatten()
-        ps = np.multiply.outer(pmf1.ps, pmf2.ps).flatten()
-        series = pd.Series(ps).groupby(qs).sum()
-
-        # TODO: return correct type
-        return Pmf(series)
+        pmf = self.make_pmf()
+        res = pmf.div_dist(x)
+        return self.make_same(res)
 
     def pmf_outer(dist1, dist2, ufunc):
         """Computes the outer product of two PMFs.
@@ -152,6 +202,218 @@ class Distribution(pd.Series):
         qs = ufunc.outer(pmf1.qs, pmf2.qs)
         ps = np.multiply.outer(pmf1.ps, pmf2.ps)
         return qs * ps
+
+    def gt_dist(self, x):
+        """Probability that a value from self is greater than a value from x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: float probability
+        """
+        pmf = self.make_pmf()
+        return pmf.gt_dist(x)
+
+    def lt_dist(self, x):
+        """Probability that a value from self is less than a value from x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: float probability
+        """
+        pmf = self.make_pmf()
+        return pmf.lt_dist(x)
+
+    def ge_dist(self, x):
+        """Probability that a value from self is >= than a value from x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: float probability
+        """
+        pmf = self.make_pmf()
+        return pmf.ge_dist(x)
+
+    def le_dist(self, x):
+        """Probability that a value from self is <= than a value from x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: float probability
+        """
+        pmf = self.make_pmf()
+        return pmf.le_dist(x)
+
+    def eq_dist(self, x):
+        """Probability that a value from self equals a value from x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: float probability
+        """
+        pmf = self.make_pmf()
+        return pmf.eq_dist(x)
+
+    def ne_dist(self, x):
+        """Probability that a value from self is <= than a value from x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: float probability
+        """
+        pmf = self.make_pmf()
+        return pmf.ne_dist(x)
+
+
+class Pmf(Distribution):
+    """Represents a probability Mass Function (PMF)."""
+
+    def copy(self, deep=True):
+        """Make a copy.
+
+        :return: new Pmf
+        """
+        return Pmf(self, copy=deep)
+
+    def __getitem__(self, qs):
+        """Look up qs and return ps."""
+        try:
+            return super().__getitem__(qs)
+        except (KeyError, ValueError, IndexError):
+            return 0
+
+    # You can also call a Pmf like a function
+    __call__ = __getitem__
+
+    def normalize(self):
+        """Make the probabilities add up to 1 (modifies self).
+
+        :return: normalizing constant
+        """
+        total = self.sum()
+        self /= total
+        return total
+
+    def mean(self):
+        """Computes expected value.
+
+        :return: float
+        """
+        # TODO: error if not normalized
+        # TODO: error if the quantities are not numeric
+        return np.sum(self.ps * self.qs)
+
+    def var(self):
+        """Variance of a PMF.
+
+        :return: float
+        """
+        m = self.mean()
+        d = self.qs - m
+        return np.sum(d ** 2 * self.ps)
+
+    def std(self):
+        """Standard deviation of a PMF.
+
+        :return: float
+        """
+        return np.sqrt(self.var())
+
+    def choice(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `p` is provided.
+
+        args: same as np.random.choice
+        kwargs: same as np.random.choice
+
+        :return: NumPy array
+        """
+        underride(kwargs, p=self.ps)
+        return np.random.choice(self.qs, *args, **kwargs)
+
+    def sample(self, *args, **kwargs):
+        """Makes a random sample.
+
+        Uses the probabilities as weights unless `weights` is provided.
+
+        This function returns an array containing a sample of the quantities in this Pmf,
+        which is different from Series.sample, which returns a Series with a sample of
+        the rows in the original Series.
+
+        args: same as Series.sample
+        options: same as Series.sample
+
+        :return: NumPy array
+        """
+        series = pd.Series(self.qs)
+        underride(kwargs, weights=self.ps)
+        sample = series.sample(*args, **kwargs)
+        return sample.values
+
+    def add_dist(self, x):
+        """Computes the Pmf of the sum of values drawn from self and x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: new Pmf
+        """
+        if isinstance(x, Distribution):
+            return self.convolve_dist(x, np.add.outer)
+        else:
+            return Pmf(self.ps, index=self.qs + x)
+
+    def sub_dist(self, x):
+        """Computes the Pmf of the diff of values drawn from self and other.
+
+        x: Distribution, scalar, or sequence
+
+        :return: new Pmf
+        """
+        if isinstance(x, Distribution):
+            return self.convolve_dist(x, np.subtract.outer)
+        else:
+            return Pmf(self.ps, index=self.qs - x)
+
+    def mul_dist(self, x):
+        """Computes the Pmf of the product of values drawn from self and x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: new Pmf
+        """
+        if isinstance(x, Distribution):
+            return self.convolve_dist(x, np.multiply.outer)
+        else:
+            return Pmf(self.ps, index=self.qs * x)
+
+    def div_dist(self, x):
+        """Computes the Pmf of the ratio of values drawn from self and x.
+
+        x: Distribution, scalar, or sequence
+
+        :return: new Pmf
+        """
+        if isinstance(x, Distribution):
+            return self.convolve_dist(x, np.divide.outer)
+        else:
+            return Pmf(self.ps, index=self.qs / x)
+
+    def convolve_dist(self, dist, ufunc):
+        """Convolve two distributions.
+
+        dist: Distribution
+        ufunc: elementwise function for arrays
+
+        :return: new Pmf
+        """
+        if not isinstance(dist, Pmf):
+            dist = dist.make_pmf()
+
+        qs = ufunc(self.qs, dist.qs).flatten()
+        ps = np.multiply.outer(self.ps, dist.ps).flatten()
+        series = pd.Series(ps).groupby(qs).sum()
+
+        return Pmf(series)
 
     def gt_dist(self, x):
         """Probability that a value from pmf1 is greater than a value from pmf2.
@@ -231,109 +493,20 @@ class Distribution(pd.Series):
         else:
             return self[self.qs != x].sum()
 
+    def pmf_outer(self, dist, ufunc):
+        """Computes the outer product of two PMFs.
 
-class Pmf(Distribution):
-    """Represents a probability Mass Function (PMF)."""
-
-    def copy(self, deep=True):
-        """Make a copy.
-
-        :return: new Pmf
-        """
-        return Pmf(self, copy=deep)
-
-    def __getitem__(self, qs):
-        """Look up qs and return ps."""
-        try:
-            return super().__getitem__(qs)
-        except (KeyError, ValueError, IndexError):
-            return 0
-
-    # You can also call a Pmf like a function
-    __call__ = __getitem__
-
-    def normalize(self):
-        """Make the probabilities add up to 1 (modifies self).
-
-        :return: normalizing constant
-        """
-        total = self.sum()
-        self /= total
-        return total
-
-    def mean(self):
-        """Computes expected value.
-
-        :return: float
-        """
-        # TODO: error if not normalized
-        # TODO: error if the quantities are not numeric
-        return np.sum(self.ps * self.qs)
-
-    def median(self):
-        """Median (50th percentile).
-
-        :return: float
-        """
-        return self.quantile(0.5)
-
-    def quantile(self, ps, **kwargs):
-        """Quantiles.
-
-        Computes the inverse CDF of ps, that is,
-        the values that correspond to the given probabilities.
-
-        :return: float
-        """
-        return self.make_cdf().quantile(ps, **kwargs)
-
-    def var(self):
-        """Variance of a PMF.
-
-        :return: float
-        """
-        m = self.mean()
-        d = self.qs - m
-        return np.sum(d ** 2 * self.ps)
-
-    def std(self):
-        """Standard deviation of a PMF.
-
-        :return: float
-        """
-        return np.sqrt(self.var())
-
-    def choice(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `p` is provided.
-
-        args: same as np.random.choice
-        kwargs: same as np.random.choice
+        dist: Distribution object
+        ufunc: function to apply to the qs
 
         :return: NumPy array
         """
-        underride(kwargs, p=self.ps)
-        return np.random.choice(self.qs, *args, **kwargs)
+        if not isinstance(dist, Pmf):
+            dist = dist.make_pmf()
 
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the quantities in this Pmf,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
-
-        :return: NumPy array
-        """
-        series = pd.Series(self.qs)
-        underride(kwargs, weights=self.ps)
-        sample = series.sample(*args, **kwargs)
-        return sample.values
+        qs = ufunc.outer(self.qs, dist.qs)
+        ps = np.multiply.outer(self.ps, dist.ps)
+        return qs * ps
 
     def plot(self, **options):
         """Plot the Pmf as a line.
@@ -451,15 +624,13 @@ class Pmf(Distribution):
         cdf = self.make_cdf()
         return cdf.make_surv().make_hazard(**kwargs)
 
-    def quantile(self, ps):
-        """Quantities corresponding to given probabilities.
+    def make_same(self, dist):
+        """Convert the given dist to Pmf
 
-        ps: sequence of probabilities
-
-        return: sequence of quantities
+        :param dist:
+        :return: Pmf
         """
-        cdf = self.make_cdf()
-        return cdf.quantile(ps)
+        return dist.make_pmf()
 
     def credible_interval(self, p):
         """Credible interval containing the given probability.
@@ -495,9 +666,6 @@ class Pmf(Distribution):
             pmf.normalize()
 
         return pmf
-
-
-
 
 
 class Cdf(Distribution):
@@ -600,6 +768,13 @@ class Cdf(Distribution):
     # quantile is the same as an inverse lookup
     quantile = inverse
 
+    def median(self):
+        """Median (50th percentile).
+
+        :return: float
+        """
+        return self.quantile(0.5)
+
     def make_pmf(self, **kwargs):
         """Make a Pmf from the Cdf.
 
@@ -639,6 +814,14 @@ class Cdf(Distribution):
         surv = self.make_surv()
         return surv.make_hazard(**kwargs)
 
+    def make_same(self, dist):
+        """Convert the given dist to Cdf
+
+        :param dist:
+        :return: Cdf
+        """
+        return dist.make_cdf()
+
     def choice(self, *args, **kwargs):
         """Makes a random sample.
 
@@ -671,37 +854,6 @@ class Cdf(Distribution):
         pmf = self.make_pmf()
         return pmf.sample(*args, **kwargs)
 
-    def mean(self):
-        """Expected value.
-
-        :return: float
-        """
-        return self.make_pmf().mean()
-
-    def var(self):
-        """Variance.
-
-        :return: float
-        """
-        return self.make_pmf().var()
-
-    def std(self):
-        """Standard deviation.
-
-        :return: float
-        """
-        return self.make_pmf().std()
-
-    def median(self):
-        """Median (50th percentile).
-
-        :return: float
-        """
-        return self.quantile(0.5)
-
-
-from scipy.interpolate import interp1d
-
 
 class Surv(Distribution):
     """Represents a survival function (complementary CDF)."""
@@ -729,7 +881,7 @@ class Surv(Distribution):
         return cdf.make_surv()
 
     def plot(self, **options):
-        """Plot the Cdf as a line.
+        """Plot the Surv as a line.
 
         :param options: passed to plt.plot
         :return:
@@ -738,7 +890,7 @@ class Surv(Distribution):
         plt.plot(self.qs, self.ps, **options)
 
     def step(self, **options):
-        """Plot the Cdf as a step function.
+        """Plot the Surv as a step function.
 
         :param options: passed to plt.step
         :return:
@@ -747,18 +899,15 @@ class Surv(Distribution):
         plt.step(self.qs, self.ps, **options)
 
     def normalize(self):
-        """Make the probabilities start at (modifies self).
+        """Normalize the survival function (modifies self).
 
         :return: normalizing constant
         """
-        # TODO: get this under test
-        total = self.ps[0]
-        self /= total
-        return total
+        raise ValueError("Can't normalize a Surv object.")
 
     @property
     def forward(self, **kwargs):
-        """Compute the forward Cdf
+        """Compute the forward survival function
 
         :param kwargs: keyword arguments passed to interp1d
 
@@ -773,13 +922,12 @@ class Surv(Distribution):
             bounds_error=False,
             fill_value=(1, 0),
         )
-
         interp = interp1d(self.qs, self.ps, **kwargs)
         return interp
 
     @property
     def inverse(self, **kwargs):
-        """Compute the inverse Cdf
+        """Compute the inverse survival function
 
         :param kwargs: keyword arguments passed to interp1d
 
@@ -790,11 +938,8 @@ class Surv(Distribution):
         interp = self.make_cdf().inverse
         return lambda ps: interp(1 - np.asarray(ps), **kwargs)
 
-    # calling a Cdf like a function does forward lookup
+    # calling a Surv like a function does forward lookup
     __call__ = forward
-
-    # quantile is the same as an inverse lookup
-    quantile = inverse
 
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Surv.
@@ -827,65 +972,13 @@ class Surv(Distribution):
         haz = pmf.ps / at_risk
         return Hazard(haz, **kwargs)
 
-    def choice(self, *args, **kwargs):
-        """Makes a random sample.
+    def make_same(self, dist):
+        """Convert the given dist to Surv
 
-        Uses the probabilities as weights unless `p` is provided.
-
-        args: same as np.random.choice
-        options: same as np.random.choice
-
-        :return: NumPy array
+        :param dist:
+        :return: Surv
         """
-        # TODO: Make this more efficient by implementing the inverse CDF method.
-        pmf = self.make_pmf()
-        return pmf.choice(*args, **kwargs)
-
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the quantities in this Pmf,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
-
-        :return: NumPy array
-        """
-        # TODO: Make this more efficient by implementing the inverse CDF method.
-        pmf = self.make_pmf()
-        return pmf.sample(*args, **kwargs)
-
-    def mean(self):
-        """Expected value.
-
-        :return: float
-        """
-        return self.make_pmf().mean()
-
-    def var(self):
-        """Variance.
-
-        :return: float
-        """
-        return self.make_pmf().var()
-
-    def std(self):
-        """Standard deviation.
-
-        :return: float
-        """
-        return self.make_pmf().std()
-
-    def median(self):
-        """Median (50th percentile).
-
-        :return: float
-        """
-        return self.quantile(0.5)
+        return dist.make_surv()
 
 
 class Hazard(Distribution):
@@ -908,71 +1001,6 @@ class Hazard(Distribution):
     # You can also call a Hazard object like a function
     __call__ = __getitem__
 
-    def mean(self):
-        """Computes expected value.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def median(self):
-        """Median (50th percentile).
-
-        :return: float
-        """
-        raise ValueError()
-
-    def quantile(self, ps, **kwargs):
-        """Quantiles.
-
-        Computes the inverse CDF of ps, that is,
-        the values that correspond to the given probabilities.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def var(self):
-        """Variance of a PMF.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def std(self):
-        """Standard deviation of a PMF.
-
-        :return: float
-        """
-        raise ValueError()
-
-    def choice(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `p` is provided.
-
-        args: same as np.random.choice
-        kwargs: same as np.random.choice
-
-        :return: NumPy array
-        """
-        raise ValueError()
-
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the quantities,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
-
-        :return: NumPy array
-        """
-        raise ValueError()
 
     def plot(self, **options):
         """Plot the Pmf as a line.
@@ -1016,6 +1044,14 @@ class Hazard(Distribution):
         :return: Pmf
         """
         return self.make_surv().make_cdf().make_pmf(**kwargs)
+
+    def make_same(self, dist):
+        """Convert the given dist to Hazard
+
+        :param dist:
+        :return: Hazard
+        """
+        return dist.make_hazard()
 
     @staticmethod
     def from_seq(seq, **kwargs):
