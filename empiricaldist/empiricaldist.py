@@ -1,7 +1,12 @@
-"""
+"""Classes to represent empirical distributions
+
+https://en.wikipedia.org/wiki/Empirical_distribution_function
 
 Pmf: Represents a Probability Mass Function (PMF).
 Cdf: Represents a Cumulative Distribution Function (CDF).
+Surv: Represents a Survival Function
+Hazard: Represents a Hazard Function
+Distribution: Parent class of all distribution representations
 
 Copyright 2019 Allen B. Downey
 
@@ -514,7 +519,7 @@ class Pmf(Distribution):
         :param options: passed to plt.plot
         :return:
         """
-        underride(options, label=self.name, color="C1")
+        underride(options, label=self.name)
         plt.plot(self.qs, self.ps, **options)
 
     def bar(self, **options):
@@ -522,7 +527,7 @@ class Pmf(Distribution):
 
         options: passed to plt.bar
         """
-        underride(options, label=self.name, color="C1")
+        underride(options, label=self.name)
         plt.bar(self.qs, self.ps, **options)
 
     def make_joint(self, other, **options):
@@ -699,7 +704,7 @@ class Cdf(Distribution):
 
         :return:
         """
-        underride(options, label=self.name, color="C4")
+        underride(options, label=self.name)
         plt.plot(self.qs, self.ps, **options)
 
     def step(self, **options):
@@ -709,7 +714,7 @@ class Cdf(Distribution):
 
         :return:
         """
-        underride(options, label=self.name, where="post", color="C4")
+        underride(options, label=self.name, where="post")
         plt.step(self.qs, self.ps, **options)
 
     def normalize(self):
@@ -886,7 +891,7 @@ class Surv(Distribution):
         :param options: passed to plt.plot
         :return:
         """
-        underride(options, label=self.name, color="C2")
+        underride(options, label=self.name)
         plt.plot(self.qs, self.ps, **options)
 
     def step(self, **options):
@@ -895,7 +900,7 @@ class Surv(Distribution):
         :param options: passed to plt.step
         :return:
         """
-        underride(options, label=self.name, where="post", color="C2")
+        underride(options, label=self.name, where="post")
         plt.step(self.qs, self.ps, **options)
 
     def normalize(self):
@@ -1008,7 +1013,7 @@ class Hazard(Distribution):
         :param options: passed to plt.plot
         :return:
         """
-        underride(options, label=self.name, color="C3")
+        underride(options, label=self.name)
         plt.plot(self.qs, self.ps, **options)
 
     def bar(self, **options):
@@ -1017,7 +1022,7 @@ class Hazard(Distribution):
         options: passed to plt.bar
         """
         underride(options, label=self.name)
-        plt.bar(self.qs, self.ps, **options, color="C3")
+        plt.bar(self.qs, self.ps, **options)
 
     def make_surv(self, **kwargs):
         """Make a Surv from the Hazard.

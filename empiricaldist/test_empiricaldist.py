@@ -1,7 +1,6 @@
-"""This file contains code for use with "Think Bayes, 2nd edition",
-by Allen B. Downey, available from greenteapress.com
+"""Test code for empiricaldist
 
-Copyright 2014 Allen B. Downey
+Copyright 2019 Allen B. Downey
 License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
 """
 
@@ -11,7 +10,7 @@ import random
 from collections import Counter
 import numpy as np
 
-from empyrical_dist import Pmf, Cdf, Surv, Hazard
+from empiricaldist import Pmf, Cdf, Surv, Hazard
 
 class Test(unittest.TestCase):
 

@@ -9,12 +9,12 @@ def readme():
 
 
 setup(
-    name='empyrical_dist',
-    version='0.1.0',
+    name='empiricaldist',
+    version='0.3.0',
     author='Allen B. Downey',
     author_email='downey@allendowney.com',
-    packages=['empyrical_dist'],
-    url='http://github.com/AllenDowney/EmpyricalDistributions',
+    packages=['empiricaldist'],
+    url='http://github.com/AllenDowney/empiricaldist',
     license='LICENSE',
     description='Python library that represents empirical distribution functions.',
     long_description=readme(),
