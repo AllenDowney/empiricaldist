@@ -2,7 +2,7 @@ from distutils.core import setup
 
 def readme():
     try:
-        with open('README.md') as f:
+        with open('README.rst') as f:
             return f.read()
     except IOError:
         return ''
@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='empiricaldist',
-    version='0.3.0',
+    version='0.3.3',
     author='Allen B. Downey',
     author_email='downey@allendowney.com',
     packages=['empiricaldist'],
