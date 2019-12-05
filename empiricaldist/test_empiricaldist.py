@@ -67,6 +67,13 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(haz.median(), 3)
         self.assertAlmostEqual(haz.quantile(0.8), 5)
 
+        haz = cdf.make_hazard()
+        self.assertAlmostEqual(haz.mean(), 3.5)
+        self.assertAlmostEqual(haz.var(), 2.91666666)
+        self.assertAlmostEqual(haz.std(), 1.70782512)
+        self.assertAlmostEqual(haz.median(), 3)
+        self.assertAlmostEqual(haz.quantile(0.8), 5)
+
     def testPmfSampling(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
@@ -423,7 +430,7 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(haz(4), 0)
         self.assertAlmostEqual(haz(5), 1.0)
         self.assertAlmostEqual(haz(6), 0)
-        
+
     def testPmfFromCdf(self):
         t = [1, 2, 2, 3, 5]
         pmf = Pmf.from_seq(t)

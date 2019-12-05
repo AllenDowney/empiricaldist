@@ -626,8 +626,9 @@ class Pmf(Distribution):
 
         :return: Cdf
         """
-        cdf = self.make_cdf()
-        return cdf.make_surv().make_hazard(**kwargs)
+        surv = self.make_surv()
+        haz = self.ps / (self + surv)
+        return Hazard(haz, **kwargs)
 
     def make_same(self, dist):
         """Convert the given dist to Pmf
@@ -816,8 +817,10 @@ class Cdf(Distribution):
 
         :return: Hazard object
         """
+        pmf = self.make_pmf()
         surv = self.make_surv()
-        return surv.make_hazard(**kwargs)
+        haz = pmf.ps / (pmf + surv)
+        return Hazard(haz, **kwargs)
 
     def make_same(self, dist):
         """Convert the given dist to Cdf
