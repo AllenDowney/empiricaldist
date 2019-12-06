@@ -114,7 +114,6 @@ class Distribution(pd.Series):
         """
         return self.make_cdf().quantile(ps, **kwargs)
 
-
     def choice(self, *args, **kwargs):
         """Makes a random sample.
 
@@ -603,7 +602,7 @@ class Pmf(Distribution):
         """Make a Cdf from the Pmf.
 
         It can be good to normalize the Cdf even if the Pmf was normalized,
-        to guarantee that the last element is 1.
+        to guarantee that the last element is exactly 1.0.
 
         :return: Cdf
         """
@@ -650,26 +649,36 @@ class Pmf(Distribution):
         return self.quantile(ps)
 
     @staticmethod
-    def from_seq(seq, normalize=True, sort=True, **options):
+    def from_seq(seq, normalize=True, sort=True, ascending=True,
+                 dropna=True, na_position='last', **options):
         """Make a PMF from a sequence of values.
 
         seq: any kind of sequence
         normalize: whether to normalize the Pmf, default True
         sort: whether to sort the Pmf by values, default True
+        ascending: whether to sort in ascending order, default True
+        dropna: whether to drop NaN values, default True
+        na_position: If ‘first’ puts NaNs at the beginning,
+                        ‘last’ puts NaNs at the end.
         options: passed to the pd.Series constructor
 
         :return: Pmf object
         """
-        series = pd.Series(seq).value_counts(sort=False)
+        # compute the value counts
+        series = pd.Series(seq).value_counts(normalize=normalize,
+                                             sort=False,
+                                             dropna=dropna)
 
-        options["copy"] = False
+        # make the result a Pmf
+        # (since we just made a fresh Series, there is no reason to copy it)
+        options['copy'] = False
         pmf = Pmf(series, **options)
 
+        # sort in place, if desired
         if sort:
-            pmf.sort_index(inplace=True)
-
-        if normalize:
-            pmf.normalize()
+            pmf.sort_index(ascending=ascending,
+                           inplace=True,
+                           na_position=na_position)
 
         return pmf
 
@@ -695,6 +704,8 @@ class Cdf(Distribution):
 
         :return: CDF object
         """
+        # if normalize==True, normalize AFTER making the Cdf
+        # so the last element is exactly 1.0
         pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
         return pmf.make_cdf(normalize=normalize)
 
@@ -788,10 +799,18 @@ class Cdf(Distribution):
 
         :return: Pmf
         """
-        #TODO: check for consistent behvavior of copy flag for all make_x
+        #TODO: check for consistent behavior of copy flag for all make_x
         normalize = kwargs.pop('normalize', False)
-        ps = self.ps
-        diff = np.ediff1d(ps, to_begin=ps[0])
+
+        # I'm replacing np.ediff1 with pd.Series.diff to be symmetric
+        # with pd.Series.cumsum in make_cdf
+        #ps = self.ps
+        #diff = np.ediff1d(ps, to_begin=ps[0])
+
+        q0 = self.qs[0]
+        p0 = self.ps[0]
+        diff = self.diff()
+        diff[q0] = p0
         pmf = Pmf(diff, index=self.index.copy(), **kwargs)
         if normalize:
             pmf.normalize()
@@ -800,16 +819,16 @@ class Cdf(Distribution):
     def make_surv(self, **kwargs):
         """Make a Surv object from the Cdf.
 
-        Note: You can make a Surv from an unnormalized Cdf,
-        but not the other way around.
+        If the Cdf is not normalized, it gets normalized before
+        computing the survival function.
+
+        The normalize kwarg is ignored.
 
         :return: Surv object
         """
         normalize = kwargs.pop('normalize', False)
-        p0 = self.ps[-1]
-        surv = Surv(p0-self, **kwargs)
-        if normalize:
-            surv.normalize()
+        ps = self / self.ps[-1]
+        surv = Surv(1 - ps, **kwargs)
         return surv
 
     def make_hazard(self, **kwargs):
@@ -884,8 +903,9 @@ class Surv(Distribution):
 
         :return: Surv object
         """
-        pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
-        cdf = pmf.make_cdf(normalize=normalize)
+        if normalize is False:
+            raise ValueError('Surv must be normalized.')
+        cdf = Cdf.from_seq(seq, normalize=True, sort=sort, **options)
         return cdf.make_surv()
 
     def plot(self, **options):
@@ -952,11 +972,16 @@ class Surv(Distribution):
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Surv.
 
+        The survival function must be normalized,
+        or the result will be nonsense.
+
+        But even if it is, you might want to normalize
+        the Cdf to make sure the last element is exactly 1.0.
+
         :return: Cdf
         """
-        # TODO: error if the Surv is not normalized
         normalize = kwargs.pop('normalize', False)
-        cdf = Cdf(1-self, **kwargs)
+        cdf = Cdf(1 - self, **kwargs)
         if normalize:
             cdf.normalize()
         return cdf
@@ -1063,7 +1088,7 @@ class Hazard(Distribution):
 
     @staticmethod
     def from_seq(seq, **kwargs):
-        """Make a PMF from a sequence of values.
+        """Make a Hazard from a sequence of values.
 
         seq: any kind of sequence
         normalize: whether to normalize the Pmf, default True
