@@ -365,7 +365,7 @@ class Pmf(Distribution):
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.add.outer)
         else:
-            return Pmf(self.ps, index=self.qs + x)
+            return Pmf(self.ps.copy(), index=self.qs + x)
 
     def sub_dist(self, x):
         """Computes the Pmf of the diff of values drawn from self and other.
@@ -377,7 +377,7 @@ class Pmf(Distribution):
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.subtract.outer)
         else:
-            return Pmf(self.ps, index=self.qs - x)
+            return Pmf(self.ps.copy(), index=self.qs - x)
 
     def mul_dist(self, x):
         """Computes the Pmf of the product of values drawn from self and x.
@@ -389,7 +389,7 @@ class Pmf(Distribution):
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.multiply.outer)
         else:
-            return Pmf(self.ps, index=self.qs * x)
+            return Pmf(self.ps.copy(), index=self.qs * x)
 
     def div_dist(self, x):
         """Computes the Pmf of the ratio of values drawn from self and x.
@@ -401,7 +401,7 @@ class Pmf(Distribution):
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.divide.outer)
         else:
-            return Pmf(self.ps, index=self.qs / x)
+            return Pmf(self.ps.copy(), index=self.qs / x)
 
     def convolve_dist(self, dist, ufunc):
         """Convolve two distributions.
