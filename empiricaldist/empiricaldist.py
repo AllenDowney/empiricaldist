@@ -288,6 +288,42 @@ class Pmf(Distribution):
     # You can also call a Pmf like a function
     __call__ = __getitem__
 
+    def __add__(self, x, **kwargs):
+        """Override the + operator to default fill_value to 0.
+
+        x: Distribution or sequence
+        """
+        underride(kwargs, fill_value=0)
+        s = pd.Series.add(self, x, **kwargs)
+        return Pmf(s)
+
+    def __sub__(self, x, **kwargs):
+        """Override the - operator to default fill_value to 0.
+
+        x: Distribution or sequence
+        """
+        underride(kwargs, fill_value=0)
+        s = pd.Series.subtract(self, x, **kwargs)
+        return Pmf(s)
+
+    def __mul__(self, x, **kwargs):
+        """Override the * operator to default fill_value to 0.
+
+        x: Distribution or sequence
+        """
+        underride(kwargs, fill_value=0)
+        s = pd.Series.multiply(self, x, **kwargs)
+        return Pmf(s)
+
+    def __truediv__(self, x, **kwargs):
+        """Override the / operator to default fill_value to 0.
+
+        x: Distribution or sequence
+        """
+        underride(kwargs, fill_value=0)
+        s = pd.Series.divide(self, x, **kwargs)
+        return Pmf(s)
+
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
 

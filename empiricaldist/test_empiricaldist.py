@@ -481,6 +481,41 @@ class Test(unittest.TestCase):
         pmf2 = haz.make_pmf()
         self.assertListEqual(list(pmf), list(pmf2))
 
+    def testKaplanMeier(self):
+        complete = [1,3,6]
+        ongoing = [2,3,5,7]
+
+        pmf_complete = Pmf.from_seq(complete, normalize=False)
+        pmf_ongoing = Pmf.from_seq(ongoing, normalize=False)
+
+        res = pmf_complete + pmf_ongoing
+        self.assertListEqual(list(res), [1,1,2,1,1,1])
+
+        res = pmf_complete - pmf_ongoing
+        self.assertListEqual(list(res), [1.0, -1.0, 0.0, -1.0, 1.0, -1.0])
+
+        res = pmf_complete * pmf_ongoing
+        self.assertListEqual(list(res), [0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
+
+        res = pmf_complete / pmf_ongoing
+        self.assertListEqual(list(res), [np.inf, 0.0, 1.0, 0.0, np.inf, 0.0])
+
+        surv_complete = pmf_complete.make_surv()
+        surv_ongoing = pmf_ongoing.make_surv()
+
+        done = pmf_complete + pmf_ongoing
+
+        s1 = surv_complete(done.index)
+        self.assertListEqual(list(s1), [2., 2., 1., 1., 0., 0.])
+
+        s2 = surv_ongoing(done.index)
+        self.assertListEqual(list(s2), [4., 3., 2., 1., 1., 0.])
+
+        at_risk = done + s1 + s2
+        self.assertListEqual(list(at_risk), [7.0, 6.0, 5.0, 3.0, 2.0, 1.0])
+
+        haz = pmf_complete / at_risk
+        self.assertListEqual(list(haz), [0.14285714285714285, 0.0, 0.2, 0.0, 0.5, 0.0])
 
     def almost_equal_dist(self, dist1, dist2):
         for x in dist1.qs:
