@@ -73,6 +73,20 @@ class Distribution(pd.Series):
         df = pd.DataFrame(dict(probs=self))
         return df._repr_html_()
 
+    def __call__(self, qs):
+        """Look up quantities.
+
+        qs: quantity or sequence of quantities
+
+        returns: value or array of values
+        """
+        string_types = (str, bytes, bytearray)
+        if hasattr(qs, '__iter__') and not isinstance(qs, string_types):
+            s = self.reindex(qs, fill_value=0)
+            return s.values
+        else:
+            return self.get(qs, default=0)
+
     def mean(self):
         """Expected value.
 
@@ -278,15 +292,7 @@ class Pmf(Distribution):
         """
         return Pmf(self, copy=deep)
 
-    def __getitem__(self, qs):
-        """Look up qs and return ps."""
-        try:
-            return super().__getitem__(qs)
-        except (KeyError, ValueError, IndexError):
-            return 0
-
-    # You can also call a Pmf like a function
-    __call__ = __getitem__
+    # Pmf inherits __call__ from Distribution
 
     def __add__(self, x, **kwargs):
         """Override the + operator to default fill_value to 0.
@@ -589,7 +595,8 @@ class Pmf(Distribution):
         # TODO: rewrite this using MultiIndex operations
         pmf = Pmf(name=name)
         for vs, p in self.items():
-            pmf[vs[i]] += p
+            q = vs[i]
+            pmf[q] = pmf(q) + p
         return pmf
 
     def conditional(self, i, j, val, name=None):
@@ -608,7 +615,8 @@ class Pmf(Distribution):
         pmf = Pmf(name=name)
         for vs, p in self.items():
             if vs[j] == val:
-                pmf[vs[i]] += p
+                q = vs[i]
+                pmf[q] = pmf(q) + p
 
         pmf.normalize()
         return pmf
@@ -1045,7 +1053,7 @@ class Surv(Distribution):
         pmf = self.make_pmf()
         at_risk = self + pmf
         haz = Hazard(pmf.ps / at_risk, **kwargs)
-        has.total = self.total
+        haz.total = self.total
         return haz
 
     def make_same(self, dist):
@@ -1067,15 +1075,7 @@ class Hazard(Distribution):
         """
         return Hazard(self, copy=deep)
 
-    def __getitem__(self, qs):
-        """Look up qs and return ps."""
-        try:
-            return super().__getitem__(qs)
-        except (KeyError, ValueError, IndexError):
-            return 0
-
-    # You can also call a Hazard object like a function
-    __call__ = __getitem__
+    # Hazard inherits __call__ from Distribution
 
     def normalize(self):
         """Normalize the hazard function (modifies self).
@@ -1132,7 +1132,7 @@ class Hazard(Distribution):
         return self.make_surv().make_cdf().make_pmf(**kwargs)
 
     def make_same(self, dist):
-        """Convert the given dist to Hazard
+        """Convert the given dist to Hazard.
 
         :param dist:
         :return: Hazard

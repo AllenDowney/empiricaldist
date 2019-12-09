@@ -33,10 +33,26 @@ class Test(unittest.TestCase):
         self.assertEqual(len(pmf), 4)
         self.assertEqual(pmf['l'], 2)
 
+        # test choice
         np.random.seed(42)
         pmf.normalize()
         xs = pmf.choice(7, replace=True)
         self.assertListEqual(xs.tolist(), ['l', 'n', 'e', 'l', 'a', 'a', 'a'])
+
+        # test a Pmf with an explicit 0
+        t = [1, 2, 2, 3, 5]
+        pmf = Pmf.from_seq(t, normalize=False)
+        pmf[0] = 0
+        pmf.sort_index(inplace=True)
+        self.assertListEqual(list(pmf), [0, 1, 2, 1, 1])
+
+        self.assertEqual(pmf(3), 1)
+        self.assertEqual(pmf(4), 0)
+        self.assertEqual(pmf('a'), 0)
+
+        xs = [0,1,2,3,4,5,6]
+        res = pmf(xs)
+        self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -78,10 +94,12 @@ class Test(unittest.TestCase):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
+        # test choice
         np.random.seed(17)
         a = pmf.choice(10)
         self.assertTrue(np.all((a == expected)))
 
+        # test sample
         a = pmf.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
@@ -441,6 +459,17 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(haz(4), 0)
         self.assertAlmostEqual(haz(5), 1.0)
         self.assertAlmostEqual(haz(6), 0)
+
+        xs = [0, 1, 2, 3, 4, 5, 6]
+        res = haz(xs)
+        for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
+            self.assertAlmostEqual(x, y)
+
+        cdf = Cdf.from_seq(t)
+        haz2 = cdf.make_hazard()
+        res = haz2(xs)
+        for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
+            self.assertAlmostEqual(x, y)
 
     def testPmfFromCdf(self):
         t = [1, 2, 2, 3, 5]
