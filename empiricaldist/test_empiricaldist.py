@@ -118,7 +118,7 @@ class Test(unittest.TestCase):
         a = haz.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
-    def testAdd(self):
+    def testAddDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
         pmf1 = pmf.add_dist(1)
@@ -139,7 +139,7 @@ class Test(unittest.TestCase):
         haz2 = haz.add_dist(haz)
         self.assertAlmostEqual(haz2.mean(), 7.0)
 
-    def testSub(self):
+    def testSubDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
         pmf3 = pmf.sub_dist(1)
@@ -160,7 +160,7 @@ class Test(unittest.TestCase):
         haz2 = haz.sub_dist(haz)
         self.assertAlmostEqual(haz2.mean(), 0)
 
-    def testMul(self):
+    def testMulDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
         pmf3 = pmf.mul_dist(2)
@@ -181,7 +181,7 @@ class Test(unittest.TestCase):
         haz2 = haz.mul_dist(haz)
         self.assertAlmostEqual(haz2.mean(), 6.25)
 
-    def testDiv(self):
+    def testDivDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
         pmf3 = pmf.div_dist(2)
@@ -462,6 +462,24 @@ class Test(unittest.TestCase):
 
         pmf3 = haz2.make_pmf()
         self.almost_equal_dist(pmf, pmf3)
+
+    def testUnnormalized(self):
+        t = [1,2,2,4,5]
+        pmf = Pmf.from_seq(t, normalize=False)
+        cdf = pmf.make_cdf()
+        self.assertListEqual(list(cdf), [1,3,4,5])
+
+        surv = pmf.make_surv()
+        self.assertListEqual(list(surv), [4,2,1,0])
+
+        cdf2 = surv.make_cdf()
+        self.assertListEqual(list(cdf), list(cdf2))
+
+        haz = pmf.make_hazard()
+        self.assertListEqual(list(haz), [0.2, 0.5, 0.5, 1.0])
+
+        pmf2 = haz.make_pmf()
+        self.assertListEqual(list(pmf), list(pmf2))
 
 
     def almost_equal_dist(self, dist1, dist2):
