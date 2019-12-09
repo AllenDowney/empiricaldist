@@ -785,7 +785,7 @@ class Cdf(Distribution):
 
         :param kwargs: keyword arguments passed to interp1d
 
-        :return array of probabilities
+        :return interpolation function from qs to ps
         """
 
         underride(
@@ -806,7 +806,7 @@ class Cdf(Distribution):
 
         :param kwargs: keyword arguments passed to interp1d
 
-        :return array of quantities
+        :return: interpolation function from ps to qs
         """
         underride(
             kwargs,
@@ -999,12 +999,20 @@ class Surv(Distribution):
 
         :param kwargs: keyword arguments passed to interp1d
 
-        :return array of quantities
+        :return: interpolation function from ps to qs
         """
-        p0 = self.ps[0]
-        #TODO: make this work with non-normalized Surv
-        interp = self.make_cdf().inverse
-        return lambda ps: interp(1 - np.asarray(ps), **kwargs)
+        underride(
+            kwargs,
+            kind="previous",
+            copy=False,
+            assume_sorted=True,
+            bounds_error=False,
+            fill_value=(np.nan, np.nan),
+        )
+        rev = self.sort_values()
+        rev[-np.inf] = self.total
+        interp = interp1d(rev, rev.index, **kwargs)
+        return interp
 
     # calling a Surv like a function does forward lookup
     __call__ = forward

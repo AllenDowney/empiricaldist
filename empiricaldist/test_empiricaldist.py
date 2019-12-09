@@ -369,10 +369,20 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(surv['l'], 0.2)
         self.assertAlmostEqual(surv['n'], 0)
 
+        # test unnormalized
         t = [1, 2, 2, 3, 5]
-        surv = Surv.from_seq(t)
+        surv = Surv.from_seq(t, normalize=False)
+        self.assertListEqual(list(surv), [4, 2, 1, 0])
 
+        res = surv([0, 1, 2, 3, 4, 5, 6])
+        self.assertListEqual(list(res), [5., 4., 2., 1., 1., 0., 0.])
+
+        res = surv.inverse([0, 1, 2, 3, 4, 5])
+        self.assertListEqual(list(res), [5, 3, 2, 2, 1, -np.inf])
+
+        # test normalized
         # () uses forward to interpolate
+        surv = Surv.from_seq(t)
         self.assertEqual(surv(0), 1)
         self.assertAlmostEqual(surv(1), 0.8)
         self.assertAlmostEqual(surv(2), 0.4)
@@ -386,6 +396,7 @@ class Test(unittest.TestCase):
         for p1, p2 in zip(ps, [1, 1, 0.8, 0.4, 0.2, 0.2, 0, 0]):
             self.assertAlmostEqual(p1, p2)
 
+        self.assertTrue(np.isnan(surv.inverse(-0.1)))
         self.assertEqual(surv.inverse(0), 5)
         self.assertEqual(surv.inverse(0.1), 5)
         self.assertEqual(surv.inverse(0.2), 3)
@@ -396,11 +407,11 @@ class Test(unittest.TestCase):
         self.assertEqual(surv.inverse(0.7), 2)
         self.assertEqual(surv.inverse(0.8), 1)
         self.assertEqual(surv.inverse(0.9), 1)
-        self.assertEqual(surv.inverse(1), 1)
+        self.assertEqual(surv.inverse(1), -np.inf)
 
         ps = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
         qs = surv.inverse(ps)
-        self.assertTrue((qs == [5, 5, 3, 3, 2, 2, 2, 2, 1, 1, 1]).all())
+        self.assertTrue((qs == [5, 5, 3, 3, 2, 2, 2, 2, 1, 1, -np.inf]).all())
 
         np.random.seed(42)
         xs = surv.choice(7, replace=True)
