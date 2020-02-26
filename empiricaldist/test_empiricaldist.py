@@ -33,10 +33,26 @@ class Test(unittest.TestCase):
         self.assertEqual(len(pmf), 4)
         self.assertEqual(pmf['l'], 2)
 
+        # test choice
         np.random.seed(42)
         pmf.normalize()
         xs = pmf.choice(7, replace=True)
         self.assertListEqual(xs.tolist(), ['l', 'n', 'e', 'l', 'a', 'a', 'a'])
+
+        # test a Pmf with an explicit 0
+        t = [1, 2, 2, 3, 5]
+        pmf = Pmf.from_seq(t, normalize=False)
+        pmf[0] = 0
+        pmf.sort_index(inplace=True)
+        self.assertListEqual(list(pmf), [0, 1, 2, 1, 1])
+
+        self.assertEqual(pmf(3), 1)
+        self.assertEqual(pmf(4), 0)
+        self.assertEqual(pmf('a'), 0)
+
+        xs = [0,1,2,3,4,5,6]
+        res = pmf(xs)
+        self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -84,10 +100,12 @@ class Test(unittest.TestCase):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
+        # test choice
         np.random.seed(17)
         a = pmf.choice(10)
         self.assertTrue(np.all((a == expected)))
 
+        # test sample
         a = pmf.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
@@ -124,7 +142,7 @@ class Test(unittest.TestCase):
         a = haz.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
-    def testAdd(self):
+    def testAddDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
         pmf1 = pmf.add_dist(1)
@@ -145,7 +163,7 @@ class Test(unittest.TestCase):
         haz2 = haz.add_dist(haz)
         self.assertAlmostEqual(haz2.mean(), 7.0)
 
-    def testSub(self):
+    def testSubDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
         pmf3 = pmf.sub_dist(1)
@@ -166,7 +184,7 @@ class Test(unittest.TestCase):
         haz2 = haz.sub_dist(haz)
         self.assertAlmostEqual(haz2.mean(), 0)
 
-    def testMul(self):
+    def testMulDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
         pmf3 = pmf.mul_dist(2)
@@ -187,7 +205,7 @@ class Test(unittest.TestCase):
         haz2 = haz.mul_dist(haz)
         self.assertAlmostEqual(haz2.mean(), 6.25)
 
-    def testDiv(self):
+    def testDivDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
 
         pmf3 = pmf.div_dist(2)
@@ -375,10 +393,20 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(surv['l'], 0.2)
         self.assertAlmostEqual(surv['n'], 0)
 
+        # test unnormalized
         t = [1, 2, 2, 3, 5]
-        surv = Surv.from_seq(t)
+        surv = Surv.from_seq(t, normalize=False)
+        self.assertListEqual(list(surv), [4, 2, 1, 0])
 
+        res = surv([0, 1, 2, 3, 4, 5, 6])
+        self.assertListEqual(list(res), [5., 4., 2., 1., 1., 0., 0.])
+
+        res = surv.inverse([0, 1, 2, 3, 4, 5])
+        self.assertListEqual(list(res), [5, 3, 2, 2, 1, -np.inf])
+
+        # test normalized
         # () uses forward to interpolate
+        surv = Surv.from_seq(t)
         self.assertEqual(surv(0), 1)
         self.assertAlmostEqual(surv(1), 0.8)
         self.assertAlmostEqual(surv(2), 0.4)
@@ -392,6 +420,7 @@ class Test(unittest.TestCase):
         for p1, p2 in zip(ps, [1, 1, 0.8, 0.4, 0.2, 0.2, 0, 0]):
             self.assertAlmostEqual(p1, p2)
 
+        self.assertTrue(np.isnan(surv.inverse(-0.1)))
         self.assertEqual(surv.inverse(0), 5)
         self.assertEqual(surv.inverse(0.1), 5)
         self.assertEqual(surv.inverse(0.2), 3)
@@ -402,11 +431,11 @@ class Test(unittest.TestCase):
         self.assertEqual(surv.inverse(0.7), 2)
         self.assertEqual(surv.inverse(0.8), 1)
         self.assertEqual(surv.inverse(0.9), 1)
-        self.assertEqual(surv.inverse(1), 1)
+        self.assertEqual(surv.inverse(1), -np.inf)
 
         ps = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
         qs = surv.inverse(ps)
-        self.assertTrue((qs == [5, 5, 3, 3, 2, 2, 2, 2, 1, 1, 1]).all())
+        self.assertTrue((qs == [5, 5, 3, 3, 2, 2, 2, 2, 1, 1, -np.inf]).all())
 
         np.random.seed(42)
         xs = surv.choice(7, replace=True)
@@ -436,6 +465,17 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(haz(4), 0)
         self.assertAlmostEqual(haz(5), 1.0)
         self.assertAlmostEqual(haz(6), 0)
+
+        xs = [0, 1, 2, 3, 4, 5, 6]
+        res = haz(xs)
+        for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
+            self.assertAlmostEqual(x, y)
+
+        cdf = Cdf.from_seq(t)
+        haz2 = cdf.make_hazard()
+        res = haz2(xs)
+        for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
+            self.assertAlmostEqual(x, y)
 
     def testPmfFromCdf(self):
         t = [1, 2, 2, 3, 5]
@@ -469,6 +509,59 @@ class Test(unittest.TestCase):
         pmf3 = haz2.make_pmf()
         self.almost_equal_dist(pmf, pmf3)
 
+    def testUnnormalized(self):
+        t = [1,2,2,4,5]
+        pmf = Pmf.from_seq(t, normalize=False)
+        cdf = pmf.make_cdf()
+        self.assertListEqual(list(cdf), [1,3,4,5])
+
+        surv = pmf.make_surv()
+        self.assertListEqual(list(surv), [4,2,1,0])
+
+        cdf2 = surv.make_cdf()
+        self.assertListEqual(list(cdf), list(cdf2))
+
+        haz = pmf.make_hazard()
+        self.assertListEqual(list(haz), [0.2, 0.5, 0.5, 1.0])
+
+        pmf2 = haz.make_pmf()
+        self.assertListEqual(list(pmf), list(pmf2))
+
+    def testKaplanMeier(self):
+        complete = [1,3,6]
+        ongoing = [2,3,5,7]
+
+        pmf_complete = Pmf.from_seq(complete, normalize=False)
+        pmf_ongoing = Pmf.from_seq(ongoing, normalize=False)
+
+        res = pmf_complete + pmf_ongoing
+        self.assertListEqual(list(res), [1,1,2,1,1,1])
+
+        res = pmf_complete - pmf_ongoing
+        self.assertListEqual(list(res), [1.0, -1.0, 0.0, -1.0, 1.0, -1.0])
+
+        res = pmf_complete * pmf_ongoing
+        self.assertListEqual(list(res), [0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
+
+        res = pmf_complete / pmf_ongoing
+        self.assertListEqual(list(res), [np.inf, 0.0, 1.0, 0.0, np.inf, 0.0])
+
+        surv_complete = pmf_complete.make_surv()
+        surv_ongoing = pmf_ongoing.make_surv()
+
+        done = pmf_complete + pmf_ongoing
+
+        s1 = surv_complete(done.index)
+        self.assertListEqual(list(s1), [2., 2., 1., 1., 0., 0.])
+
+        s2 = surv_ongoing(done.index)
+        self.assertListEqual(list(s2), [4., 3., 2., 1., 1., 0.])
+
+        at_risk = done + s1 + s2
+        self.assertListEqual(list(at_risk), [7.0, 6.0, 5.0, 3.0, 2.0, 1.0])
+
+        haz = pmf_complete / at_risk
+        self.assertListEqual(list(haz), [0.14285714285714285, 0.0, 0.2, 0.0, 0.5, 0.0])
 
     def almost_equal_dist(self, dist1, dist2):
         for x in dist1.qs:
