@@ -80,6 +80,9 @@ class Distribution(pd.Series):
         returns: value or array of values
         """
         string_types = (str, bytes, bytearray)
+
+        # if qs is a sequence type, use reindex;
+        # otherwise use get
         if hasattr(qs, '__iter__') and not isinstance(qs, string_types):
             s = self.reindex(qs, fill_value=0)
             return s.values
@@ -301,6 +304,13 @@ class Pmf(Distribution):
         """
         return Pmf(self, copy=deep)
 
+    def make_pmf(self, **kwargs):
+        """Make a Pmf from the Pmf.
+
+        :return: Pmf
+        """
+        return self
+
     # Pmf inherits __call__ from Distribution
 
     def __add__(self, x, **kwargs):
@@ -471,9 +481,7 @@ class Pmf(Distribution):
 
         :return: new Pmf
         """
-        if not isinstance(dist, Pmf):
-            dist = dist.make_pmf()
-
+        dist = dist.make_pmf()
         qs = ufunc(self.qs, dist.qs).flatten()
         ps = np.multiply.outer(self.ps, dist.ps).flatten()
         series = pd.Series(ps).groupby(qs).sum()
@@ -566,9 +574,7 @@ class Pmf(Distribution):
 
         :return: NumPy array
         """
-        if not isinstance(dist, Pmf):
-            dist = dist.make_pmf()
-
+        dist = dist.make_pmf()
         qs = ufunc.outer(self.qs, dist.qs)
         ps = np.multiply.outer(self.ps, dist.ps)
         return qs * ps
