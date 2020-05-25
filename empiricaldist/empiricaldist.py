@@ -140,6 +140,17 @@ class Distribution(pd.Series):
         """
         return self.make_cdf().quantile(ps, **kwargs)
 
+    def credible_interval(self, p):
+        """Credible interval containing the given probability.
+
+        p: float 0-1
+
+        :return: array of two quantities
+        """
+        tail = (1 - p) / 2
+        ps = [tail, 1 - tail]
+        return self.quantile(ps)
+
     def choice(self, *args, **kwargs):
         """Makes a random sample.
 
@@ -709,17 +720,6 @@ class Pmf(Distribution):
         :return: Pmf
         """
         return dist.make_pmf()
-
-    def credible_interval(self, p):
-        """Credible interval containing the given probability.
-
-        p: float 0-1
-
-        :return: array of two quantities
-        """
-        tail = (1 - p) / 2
-        ps = [tail, 1 - tail]
-        return self.quantile(ps)
 
     @staticmethod
     def from_seq(seq, normalize=True, sort=True, ascending=True,

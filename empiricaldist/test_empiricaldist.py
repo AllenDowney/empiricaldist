@@ -484,6 +484,15 @@ class Test(unittest.TestCase):
         pmf2 = cdf.make_pmf()
         self.almost_equal_dist(pmf, pmf2)
 
+    def testCredible(self):
+        t = np.arange(101)
+        pmf = Pmf.from_seq(t)
+        cdf = pmf.make_cdf()
+        ci = pmf.credible_interval(0.9)
+        self.assertListEqual(list(ci), [5, 95])
+        ci = cdf.credible_interval(0.9)
+        self.assertListEqual(list(ci), [5, 95])
+
     def testConversionFunctions(self):
         t = [1, 2, 2, 3, 5, 5, 7, 10]
         pmf = Pmf.from_seq(t)
