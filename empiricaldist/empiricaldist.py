@@ -673,10 +673,9 @@ class Pmf(Distribution):
         :return: Cdf
         """
         normalize = kwargs.pop('normalize', False)
-        cdf = Cdf(self.cumsum(), **kwargs)
 
-        # replace the last value with a numerically better computation
-        cdf.ps[-1] = np.sum(self)
+        cumulative = np.cumsum(self)
+        cdf = Cdf(cumulative, self.index.copy(), **kwargs)
 
         if normalize:
             cdf.normalize()
@@ -876,15 +875,7 @@ class Cdf(Distribution):
         #TODO: check for consistent behavior of copy flag for all make_x
         normalize = kwargs.pop('normalize', False)
 
-        # I'm replacing np.ediff1 with pd.Series.diff to be symmetric
-        # with pd.Series.cumsum in make_cdf
-        #ps = self.ps
-        #diff = np.ediff1d(ps, to_begin=ps[0])
-
-        q0 = self.qs[0]
-        p0 = self.ps[0]
-        diff = self.diff()
-        diff[q0] = p0
+        diff = np.diff(self, prepend=0)
         pmf = Pmf(diff, index=self.index.copy(), **kwargs)
         if normalize:
             pmf.normalize()
