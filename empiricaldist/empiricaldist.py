@@ -304,6 +304,32 @@ class Distribution(pd.Series):
         pmf = self.make_pmf()
         return pmf.ne_dist(x)
 
+    def max_dist(self, n):
+        """Distribution of the maximum of `n` values from this distribution.
+
+        n: integer
+
+        :return: Distribution, same type as self
+        """
+        cdf = self.make_cdf().max_dist(n)
+        return self.make_same(cdf)
+
+    def min_dist(self, n):
+        """Distribution of the minimum of `n` values from this distribution.
+
+        n: integer
+
+        :return: Distribution, same type as self
+        """
+        cdf = self.make_cdf().min_dist(n)
+        return self.make_same(cdf)
+
+    prob_gt = gt_dist
+    prob_lt = lt_dist
+    prob_ge = ge_dist
+    prob_le = le_dist
+    prob_eq = eq_dist
+    prob_ne = ne_dist
 
 class Pmf(Distribution):
     """Represents a probability Mass Function (PMF)."""
@@ -945,6 +971,25 @@ class Cdf(Distribution):
         pmf = self.make_pmf()
         return pmf.sample(*args, **kwargs)
 
+    def max_dist(self, n):
+        """Distribution of the maximum of `n` values from this distribution.
+
+        n: integer
+
+        :return: Cdf
+        """
+        ps = self**n
+        return Cdf(ps, self.index.copy())
+
+    def min_dist(self, n):
+        """Distribution of the minimum of `n` values from this distribution.
+
+        n: integer
+
+        :return: Cdf
+        """
+        ps = 1 - (1 - self)**n
+        return Cdf(ps, self.index.copy())
 
 class Surv(Distribution):
     """Represents a survival function (complementary CDF)."""

@@ -260,6 +260,20 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(pmf1.lt_dist(pmf2), 1/4)
         self.assertAlmostEqual(pmf1.le_dist(pmf2), 0.41666666)
 
+        self.assertAlmostEqual(pmf1.prob_eq(3), 1 / 6)
+        self.assertAlmostEqual(pmf1.prob_ne(3), 5 / 6)
+        self.assertAlmostEqual(pmf1.prob_gt(3), 3 / 6)
+        self.assertAlmostEqual(pmf1.prob_ge(3), 4 / 6)
+        self.assertAlmostEqual(pmf1.prob_lt(3), 2 / 6)
+        self.assertAlmostEqual(pmf1.prob_le(3), 3 / 6)
+
+        self.assertAlmostEqual(pmf1.prob_eq(pmf2), 1/6)
+        self.assertAlmostEqual(pmf1.prob_ne(pmf2), 5/6)
+        self.assertAlmostEqual(pmf1.prob_gt(pmf2), 0.5833333)
+        self.assertAlmostEqual(pmf1.prob_ge(pmf2), 3/4)
+        self.assertAlmostEqual(pmf1.prob_lt(pmf2), 1/4)
+        self.assertAlmostEqual(pmf1.prob_le(pmf2), 0.41666666)
+
     def testPmfComparison(self):
         d4 = Pmf.from_seq(range(1,5))
         self.assertEqual(d4.gt_dist(2), 0.5)
@@ -492,6 +506,15 @@ class Test(unittest.TestCase):
         self.assertListEqual(list(ci), [5, 95])
         ci = cdf.credible_interval(0.9)
         self.assertListEqual(list(ci), [5, 95])
+
+    def testMinMax(self):
+        pmf = Pmf.from_seq([1,2,3])
+        pmf2 = pmf.max_dist(2)
+        ans = Pmf([1/9, 3/9, 5/9], pmf.index)
+        self.almost_equal_dist(pmf2, ans)
+        pmf3 = pmf.min_dist(2)
+        ans = Pmf([5/9, 3/9, 1/9], pmf.index)
+        self.almost_equal_dist(pmf3, ans)
 
     def testConversionFunctions(self):
         t = [1, 2, 2, 3, 5, 5, 7, 10]
