@@ -170,9 +170,9 @@ class Distribution(pd.Series):
 
         Uses the probabilities as weights unless `weights` is provided.
 
-        This function returns an array containing a sample of the quantities in this Pmf,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
+        This function returns an array containing a sample of the
+        quantities in this Pmf, which is different from Series.sample,
+        which returns a Series with a sample of the rows in the original Series.
 
         args: same as Series.sample
         options: same as Series.sample
@@ -182,6 +182,8 @@ class Distribution(pd.Series):
         # TODO: Make this more efficient by implementing the inverse CDF method.
         pmf = self.make_pmf()
         return pmf.sample(*args, **kwargs)
+
+    # TODO: Consider overriding add so it underrides fill_value=0
 
     def add_dist(self, x):
         """Distribution of the sum of values drawn from self and x.
@@ -734,7 +736,7 @@ class Pmf(Distribution):
         """
         surv = self.make_surv()
         haz = Hazard(self.ps / (self + surv), **kwargs)
-        haz.total = surv.total
+        haz.total = getattr(surv, 'total', 1.0)
         if normalize:
             self.normalize()
         return haz
@@ -928,7 +930,7 @@ class Cdf(Distribution):
         pmf = self.make_pmf()
         surv = self.make_surv()
         haz = Hazard(pmf.ps / (pmf + surv), **kwargs)
-        haz.total = surv.total
+        haz.total = getattr(surv, 'total', 1.0)
         return haz
 
     def make_same(self, dist):
@@ -1038,8 +1040,8 @@ class Surv(Distribution):
 
         :return: normalizing constant
         """
-        old_total = self.total
-        self.ps /= self.total
+        old_total = getattr(self, 'total', 1.0)
+        self.ps /= old_total
         self.total = 1.0
         return old_total
 
@@ -1051,13 +1053,14 @@ class Surv(Distribution):
 
         :return array of probabilities
         """
+        total = getattr(self, 'total', 1.0)
         underride(
             kwargs,
             kind="previous",
             copy=False,
             assume_sorted=True,
             bounds_error=False,
-            fill_value=(self.total, 0),
+            fill_value=(total, 0),
         )
         interp = interp1d(self.qs, self.ps, **kwargs)
         return interp
@@ -1070,6 +1073,7 @@ class Surv(Distribution):
 
         :return: interpolation function from ps to qs
         """
+        total = getattr(self, 'total', 1.0)
         underride(
             kwargs,
             kind="previous",
@@ -1079,7 +1083,7 @@ class Surv(Distribution):
             fill_value=(np.nan, np.nan),
         )
         rev = self.sort_values()
-        rev[-np.inf] = self.total
+        rev[-np.inf] = total
         interp = interp1d(rev, rev.index, **kwargs)
         return interp
 
@@ -1092,7 +1096,8 @@ class Surv(Distribution):
         :return: Cdf
         """
         normalize = kwargs.pop('normalize', False)
-        cdf = Cdf(self.total - self, **kwargs)
+        total = getattr(self, 'total', 1.0)
+        cdf = Cdf(total - self, **kwargs)
         if normalize:
             cdf.normalize()
         return cdf
@@ -1114,7 +1119,7 @@ class Surv(Distribution):
         pmf = self.make_pmf()
         at_risk = self + pmf
         haz = Hazard(pmf.ps / at_risk, **kwargs)
-        haz.total = self.total
+        haz.total = getattr(self, 'total', 1.0)
         return haz
 
     def make_same(self, dist):
@@ -1143,7 +1148,7 @@ class Hazard(Distribution):
 
         :return: normalizing constant
         """
-        old_total = self.total
+        old_total = getattr(self, 'total', 1.0)
         self.total = 1.0
         return old_total
 
@@ -1171,8 +1176,9 @@ class Hazard(Distribution):
         """
         normalize = kwargs.pop('normalize', False)
         ps = (1 - self).cumprod()
-        surv = Surv(ps * self.total, **kwargs)
-        surv.total = self.total
+        total = getattr(self, 'total', 1.0)
+        surv = Surv(ps * total, **kwargs)
+        surv.total = total
 
         if normalize:
             surv.normalize()
