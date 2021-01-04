@@ -142,6 +142,28 @@ class Test(unittest.TestCase):
         a = haz.sample(10, replace=True, random_state=17)
         self.assertTrue(np.all((a == expected)))
 
+    def testHead(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        h = pmf1.head()
+        self.assertEqual(type(h), type(pmf1))
+
+        cdf1 = pmf1.make_cdf()
+        h = cdf1.head()
+        self.assertEqual(type(h), type(cdf1))
+
+
+    def testAdd(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        pmf2 = Pmf.from_seq([1, 2, 3, 4])
+
+        total = pmf1 + pmf2
+        total.normalize()
+        self.assertAlmostEqual(total.mean(), 3)
+
+        total = pmf1.add(pmf2)
+        total.normalize()
+        self.assertAlmostEqual(total.mean(), 3)
+
     def testAddDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
 
@@ -237,10 +259,10 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(mar1.mean(), pmf1.mean())
         self.assertAlmostEqual(mar2.mean(), pmf2.mean())
 
-        cond1 = joint.conditional(0, 1, 1)
-        cond2 = joint.conditional(1, 0, 1)
-        self.assertAlmostEqual(cond1.mean(), pmf1.mean())
-        self.assertAlmostEqual(cond2.mean(), pmf2.mean())
+        cond1 = joint.conditional(0, 1)
+        cond2 = joint.conditional(1, 1)
+        self.assertAlmostEqual(cond1.mean(), pmf2.mean())
+        self.assertAlmostEqual(cond2.mean(), pmf1.mean())
 
     def testComparison(self):
         pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -389,6 +411,7 @@ class Test(unittest.TestCase):
         self.assertEqual(cdf.inverse(0.7), 3)
         self.assertEqual(cdf.inverse(0.8), 3)
         self.assertEqual(cdf.inverse(0.9), 5)
+        self.assertEqual(cdf.inverse(0.99999), 5)
         self.assertEqual(cdf.inverse(1), 5)
 
         ps = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
