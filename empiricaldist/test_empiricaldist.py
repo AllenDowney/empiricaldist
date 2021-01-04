@@ -151,6 +151,10 @@ class Test(unittest.TestCase):
         h = cdf1.head()
         self.assertEqual(type(h), type(cdf1))
 
+    def testTransform(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5])
+        pmf2 = pmf1.transform(lambda x: x**2)
+        self.assertAlmostEqual(pmf2.mean(), 11.0)
 
     def testAdd(self):
         pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -163,6 +167,12 @@ class Test(unittest.TestCase):
         total = pmf1.add(pmf2)
         total.normalize()
         self.assertAlmostEqual(total.mean(), 3)
+
+    def testMul(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        pmf2 = Pmf.from_seq([1, 2, 3, 4])
+        pmf3 = 0.5 * pmf1 + 0.5 * pmf2
+        self.assertAlmostEqual(pmf3.mean(), 3.0)
 
     def testAddDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -511,6 +521,12 @@ class Test(unittest.TestCase):
         cdf = Cdf.from_seq(t)
         haz2 = cdf.make_hazard()
         res = haz2(xs)
+        for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
+            self.assertAlmostEqual(x, y)
+
+        surv = Surv.from_seq(t)
+        haz3 = surv.make_hazard()
+        res = haz3(xs)
         for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
             self.assertAlmostEqual(x, y)
 

@@ -84,6 +84,11 @@ class Distribution(pd.Series):
         s = super().tail(n)
         return self.__class__(s)
 
+    def transform(self, *args, **kwargs):
+        """Override to transform the quantities, not the probabilities."""
+        qs = self.index.to_series().transform(*args, **kwargs)
+        return self.__class__(self.ps, qs, copy=True)
+
     def _repr_html_(self):
         """Returns an HTML representation of the series.
 
@@ -368,52 +373,66 @@ class Pmf(Distribution):
         """
         return self
 
-    # Pmf inherits __call__ from Distribution
+    # Pmf overrides the arithmetic operations in order
+    # to provide fill_value=0 and return a Pmf.
 
     def add(self, x, **kwargs):
         """Override add to default fill_value to 0.
 
         x: Distribution or sequence
+
+        returns: Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series.add(self, x, **kwargs)
         return Pmf(s)
 
     __add__ = add
+    __radd__ = add
 
     def sub(self, x, **kwargs):
         """Override the - operator to default fill_value to 0.
 
         x: Distribution or sequence
+
+        returns: Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series.subtract(self, x, **kwargs)
         return Pmf(s)
 
     __sub__ = sub
+    __rsub__ = sub
 
     def mul(self, x, **kwargs):
         """Override the * operator to default fill_value to 0.
 
         x: Distribution or sequence
+
+        returns: Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series.multiply(self, x, **kwargs)
         return Pmf(s)
 
     __mul__ = mul
+    __rmul__ = mul
 
     def div(self, x, **kwargs):
         """Override the / operator to default fill_value to 0.
 
         x: Distribution or sequence
+
+        returns: Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series.divide(self, x, **kwargs)
         return Pmf(s)
 
     __div__ = div
+    __rdiv__ = div
     __truediv__ = div
+    __rtruediv__ = div
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
@@ -739,7 +758,7 @@ class Pmf(Distribution):
         :return: Hazard
         """
         surv = self.make_surv()
-        haz = Hazard(self.ps / (self + surv), **kwargs)
+        haz = Hazard(self / (self + surv), **kwargs)
         haz.total = getattr(surv, 'total', 1.0)
         if normalize:
             self.normalize()
@@ -923,7 +942,7 @@ class Cdf(Distribution):
         """
         pmf = self.make_pmf()
         surv = self.make_surv()
-        haz = Hazard(pmf.ps / (pmf + surv), **kwargs)
+        haz = Hazard(pmf / (pmf + surv), **kwargs)
         haz.total = getattr(surv, 'total', 1.0)
         return haz
 
@@ -1103,7 +1122,7 @@ class Surv(Distribution):
         """
         pmf = self.make_pmf()
         at_risk = self + pmf
-        haz = Hazard(pmf.ps / at_risk, **kwargs)
+        haz = Hazard(pmf / at_risk, **kwargs)
         haz.total = getattr(self, 'total', 1.0)
         haz.name = self.name
         return haz
