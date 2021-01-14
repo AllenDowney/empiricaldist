@@ -186,27 +186,18 @@ class Distribution(pd.Series):
 
         :return: NumPy array
         """
-        # TODO: Make this more efficient by implementing the inverse CDF method.
         pmf = self.make_pmf()
         return pmf.choice(*args, **kwargs)
 
     def sample(self, *args, **kwargs):
-        """Makes a random sample.
+        """Samples with replacement using probabilities as weights.
 
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the
-        quantities in this Pmf, which is different from Series.sample,
-        which returns a Series with a sample of the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
+        n: number of values
 
         :return: NumPy array
         """
-        # TODO: Make this more efficient by implementing the inverse CDF method.
-        pmf = self.make_pmf()
-        return pmf.sample(*args, **kwargs)
+        cdf = self.make_cdf()
+        return cdf.sample(*args, **kwargs)
 
     def add_dist(self, x):
         """Distribution of the sum of values drawn from self and x.
@@ -491,25 +482,6 @@ class Pmf(Distribution):
         underride(kwargs, p=self.ps)
         return np.random.choice(self.qs, *args, **kwargs)
 
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the quantities in this Pmf,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
-
-        :return: NumPy array
-        """
-        series = pd.Series(self.qs)
-        underride(kwargs, weights=self.ps)
-        sample = series.sample(*args, **kwargs)
-        return sample.values
-
     def add_dist(self, x):
         """Computes the Pmf of the sum of values drawn from self and x.
 
@@ -792,7 +764,6 @@ class Pmf(Distribution):
         series = pd.Series(seq).value_counts(normalize=normalize,
                                              sort=False,
                                              dropna=dropna)
-
         # make the result a Pmf
         # (since we just made a fresh Series, there is no reason to copy it)
         options['copy'] = False
@@ -800,11 +771,25 @@ class Pmf(Distribution):
 
         # sort in place, if desired
         if sort:
-            pmf.sort_index(ascending=ascending,
-                           inplace=True,
-                           na_position=na_position)
+            pmf.sort(ascending=ascending, na_position=na_position)
+
+        """In the current implementation, `from_seq` sorts numerical
+           quantities whether you want to or not.  If keeping
+           the order of the elements is important, let me know and
+           I'll rethink the implementation
+        """
 
         return pmf
+
+    def sort(self, ascending=True, na_position='last'):
+        """Sort the quantities in place.
+
+        ascending: boolean, ascending order, default True
+        na_position: where to put NaN, default last
+        """
+        self.sort_index(ascending=ascending,
+                        inplace=True,
+                        na_position=na_position)
 
 
 class Cdf(Distribution):
@@ -954,37 +939,15 @@ class Cdf(Distribution):
         """
         return dist.make_cdf()
 
-    def choice(self, *args, **kwargs):
-        """Makes a random sample.
+    def sample(self, n=1):
+        """Samples with replacement using probabilities as weights.
 
-        Uses the probabilities as weights unless `p` is provided.
-
-        args: same as np.random.choice
-        options: same as np.random.choice
+        n: number of values
 
         :return: NumPy array
         """
-        # TODO: Make this more efficient by implementing the inverse CDF method.
-        pmf = self.make_pmf()
-        return pmf.choice(*args, **kwargs)
-
-    def sample(self, *args, **kwargs):
-        """Makes a random sample.
-
-        Uses the probabilities as weights unless `weights` is provided.
-
-        This function returns an array containing a sample of the quantities in this Pmf,
-        which is different from Series.sample, which returns a Series with a sample of
-        the rows in the original Series.
-
-        args: same as Series.sample
-        options: same as Series.sample
-
-        :return: NumPy array
-        """
-        # TODO: Make this more efficient by implementing the inverse CDF method.
-        pmf = self.make_pmf()
-        return pmf.sample(*args, **kwargs)
+        ps = np.random.random(n)
+        return self.inverse(ps)
 
     def max_dist(self, n):
         """Distribution of the maximum of `n` values from this distribution.

@@ -54,6 +54,17 @@ class Test(unittest.TestCase):
         res = pmf(xs)
         self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
+    def testSort(self):
+        t = [5, 4, 3, 2, 1]
+        pmf1 = Pmf.from_seq(t)
+        self.assertListEqual(list(pmf1.qs), [1, 2, 3, 4, 5])
+
+        # This generates a warning
+        #pmf2 = Pmf.from_seq(t, sort=False)
+        #print(pmf2)
+        #self.assertListEqual(list(pmf2.qs), t)
+
+
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         self.assertAlmostEqual(pmf.mean(), 3.5)
@@ -96,50 +107,44 @@ class Test(unittest.TestCase):
         cdf = pmf.make_cdf()
         self.assertAlmostEqual(cdf.mode(), 3)
 
-    def testPmfSampling(self):
-        pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+    def testSample(self):
+        pmf = Pmf.from_seq([1, 2, 2, 4, 5])
+        expected = [2,2,1,1,4,4,4,2,1,2]
 
-        # test choice
+        np.random.seed(17)
+        a = pmf.sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+        np.random.seed(17)
+        a = pmf.make_cdf().sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+        np.random.seed(17)
+        a = pmf.make_surv().sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+        np.random.seed(17)
+        a = pmf.make_hazard().sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+    def testChoice(self):
+        pmf = Pmf.from_seq([1, 2, 2, 4, 5])
+        expected = [2,2,1,1,4,4,4,2,1,2]
+
         np.random.seed(17)
         a = pmf.choice(10)
         self.assertTrue(np.all((a == expected)))
 
-        # test sample
-        a = pmf.sample(10, replace=True, random_state=17)
+        np.random.seed(17)
+        a = pmf.make_cdf().choice(10)
         self.assertTrue(np.all((a == expected)))
-
-    def testCdfSampling(self):
-        cdf = Cdf.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
         np.random.seed(17)
-        a = cdf.choice(10)
+        a = pmf.make_surv().choice(10)
         self.assertTrue(np.all((a == expected)))
-
-        a = cdf.sample(10, replace=True, random_state=17)
-        self.assertTrue(np.all((a == expected)))
-
-    def testSurvSampling(self):
-        surv = Surv.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
         np.random.seed(17)
-        a = surv.choice(10)
-        self.assertTrue(np.all((a == expected)))
-
-        a = surv.sample(10, replace=True, random_state=17)
-        self.assertTrue(np.all((a == expected)))
-
-    def testHazardSampling(self):
-        haz = Hazard.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
-
-        np.random.seed(17)
-        a = haz.choice(10)
-        self.assertTrue(np.all((a == expected)))
-
-        a = haz.sample(10, replace=True, random_state=17)
+        a = pmf.make_hazard().choice(10)
         self.assertTrue(np.all((a == expected)))
 
     def testHead(self):
