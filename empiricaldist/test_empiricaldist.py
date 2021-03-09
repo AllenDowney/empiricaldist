@@ -54,6 +54,13 @@ class Test(unittest.TestCase):
         res = pmf(xs)
         self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
+        pmf = Pmf.from_seq(t)
+        self.assertEqual(pmf.name, '')
+
+        pmf = Pmf.from_seq(t, name='test')
+        self.assertEqual(pmf.name, 'test')
+
+
     def testSort(self):
         t = [5, 4, 3, 2, 1]
         pmf1 = Pmf.from_seq(t)

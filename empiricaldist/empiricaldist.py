@@ -42,6 +42,7 @@ class Distribution(pd.Series):
         that Series() and Series([]) yield different results.
         See: https://github.com/pandas-dev/pandas/issues/16737
         """
+        underride(kwargs, name='')
         if args or ('index' in kwargs):
             super().__init__(*args, **kwargs)
         else:
