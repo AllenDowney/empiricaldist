@@ -54,6 +54,17 @@ class Test(unittest.TestCase):
         res = pmf(xs)
         self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
+    def testSort(self):
+        t = list('allen')
+        pmf = Pmf.from_seq(t, sort=False)
+        sorted = pmf.sort()
+        self.assertEqual(sorted.qs[0], 'a')
+        self.assertEqual(sorted.qs[-1], 'n')
+
+        cdf = pmf.make_cdf(sort=True)
+        self.assertEqual(cdf.qs[0], 'a')
+        self.assertEqual(cdf.qs[-1], 'n')
+
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         self.assertAlmostEqual(pmf.mean(), 3.5)

@@ -709,10 +709,16 @@ class Pmf(Distribution):
 
         :return: Cdf
         """
+        sort = kwargs.pop('sort', False)
         normalize = kwargs.pop('normalize', False)
 
-        cumulative = np.cumsum(self)
-        cdf = Cdf(cumulative, self.index.copy(), **kwargs)
+        if sort:
+            pmf = self.sort()
+        else:
+            pmf = self
+
+        cumulative = np.cumsum(pmf)
+        cdf = Cdf(cumulative, pmf.index.copy(), **kwargs)
 
         if normalize:
             cdf.normalize()
@@ -781,6 +787,13 @@ class Pmf(Distribution):
 
         return pmf
 
+    def sort(self, **options):
+        inplace = options.pop('inplace', False)
+        if inplace:
+            return self.sort_index(inplace=True, **options)
+        else:
+            sorted = self.sort_index(inplace=False, **options)
+            return Pmf(sorted)
 
 class Cdf(Distribution):
     """Represents a Cumulative Distribution Function (CDF)."""
