@@ -57,13 +57,18 @@ class Test(unittest.TestCase):
     def testSort(self):
         t = list('allen')
         pmf = Pmf.from_seq(t, sort=False)
-        sorted = pmf.sort()
-        self.assertEqual(sorted.qs[0], 'a')
-        self.assertEqual(sorted.qs[-1], 'n')
+        pmf.sort_index(inplace=True)
+        self.assertEqual(pmf.qs[0], 'a')
+        self.assertEqual(pmf.qs[-1], 'n')
 
-        cdf = pmf.make_cdf(sort=True)
+        cdf = pmf.make_cdf()
         self.assertEqual(cdf.qs[0], 'a')
         self.assertEqual(cdf.qs[-1], 'n')
+
+        # currently Pmf.from_seq sorts numerical sort_values
+        # regardless of the sort keyword
+        pmf = Pmf.from_seq([3, 6, 1, 7, 2], sort=False)
+        self.assertEqual(pmf.qs[0], 1)
 
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -107,51 +112,77 @@ class Test(unittest.TestCase):
         cdf = pmf.make_cdf()
         self.assertAlmostEqual(cdf.mode(), 3)
 
-    def testPmfSampling(self):
-        pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+    def testSample(self):
+        pmf = Pmf.from_seq([1, 2, 2, 4, 5])
+        expected = [2,2,1,1,4,4,4,2,1,2]
 
-        # test choice
+        np.random.seed(17)
+        a = pmf.sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+        np.random.seed(17)
+        a = pmf.make_cdf().sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+        np.random.seed(17)
+        a = pmf.make_surv().sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+        np.random.seed(17)
+        a = pmf.make_hazard().sample(10)
+        self.assertTrue(np.all((a == expected)))
+
+    def testChoice(self):
+        pmf = Pmf.from_seq([1, 2, 2, 4, 5])
+        expected = [2,2,1,1,4,4,4,2,1,2]
+
         np.random.seed(17)
         a = pmf.choice(10)
         self.assertTrue(np.all((a == expected)))
 
-        # test sample
-        a = pmf.sample(10, replace=True, random_state=17)
+        np.random.seed(17)
+        a = pmf.make_cdf().choice(10)
         self.assertTrue(np.all((a == expected)))
-
-    def testCdfSampling(self):
-        cdf = Cdf.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
         np.random.seed(17)
-        a = cdf.choice(10)
+        a = pmf.make_surv().choice(10)
         self.assertTrue(np.all((a == expected)))
-
-        a = cdf.sample(10, replace=True, random_state=17)
-        self.assertTrue(np.all((a == expected)))
-
-    def testSurvSampling(self):
-        surv = Surv.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
 
         np.random.seed(17)
-        a = surv.choice(10)
+        a = pmf.make_hazard().choice(10)
         self.assertTrue(np.all((a == expected)))
 
-        a = surv.sample(10, replace=True, random_state=17)
-        self.assertTrue(np.all((a == expected)))
+    def testHead(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        h = pmf1.head()
+        self.assertEqual(type(h), type(pmf1))
 
-    def testHazardSampling(self):
-        haz = Hazard.from_seq([1, 2, 3, 4, 5, 6])
-        expected = [2, 4, 2, 1, 5, 4, 4, 4, 1, 3]
+        cdf1 = pmf1.make_cdf()
+        h = cdf1.head()
+        self.assertEqual(type(h), type(cdf1))
 
-        np.random.seed(17)
-        a = haz.choice(10)
-        self.assertTrue(np.all((a == expected)))
+    def testTransform(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5])
+        pmf2 = pmf1.transform(lambda x: x**2)
+        self.assertAlmostEqual(pmf2.mean(), 11.0)
 
-        a = haz.sample(10, replace=True, random_state=17)
-        self.assertTrue(np.all((a == expected)))
+    def testAdd(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        pmf2 = Pmf.from_seq([1, 2, 3, 4])
+
+        total = pmf1 + pmf2
+        total.normalize()
+        self.assertAlmostEqual(total.mean(), 3)
+
+        total = pmf1.add(pmf2)
+        total.normalize()
+        self.assertAlmostEqual(total.mean(), 3)
+
+    def testMul(self):
+        pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        pmf2 = Pmf.from_seq([1, 2, 3, 4])
+        pmf3 = 0.5 * pmf1 + 0.5 * pmf2
+        self.assertAlmostEqual(pmf3.mean(), 3.0)
 
     def testAddDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -248,10 +279,10 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(mar1.mean(), pmf1.mean())
         self.assertAlmostEqual(mar2.mean(), pmf2.mean())
 
-        cond1 = joint.conditional(0, 1, 1)
-        cond2 = joint.conditional(1, 0, 1)
-        self.assertAlmostEqual(cond1.mean(), pmf1.mean())
-        self.assertAlmostEqual(cond2.mean(), pmf2.mean())
+        cond1 = joint.conditional(0, 1)
+        cond2 = joint.conditional(1, 1)
+        self.assertAlmostEqual(cond1.mean(), pmf2.mean())
+        self.assertAlmostEqual(cond2.mean(), pmf1.mean())
 
     def testComparison(self):
         pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -400,6 +431,7 @@ class Test(unittest.TestCase):
         self.assertEqual(cdf.inverse(0.7), 3)
         self.assertEqual(cdf.inverse(0.8), 3)
         self.assertEqual(cdf.inverse(0.9), 5)
+        self.assertEqual(cdf.inverse(0.99999), 5)
         self.assertEqual(cdf.inverse(1), 5)
 
         ps = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -499,6 +531,12 @@ class Test(unittest.TestCase):
         cdf = Cdf.from_seq(t)
         haz2 = cdf.make_hazard()
         res = haz2(xs)
+        for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
+            self.assertAlmostEqual(x, y)
+
+        surv = Surv.from_seq(t)
+        haz3 = surv.make_hazard()
+        res = haz3(xs)
         for x, y in zip(res, [0, 0.2, 0.5, 0.5, 0, 1, 0]):
             self.assertAlmostEqual(x, y)
 

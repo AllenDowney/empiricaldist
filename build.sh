@@ -1,7 +1,7 @@
 #increment the version number in setup.py
 
-#make sure twine is installed
-conda install twine
+# make sure twine is installed
+# conda install twine
 
 # remove the old distribution
 rm -rf dist
@@ -11,3 +11,6 @@ python setup.py sdist
 
 # push it to PyPI
 twine upload dist/*
+
+# get username and password from Google passwords
+
