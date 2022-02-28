@@ -4,40 +4,40 @@ Copyright 2019 Allen B. Downey
 License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
 """
 
-import unittest
 import random
-
+import unittest
 from collections import Counter
+
 import numpy as np
 
-from empiricaldist import Pmf, Cdf, Surv, Hazard
+from empiricaldist import Cdf, Hazard, Pmf, Surv
+
 
 class Test(unittest.TestCase):
-
     def testPmf(self):
-        t = list('allen')
+        t = list("allen")
         pmf = Pmf.from_seq(t)
 
         self.assertEqual(len(pmf), 4)
-        self.assertEqual(pmf['l'], 0.4)
+        self.assertEqual(pmf["l"], 0.4)
 
         pmf = Pmf(pmf)
         self.assertEqual(len(pmf), 4)
-        self.assertEqual(pmf['l'], 0.4)
+        self.assertEqual(pmf["l"], 0.4)
 
         pmf = Pmf(Counter(t))
         self.assertEqual(len(pmf), 4)
-        self.assertEqual(pmf['l'], 2)
+        self.assertEqual(pmf["l"], 2)
 
         pmf2 = pmf.copy()
         self.assertEqual(len(pmf), 4)
-        self.assertEqual(pmf['l'], 2)
+        self.assertEqual(pmf["l"], 2)
 
         # test choice
         np.random.seed(42)
         pmf.normalize()
         xs = pmf.choice(7, replace=True)
-        self.assertListEqual(xs.tolist(), ['l', 'n', 'e', 'l', 'a', 'a', 'a'])
+        self.assertListEqual(xs.tolist(), ["l", "n", "e", "l", "a", "a", "a"])
 
         # test a Pmf with an explicit 0
         t = [1, 2, 2, 3, 5]
@@ -48,22 +48,22 @@ class Test(unittest.TestCase):
 
         self.assertEqual(pmf(3), 1)
         self.assertEqual(pmf(4), 0)
-        self.assertEqual(pmf('a'), 0)
+        self.assertEqual(pmf("a"), 0)
 
-        xs = [0,1,2,3,4,5,6]
+        xs = [0, 1, 2, 3, 4, 5, 6]
         res = pmf(xs)
         self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
     def testSort(self):
-        t = list('allen')
+        t = list("allen")
         pmf = Pmf.from_seq(t, sort=False)
         pmf.sort_index(inplace=True)
-        self.assertEqual(pmf.qs[0], 'a')
-        self.assertEqual(pmf.qs[-1], 'n')
+        self.assertEqual(pmf.qs[0], "a")
+        self.assertEqual(pmf.qs[-1], "n")
 
         cdf = pmf.make_cdf()
-        self.assertEqual(cdf.qs[0], 'a')
-        self.assertEqual(cdf.qs[-1], 'n')
+        self.assertEqual(cdf.qs[0], "a")
+        self.assertEqual(cdf.qs[-1], "n")
 
         # currently Pmf.from_seq sorts numerical sort_values
         # regardless of the sort keyword
@@ -114,7 +114,7 @@ class Test(unittest.TestCase):
 
     def testSample(self):
         pmf = Pmf.from_seq([1, 2, 2, 4, 5])
-        expected = [2,2,1,1,4,4,4,2,1,2]
+        expected = [2, 2, 1, 1, 4, 4, 4, 2, 1, 2]
 
         np.random.seed(17)
         a = pmf.sample(10)
@@ -134,7 +134,7 @@ class Test(unittest.TestCase):
 
     def testChoice(self):
         pmf = Pmf.from_seq([1, 2, 2, 4, 5])
-        expected = [2,2,1,1,4,4,4,2,1,2]
+        expected = [2, 2, 1, 1, 4, 4, 4, 2, 1, 2]
 
         np.random.seed(17)
         a = pmf.choice(10)
@@ -295,11 +295,11 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(pmf1.lt_dist(3), 2 / 6)
         self.assertAlmostEqual(pmf1.le_dist(3), 3 / 6)
 
-        self.assertAlmostEqual(pmf1.eq_dist(pmf2), 1/6)
-        self.assertAlmostEqual(pmf1.ne_dist(pmf2), 5/6)
+        self.assertAlmostEqual(pmf1.eq_dist(pmf2), 1 / 6)
+        self.assertAlmostEqual(pmf1.ne_dist(pmf2), 5 / 6)
         self.assertAlmostEqual(pmf1.gt_dist(pmf2), 0.5833333)
-        self.assertAlmostEqual(pmf1.ge_dist(pmf2), 3/4)
-        self.assertAlmostEqual(pmf1.lt_dist(pmf2), 1/4)
+        self.assertAlmostEqual(pmf1.ge_dist(pmf2), 3 / 4)
+        self.assertAlmostEqual(pmf1.lt_dist(pmf2), 1 / 4)
         self.assertAlmostEqual(pmf1.le_dist(pmf2), 0.41666666)
 
         self.assertAlmostEqual(pmf1.prob_eq(3), 1 / 6)
@@ -309,15 +309,15 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(pmf1.prob_lt(3), 2 / 6)
         self.assertAlmostEqual(pmf1.prob_le(3), 3 / 6)
 
-        self.assertAlmostEqual(pmf1.prob_eq(pmf2), 1/6)
-        self.assertAlmostEqual(pmf1.prob_ne(pmf2), 5/6)
+        self.assertAlmostEqual(pmf1.prob_eq(pmf2), 1 / 6)
+        self.assertAlmostEqual(pmf1.prob_ne(pmf2), 5 / 6)
         self.assertAlmostEqual(pmf1.prob_gt(pmf2), 0.5833333)
-        self.assertAlmostEqual(pmf1.prob_ge(pmf2), 3/4)
-        self.assertAlmostEqual(pmf1.prob_lt(pmf2), 1/4)
+        self.assertAlmostEqual(pmf1.prob_ge(pmf2), 3 / 4)
+        self.assertAlmostEqual(pmf1.prob_lt(pmf2), 1 / 4)
         self.assertAlmostEqual(pmf1.prob_le(pmf2), 0.41666666)
 
     def testPmfComparison(self):
-        d4 = Pmf.from_seq(range(1,5))
+        d4 = Pmf.from_seq(range(1, 5))
         self.assertEqual(d4.gt_dist(2), 0.5)
         self.assertEqual(d4.gt_dist(d4), 0.375)
 
@@ -337,7 +337,7 @@ class Test(unittest.TestCase):
         self.assertEqual(d4.ne_dist(d4), 0.75)
 
     def testCdfComparison(self):
-        d4 = Cdf.from_seq(range(1,5))
+        d4 = Cdf.from_seq(range(1, 5))
         self.assertEqual(d4.gt_dist(2), 0.5)
         self.assertEqual(d4.gt_dist(d4), 0.375)
 
@@ -357,7 +357,7 @@ class Test(unittest.TestCase):
         self.assertEqual(d4.ne_dist(d4), 0.75)
 
     def testSurvComparison(self):
-        d4 = Surv.from_seq(range(1,5))
+        d4 = Surv.from_seq(range(1, 5))
         self.assertEqual(d4.gt_dist(2), 0.5)
         self.assertEqual(d4.gt_dist(d4), 0.375)
 
@@ -377,7 +377,7 @@ class Test(unittest.TestCase):
         self.assertEqual(d4.ne_dist(d4), 0.75)
 
     def testHazardComparison(self):
-        d4 = Hazard.from_seq(range(1,5))
+        d4 = Hazard.from_seq(range(1, 5))
         self.assertEqual(d4.gt_dist(2), 0.5)
         self.assertEqual(d4.gt_dist(d4), 0.375)
 
@@ -398,11 +398,11 @@ class Test(unittest.TestCase):
 
     def testCdf(self):
         # if the quantities are not numeric, you can use [] but not ()
-        cdf = Cdf.from_seq(list('allen'))
-        self.assertAlmostEqual(cdf['a'], 0.2)
-        self.assertAlmostEqual(cdf['e'], 0.4)
-        self.assertAlmostEqual(cdf['l'], 0.8)
-        self.assertAlmostEqual(cdf['n'], 1.0)
+        cdf = Cdf.from_seq(list("allen"))
+        self.assertAlmostEqual(cdf["a"], 0.2)
+        self.assertAlmostEqual(cdf["e"], 0.4)
+        self.assertAlmostEqual(cdf["l"], 0.8)
+        self.assertAlmostEqual(cdf["n"], 1.0)
 
         t = [1, 2, 2, 3, 5]
         cdf = Cdf.from_seq(t)
@@ -444,11 +444,11 @@ class Test(unittest.TestCase):
 
     def testSurv(self):
         # if the quantities are not numeric, you can use [] but not ()
-        surv = Surv.from_seq(list('allen'))
-        self.assertAlmostEqual(surv['a'], 0.8)
-        self.assertAlmostEqual(surv['e'], 0.6)
-        self.assertAlmostEqual(surv['l'], 0.2)
-        self.assertAlmostEqual(surv['n'], 0)
+        surv = Surv.from_seq(list("allen"))
+        self.assertAlmostEqual(surv["a"], 0.8)
+        self.assertAlmostEqual(surv["e"], 0.6)
+        self.assertAlmostEqual(surv["l"], 0.2)
+        self.assertAlmostEqual(surv["n"], 0)
 
         # test unnormalized
         t = [1, 2, 2, 3, 5]
@@ -456,7 +456,7 @@ class Test(unittest.TestCase):
         self.assertListEqual(list(surv), [4, 2, 1, 0])
 
         res = surv([0, 1, 2, 3, 4, 5, 6])
-        self.assertListEqual(list(res), [5., 4., 2., 1., 1., 0., 0.])
+        self.assertListEqual(list(res), [5.0, 4.0, 2.0, 1.0, 1.0, 0.0, 0.0])
 
         res = surv.inverse([0, 1, 2, 3, 4, 5])
         self.assertListEqual(list(res), [5, 3, 2, 2, 1, -np.inf])
@@ -557,12 +557,12 @@ class Test(unittest.TestCase):
         self.assertListEqual(list(ci), [5, 95])
 
     def testMinMax(self):
-        pmf = Pmf.from_seq([1,2,3])
+        pmf = Pmf.from_seq([1, 2, 3])
         pmf2 = pmf.max_dist(2)
-        ans = Pmf([1/9, 3/9, 5/9], pmf.index)
+        ans = Pmf([1 / 9, 3 / 9, 5 / 9], pmf.index)
         self.almost_equal_dist(pmf2, ans)
         pmf3 = pmf.min_dist(2)
-        ans = Pmf([5/9, 3/9, 1/9], pmf.index)
+        ans = Pmf([5 / 9, 3 / 9, 1 / 9], pmf.index)
         self.almost_equal_dist(pmf3, ans)
 
     def testConversionFunctions(self):
@@ -591,13 +591,13 @@ class Test(unittest.TestCase):
         self.almost_equal_dist(pmf, pmf3)
 
     def testUnnormalized(self):
-        t = [1,2,2,4,5]
+        t = [1, 2, 2, 4, 5]
         pmf = Pmf.from_seq(t, normalize=False)
         cdf = pmf.make_cdf()
-        self.assertListEqual(list(cdf), [1,3,4,5])
+        self.assertListEqual(list(cdf), [1, 3, 4, 5])
 
         surv = pmf.make_surv()
-        self.assertListEqual(list(surv), [4,2,1,0])
+        self.assertListEqual(list(surv), [4, 2, 1, 0])
 
         cdf2 = surv.make_cdf()
         self.assertListEqual(list(cdf), list(cdf2))
@@ -609,14 +609,14 @@ class Test(unittest.TestCase):
         self.assertListEqual(list(pmf), list(pmf2))
 
     def testKaplanMeier(self):
-        complete = [1,3,6]
-        ongoing = [2,3,5,7]
+        complete = [1, 3, 6]
+        ongoing = [2, 3, 5, 7]
 
         pmf_complete = Pmf.from_seq(complete, normalize=False)
         pmf_ongoing = Pmf.from_seq(ongoing, normalize=False)
 
         res = pmf_complete + pmf_ongoing
-        self.assertListEqual(list(res), [1,1,2,1,1,1])
+        self.assertListEqual(list(res), [1, 1, 2, 1, 1, 1])
 
         res = pmf_complete - pmf_ongoing
         self.assertListEqual(list(res), [1.0, -1.0, 0.0, -1.0, 1.0, -1.0])
@@ -633,10 +633,10 @@ class Test(unittest.TestCase):
         done = pmf_complete + pmf_ongoing
 
         s1 = surv_complete(done.index)
-        self.assertListEqual(list(s1), [2., 2., 1., 1., 0., 0.])
+        self.assertListEqual(list(s1), [2.0, 2.0, 1.0, 1.0, 0.0, 0.0])
 
         s2 = surv_ongoing(done.index)
-        self.assertListEqual(list(s2), [4., 3., 2., 1., 1., 0.])
+        self.assertListEqual(list(s2), [4.0, 3.0, 2.0, 1.0, 1.0, 0.0])
 
         at_risk = done + s1 + s2
         self.assertListEqual(list(at_risk), [7.0, 6.0, 5.0, 3.0, 2.0, 1.0])

@@ -13,10 +13,9 @@ Copyright 2019 Allen B. Downey
 MIT License: https://opensource.org/licenses/MIT
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 from scipy.interpolate import interp1d
 
 
@@ -42,8 +41,8 @@ class Distribution(pd.Series):
         that Series() and Series([]) yield different results.
         See: https://github.com/pandas-dev/pandas/issues/16737
         """
-        underride(kwargs, name='')
-        if args or ('index' in kwargs):
+        underride(kwargs, name="")
+        if args or ("index" in kwargs):
             super().__init__(*args, **kwargs)
         else:
             underride(kwargs, dtype=np.float64)
@@ -109,7 +108,7 @@ class Distribution(pd.Series):
 
         # if qs is a sequence type, use reindex;
         # otherwise use get
-        if hasattr(qs, '__iter__') and not isinstance(qs, string_types):
+        if hasattr(qs, "__iter__") and not isinstance(qs, string_types):
             s = self.reindex(qs, fill_value=0)
             return s.to_numpy()
         else:
@@ -255,7 +254,7 @@ class Distribution(pd.Series):
 
         :return: NumPy array
         """
-        #TODO: convert other types to Pmf
+        # TODO: convert other types to Pmf
         pmf1 = dist1
         pmf2 = dist2
 
@@ -349,6 +348,7 @@ class Distribution(pd.Series):
     prob_le = le_dist
     prob_eq = eq_dist
     prob_ne = ne_dist
+
 
 class Pmf(Distribution):
     """Represents a probability Mass Function (PMF)."""
@@ -463,7 +463,7 @@ class Pmf(Distribution):
         """
         m = self.mean()
         d = self.qs - m
-        return np.sum(d ** 2 * self.ps)
+        return np.sum(d**2 * self.ps)
 
     def std(self):
         """Standard deviation of a PMF.
@@ -709,7 +709,7 @@ class Pmf(Distribution):
 
         :return: Cdf
         """
-        normalize = kwargs.pop('normalize', False)
+        normalize = kwargs.pop("normalize", False)
 
         cumulative = np.cumsum(self)
         cdf = Cdf(cumulative, self.index.copy(), **kwargs)
@@ -734,7 +734,7 @@ class Pmf(Distribution):
         """
         surv = self.make_surv()
         haz = Hazard(self / (self + surv), **kwargs)
-        haz.total = getattr(surv, 'total', 1.0)
+        haz.total = getattr(surv, "total", 1.0)
         if normalize:
             self.normalize()
         return haz
@@ -748,8 +748,15 @@ class Pmf(Distribution):
         return dist.make_pmf()
 
     @staticmethod
-    def from_seq(seq, normalize=True, sort=True, ascending=True,
-                 dropna=True, na_position='last', **options):
+    def from_seq(
+        seq,
+        normalize=True,
+        sort=True,
+        ascending=True,
+        dropna=True,
+        na_position="last",
+        **options
+    ):
         """Make a PMF from a sequence of values.
 
         seq: iterable
@@ -770,19 +777,17 @@ class Pmf(Distribution):
         :return: Pmf object
         """
         # compute the value counts
-        series = pd.Series(seq).value_counts(normalize=normalize,
-                                             sort=False,
-                                             dropna=dropna)
+        series = pd.Series(seq).value_counts(
+            normalize=normalize, sort=False, dropna=dropna
+        )
         # make the result a Pmf
         # (since we just made a fresh Series, there is no reason to copy it)
-        options['copy'] = False
+        options["copy"] = False
         pmf = Pmf(series, **options)
 
         # sort in place, if desired
         if sort:
-            pmf.sort_index(inplace=True,
-                           ascending=ascending,
-                           na_position=na_position)
+            pmf.sort_index(inplace=True, ascending=ascending, na_position=na_position)
 
         return pmf
 
@@ -893,8 +898,8 @@ class Cdf(Distribution):
 
         :return: Pmf
         """
-        #TODO: check for consistent behavior of copy flag for all make_x
-        normalize = kwargs.pop('normalize', False)
+        # TODO: check for consistent behavior of copy flag for all make_x
+        normalize = kwargs.pop("normalize", False)
 
         diff = np.diff(self, prepend=0)
         pmf = Pmf(diff, index=self.index.copy(), **kwargs)
@@ -907,7 +912,7 @@ class Cdf(Distribution):
 
         :return: Surv object
         """
-        normalize = kwargs.pop('normalize', False)
+        normalize = kwargs.pop("normalize", False)
         total = self.ps[-1]
         surv = Surv(total - self, **kwargs)
         surv.total = total
@@ -923,7 +928,7 @@ class Cdf(Distribution):
         pmf = self.make_pmf()
         surv = self.make_surv()
         haz = Hazard(pmf / (pmf + surv), **kwargs)
-        haz.total = getattr(surv, 'total', 1.0)
+        haz.total = getattr(surv, "total", 1.0)
         return haz
 
     def make_same(self, dist):
@@ -961,8 +966,9 @@ class Cdf(Distribution):
 
         :return: Cdf
         """
-        ps = 1 - (1 - self)**n
+        ps = 1 - (1 - self) ** n
         return Cdf(ps, self.index.copy())
+
 
 class Surv(Distribution):
     """Represents a survival function (complementary CDF)."""
@@ -1002,7 +1008,7 @@ class Surv(Distribution):
 
         :return: normalizing constant
         """
-        old_total = getattr(self, 'total', 1.0)
+        old_total = getattr(self, "total", 1.0)
         self.ps /= old_total
         self.total = 1.0
         return old_total
@@ -1015,7 +1021,7 @@ class Surv(Distribution):
 
         :return array of probabilities
         """
-        total = getattr(self, 'total', 1.0)
+        total = getattr(self, "total", 1.0)
         underride(
             kwargs,
             kind="previous",
@@ -1035,7 +1041,7 @@ class Surv(Distribution):
 
         :return: interpolation function from ps to qs
         """
-        total = getattr(self, 'total', 1.0)
+        total = getattr(self, "total", 1.0)
         underride(
             kwargs,
             kind="previous",
@@ -1057,8 +1063,8 @@ class Surv(Distribution):
 
         :return: Cdf
         """
-        normalize = kwargs.pop('normalize', False)
-        total = getattr(self, 'total', 1.0)
+        normalize = kwargs.pop("normalize", False)
+        total = getattr(self, "total", 1.0)
         cdf = Cdf(total - self, **kwargs)
         if normalize:
             cdf.normalize()
@@ -1081,7 +1087,7 @@ class Surv(Distribution):
         pmf = self.make_pmf()
         at_risk = self + pmf
         haz = Hazard(pmf / at_risk, **kwargs)
-        haz.total = getattr(self, 'total', 1.0)
+        haz.total = getattr(self, "total", 1.0)
         haz.name = self.name
         return haz
 
@@ -1111,7 +1117,7 @@ class Hazard(Distribution):
 
         :return: normalizing constant
         """
-        old_total = getattr(self, 'total', 1.0)
+        old_total = getattr(self, "total", 1.0)
         self.total = 1.0
         return old_total
 
@@ -1128,9 +1134,9 @@ class Hazard(Distribution):
 
         :return: Surv
         """
-        normalize = kwargs.pop('normalize', False)
+        normalize = kwargs.pop("normalize", False)
         ps = (1 - self).cumprod()
-        total = getattr(self, 'total', 1.0)
+        total = getattr(self, "total", 1.0)
         surv = Surv(ps * total, **kwargs)
         surv.total = total
 
