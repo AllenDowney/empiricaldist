@@ -1,4 +1,4 @@
-# empyricaldist
+# empiricaldist
 
 Python library that represents empirical distribution functions.
 
