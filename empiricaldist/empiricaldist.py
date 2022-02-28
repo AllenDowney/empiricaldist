@@ -13,7 +13,6 @@ Copyright 2019 Allen B. Downey
 BSD 3-clause license: https://opensource.org/licenses/BSD-3-Clause
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d

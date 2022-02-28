@@ -4,7 +4,6 @@ Copyright 2019 Allen B. Downey
 BSD 3-clause license: https://opensource.org/licenses/BSD-3-Clause
 """
 
-import random
 import unittest
 from collections import Counter
 
