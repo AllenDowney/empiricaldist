@@ -10,7 +10,7 @@ Distribution: Parent class of all distribution representations
 
 Copyright 2019 Allen B. Downey
 
-MIT License: https://opensource.org/licenses/MIT
+BSD 3-clause license: https://opensource.org/licenses/BSD-3-Clause
 """
 
 import matplotlib.pyplot as plt

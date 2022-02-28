@@ -1,7 +1,7 @@
 """Test code for empiricaldist
 
 Copyright 2019 Allen B. Downey
-License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
+BSD 3-clause license: https://opensource.org/licenses/BSD-3-Clause
 """
 
 import random
