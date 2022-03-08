@@ -193,6 +193,8 @@ class Distribution(pd.Series):
     def sample(self, *args, **kwargs):
         """Samples with replacement using probabilities as weights.
 
+        Uses the inverse CDF.
+
         n: number of values
 
         :return: NumPy array
@@ -754,7 +756,7 @@ class Pmf(Distribution):
                  dropna=True, na_position='last', **options):
         """Make a PMF from a sequence of values.
 
-        seq: any kind of sequence
+        seq: iterable
         normalize: whether to normalize the Pmf, default True
         sort: whether to sort the Pmf by values, default True
         ascending: whether to sort in ascending order, default True
@@ -762,6 +764,12 @@ class Pmf(Distribution):
         na_position: If ‘first’ puts NaNs at the beginning,
                         ‘last’ puts NaNs at the end.
         options: passed to the pd.Series constructor
+
+
+        NOTE: In the current implementation, `from_seq` sorts numerical
+           quantities whether you want to or not.  If keeping
+           the order of the elements is important, let me know and
+           I'll rethink the implementation
 
         :return: Pmf object
         """
@@ -776,25 +784,11 @@ class Pmf(Distribution):
 
         # sort in place, if desired
         if sort:
-            pmf.sort(ascending=ascending, na_position=na_position)
-
-        """In the current implementation, `from_seq` sorts numerical
-           quantities whether you want to or not.  If keeping
-           the order of the elements is important, let me know and
-           I'll rethink the implementation
-        """
+            pmf.sort_index(inplace=True,
+                           ascending=ascending,
+                           na_position=na_position)
 
         return pmf
-
-    def sort(self, ascending=True, na_position='last'):
-        """Sort the quantities in place.
-
-        ascending: boolean, ascending order, default True
-        na_position: where to put NaN, default last
-        """
-        self.sort_index(ascending=ascending,
-                        inplace=True,
-                        na_position=na_position)
 
 
 class Cdf(Distribution):
@@ -811,7 +805,7 @@ class Cdf(Distribution):
     def from_seq(seq, normalize=True, sort=True, **options):
         """Make a CDF from a sequence of values.
 
-        seq: any kind of sequence
+        seq: iterable
         normalize: whether to normalize the Cdf, default True
         sort: whether to sort the Cdf by values, default True
         options: passed to the pd.Series constructor
@@ -988,7 +982,7 @@ class Surv(Distribution):
     def from_seq(seq, normalize=True, sort=True, **options):
         """Make a Surv from a sequence of values.
 
-        seq: any kind of sequence
+        seq: iterable
         normalize: whether to normalize the Surv, default True
         sort: whether to sort the Surv by values, default True
         options: passed to the pd.Series constructor
@@ -1178,7 +1172,7 @@ class Hazard(Distribution):
     def from_seq(seq, **kwargs):
         """Make a Hazard from a sequence of values.
 
-        seq: any kind of sequence
+        seq: iterable
         normalize: whether to normalize the Pmf, default True
         sort: whether to sort the Pmf by values, default True
         kwargs: passed to the pd.Series constructor

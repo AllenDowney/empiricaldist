@@ -54,23 +54,21 @@ class Test(unittest.TestCase):
         res = pmf(xs)
         self.assertListEqual(list(res), [0, 1, 2, 1, 0, 1, 0])
 
-        pmf = Pmf.from_seq(t)
-        self.assertEqual(pmf.name, '')
-
-        pmf = Pmf.from_seq(t, name='test')
-        self.assertEqual(pmf.name, 'test')
-
-
     def testSort(self):
-        t = [5, 4, 3, 2, 1]
-        pmf1 = Pmf.from_seq(t)
-        self.assertListEqual(list(pmf1.qs), [1, 2, 3, 4, 5])
+        t = list('allen')
+        pmf = Pmf.from_seq(t, sort=False)
+        pmf.sort_index(inplace=True)
+        self.assertEqual(pmf.qs[0], 'a')
+        self.assertEqual(pmf.qs[-1], 'n')
 
-        # This generates a warning
-        #pmf2 = Pmf.from_seq(t, sort=False)
-        #print(pmf2)
-        #self.assertListEqual(list(pmf2.qs), t)
+        cdf = pmf.make_cdf()
+        self.assertEqual(cdf.qs[0], 'a')
+        self.assertEqual(cdf.qs[-1], 'n')
 
+        # currently Pmf.from_seq sorts numerical sort_values
+        # regardless of the sort keyword
+        pmf = Pmf.from_seq([3, 6, 1, 7, 2], sort=False)
+        self.assertEqual(pmf.qs[0], 1)
 
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
