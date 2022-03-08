@@ -640,10 +640,14 @@ class Pmf(Distribution):
     def bar(self, **options):
         """Make a bar plot.
 
-        options: passed to pd.Series.plot
+        Note: A previous version of this function use pd.Series.plot.bar,
+        but that was a mistake, because that function treats the quantities
+        as categorical, even if they are numerical, leading to hilariously
+        unexpected results!
+
+        options: passed to plt.bar
         """
-        underride(options, rot=0)
-        self.plot.bar(**options)
+        plt.bar(self.qs, self.ps, **options)
 
     def make_joint(self, other, **options):
         """Make joint distribution (assuming independence).
@@ -1124,10 +1128,14 @@ class Hazard(Distribution):
     def bar(self, **options):
         """Make a bar plot.
 
-        options: passed to pd.Series.plot
+        Note: A previous version of this function use pd.Series.plot.bar,
+        but that was a mistake, because that function treats the quantities
+        as categorical, even if they are numerical, leading to hilariously
+        unexpected results!
+
+        options: passed to plt.bar
         """
-        underride(options, rot=0)
-        self.plot.bar(**options)
+        plt.bar(self.qs, self.ps, **options)
 
     def make_surv(self, **kwargs):
         """Make a Surv from the Hazard.
