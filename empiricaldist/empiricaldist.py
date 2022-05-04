@@ -641,10 +641,14 @@ class Pmf(Distribution):
     def bar(self, **options):
         """Make a bar plot.
 
-        options: passed to pd.Series.plot
+        Note: A previous version of this function use pd.Series.plot.bar,
+        but that was a mistake, because that function treats the quantities
+        as categorical, even if they are numerical, leading to hilariously
+        unexpected results!
+
+        options: passed to plt.bar
         """
-        underride(options, rot=0)
-        self.plot.bar(**options)
+        plt.bar(self.qs, self.ps, **options)
 
     def make_joint(self, other, **options):
         """Make joint distribution (assuming independence).
@@ -667,7 +671,11 @@ class Pmf(Distribution):
 
         :return: Pmf
         """
-        return Pmf(self.sum(level=i))
+        # The following is deprecated now
+        # return Pmf(self.sum(level=i))
+
+        # here's the new version
+        return Pmf(self.groupby(level=i).sum())
 
     def conditional(self, i, val, name=None):
         """Gets the conditional distribution of the indicated variable.
@@ -1049,8 +1057,15 @@ class Surv(Distribution):
             bounds_error=False,
             fill_value=(np.nan, np.nan),
         )
+        # sort in descending order
+        # I don't remember why
         rev = self.sort_values()
-        rev[-np.inf] = total
+
+        # If the reversed Surv doesn't get all the way to total
+        # add a fake entry at -inf
+        if rev.iloc[-1] != total:
+            rev[-np.inf] = total
+
         interp = interp1d(rev, rev.index, **kwargs)
         return interp
 
@@ -1123,10 +1138,14 @@ class Hazard(Distribution):
     def bar(self, **options):
         """Make a bar plot.
 
-        options: passed to pd.Series.plot
+        Note: A previous version of this function use pd.Series.plot.bar,
+        but that was a mistake, because that function treats the quantities
+        as categorical, even if they are numerical, leading to hilariously
+        unexpected results!
+
+        options: passed to plt.bar
         """
-        underride(options, rot=0)
-        self.plot.bar(**options)
+        plt.bar(self.qs, self.ps, **options)
 
     def make_surv(self, **kwargs):
         """Make a Surv from the Hazard.
