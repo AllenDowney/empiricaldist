@@ -1,11 +1,12 @@
 from distutils.core import setup
 
+
 def readme():
     try:
-        with open('README.rst') as f:
+        with open("README.rst") as f:
             return f.read()
     except IOError:
-        return ''
+        return ""
 
 
 setup(
