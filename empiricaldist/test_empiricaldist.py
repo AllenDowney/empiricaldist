@@ -65,10 +65,11 @@ class Test(unittest.TestCase):
         self.assertEqual(cdf.qs[0], 'a')
         self.assertEqual(cdf.qs[-1], 'n')
 
-        # currently Pmf.from_seq sorts numerical sort_values
-        # regardless of the sort keyword
+        # for a while it would sort anyway;
+        # most recently, it doesn't.
+        # So this should not be a test!
         pmf = Pmf.from_seq([3, 6, 1, 7, 2], sort=False)
-        self.assertEqual(pmf.qs[0], 1)
+        # self.assertEqual(pmf.qs[0], 1)
 
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
@@ -497,6 +498,11 @@ class Test(unittest.TestCase):
         np.random.seed(42)
         xs = surv.choice(7, replace=True)
         self.assertListEqual(xs.tolist(), [2, 5, 3, 2, 1, 1, 1])
+
+        # if the survival function starts at p[0]=1,
+        # check that inverse() does the right thing
+        surv[-2] = 1
+        self.assertEqual(surv.inverse(1), -2)
 
     def testNormalize(self):
         t = [0, 1, 2, 3, 3, 4, 4, 4, 5]

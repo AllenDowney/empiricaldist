@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='empiricaldist',
-    version='0.5.0',
+    version='0.6.4',
     author='Allen B. Downey',
     author_email='downey@allendowney.com',
     packages=['empiricaldist'],

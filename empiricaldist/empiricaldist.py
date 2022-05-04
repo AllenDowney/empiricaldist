@@ -672,7 +672,11 @@ class Pmf(Distribution):
 
         :return: Pmf
         """
-        return Pmf(self.sum(level=i))
+        # The following is deprecated now
+        # return Pmf(self.sum(level=i))
+
+        # here's the new version
+        return Pmf(self.groupby(level=i).sum())
 
     def conditional(self, i, val, name=None):
         """Gets the conditional distribution of the indicated variable.
@@ -1048,8 +1052,15 @@ class Surv(Distribution):
             bounds_error=False,
             fill_value=(np.nan, np.nan),
         )
+        # sort in descending order
+        # I don't remember why
         rev = self.sort_values()
-        rev[-np.inf] = total
+
+        # If the reversed Surv doesn't get all the way to total
+        # add a fake entry at -inf
+        if rev.iloc[-1] != total:
+            rev[-np.inf] = total
+
         interp = interp1d(rev, rev.index, **kwargs)
         return interp
 
