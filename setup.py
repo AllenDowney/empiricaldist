@@ -15,6 +15,7 @@ setup(
     author="Allen B. Downey",
     author_email="downey@allendowney.com",
     packages=["empiricaldist"],
+    requires=["numpy", "pandas", "scipy"],
     url="https://github.com/AllenDowney/empiricaldist",
     license="LICENSE",
     description="Python library that represents empirical distributions.",
