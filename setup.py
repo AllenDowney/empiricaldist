@@ -17,7 +17,7 @@ setup(
     packages=["empiricaldist"],
     requires=["numpy", "pandas", "scipy"],
     url="https://github.com/AllenDowney/empiricaldist",
-    license="LICENSE",
+    license="BSD-3-Clause",
     description="Python library that represents empirical distributions.",
     long_description=readme(),
 )
