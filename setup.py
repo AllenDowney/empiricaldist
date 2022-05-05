@@ -10,13 +10,14 @@ def readme():
 
 
 setup(
-    name='empiricaldist',
-    version='0.6.5',
-    author='Allen B. Downey',
-    author_email='downey@allendowney.com',
-    packages=['empiricaldist'],
-    url='http://github.com/AllenDowney/empiricaldist',
-    license='LICENSE',
-    description='Python library that represents empirical distributions.',
+    name="empiricaldist",
+    version="0.6.6",
+    author="Allen B. Downey",
+    author_email="downey@allendowney.com",
+    packages=["empiricaldist"],
+    requires=["numpy", "pandas", "scipy"],
+    url="https://github.com/AllenDowney/empiricaldist",
+    license="BSD-3-Clause",
+    description="Python library that represents empirical distributions.",
     long_description=readme(),
 )
