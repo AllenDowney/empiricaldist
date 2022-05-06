@@ -666,6 +666,15 @@ class Test(unittest.TestCase):
         for x in cdf.qs:
             self.assertAlmostEqual(cdf[x], cdf2[x])
 
+    def testPlotting(self):
+        t = [1, 2, 2, 3, 5]
+
+        pmf = Pmf.from_seq(t)
+        pmf.bar()
+
+        haz = Hazard.from_seq(t)
+        haz.bar()
+
 
 if __name__ == "__main__":
     unittest.main()
