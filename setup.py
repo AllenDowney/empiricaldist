@@ -11,11 +11,11 @@ def readme():
 
 setup(
     name="empiricaldist",
-    version="0.6.6",
+    version="0.6.7",
     author="Allen B. Downey",
     author_email="downey@allendowney.com",
     packages=["empiricaldist"],
-    requires=["numpy", "pandas", "scipy"],
+    requires=["matplotlib", "numpy", "pandas", "scipy"],
     url="https://github.com/AllenDowney/empiricaldist",
     license="BSD-3-Clause",
     description="Python library that represents empirical distributions.",
