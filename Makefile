@@ -44,6 +44,10 @@ lint:
 	black --check --config pyproject.toml empiricaldist
 
 
+tests:
+	pytest empiricaldist
+
+
 release:
 	# First edit setup.py and increment version number	
 	rm dist/*
