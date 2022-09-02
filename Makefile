@@ -52,9 +52,12 @@ tests:
 release:
 	# First edit setup.py and increment version number	
 	rm dist/*
-	python3 setup.py sdist
+	$(PYTHON_INTERPRETER) setup.py sdist
 	twine upload dist/*
 
+
+docs:
+	cd docs && mkdocs build
 
 #################################################################################
 # Self Documenting Commands                                                     #
