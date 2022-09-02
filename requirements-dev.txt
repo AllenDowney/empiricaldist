@@ -1,9 +1,11 @@
-pytest
-pytest-cov
+-r requirements.txt
 black
 flake8
 jupyter
+mkdocs
 pip
+pytest
+pytest-cov
 setuptools
 wheel
 -e .
