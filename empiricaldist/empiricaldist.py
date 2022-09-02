@@ -549,7 +549,7 @@ class Pmf(Distribution):
         return Pmf(series)
 
     def gt_dist(self, x):
-        """Probability that a value from pmf1 is greater than a value from pmf2.
+        """Probability that a value from pmf1 exceeds a value from pmf2.
 
         dist1: Distribution object
         dist2: Distribution object
@@ -763,7 +763,7 @@ class Pmf(Distribution):
         ascending=True,
         dropna=True,
         na_position="last",
-        **options
+        **options,
     ):
         """Make a PMF from a sequence of values.
 
@@ -795,7 +795,9 @@ class Pmf(Distribution):
 
         # sort in place, if desired
         if sort:
-            pmf.sort_index(inplace=True, ascending=ascending, na_position=na_position)
+            pmf.sort_index(
+                inplace=True, ascending=ascending, na_position=na_position
+            )
 
         return pmf
 

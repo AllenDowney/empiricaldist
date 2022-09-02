@@ -29,8 +29,8 @@ class Test(unittest.TestCase):
         self.assertEqual(pmf["l"], 2)
 
         pmf2 = pmf.copy()
-        self.assertEqual(len(pmf), 4)
-        self.assertEqual(pmf["l"], 2)
+        self.assertEqual(len(pmf2), 4)
+        self.assertEqual(pmf2["l"], 2)
 
         # test choice
         np.random.seed(42)
@@ -647,7 +647,9 @@ class Test(unittest.TestCase):
         self.assertListEqual(list(at_risk), [7.0, 6.0, 5.0, 3.0, 2.0, 1.0])
 
         haz = pmf_complete / at_risk
-        self.assertListEqual(list(haz), [0.14285714285714285, 0.0, 0.2, 0.0, 0.5, 0.0])
+        self.assertListEqual(
+            list(haz), [0.14285714285714285, 0.0, 0.2, 0.0, 0.5, 0.0]
+        )
 
     def almost_equal_dist(self, dist1, dist2):
         for x in dist1.qs:
