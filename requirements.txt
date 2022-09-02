@@ -1,11 +1,4 @@
-black
-flake8
-jupyter
 matplotlib
 numpy
 scipy
 pandas
-pip
-setuptools
-wheel
--e .

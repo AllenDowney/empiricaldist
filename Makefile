@@ -24,7 +24,8 @@ create_environment:
 ## Install Python Dependencies
 requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt 
+	$(PYTHON_INTERPRETER) -m pip install -r requirements-dev.txt 
 	
 
 ## Delete all compiled Python files
@@ -45,7 +46,7 @@ lint:
 
 
 tests:
-	pytest empiricaldist
+	pytest --no-cov empiricaldist
 
 
 release:
@@ -53,8 +54,6 @@ release:
 	rm dist/*
 	python3 setup.py sdist
 	twine upload dist/*
-
-
 
 
 #################################################################################

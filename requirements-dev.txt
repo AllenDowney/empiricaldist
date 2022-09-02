@@ -2,4 +2,9 @@ pytest
 pytest-cov
 black
 flake8
+jupyter
+pip
+setuptools
+wheel
+-e .
 
