@@ -1,0 +1,10 @@
+black
+flake8
+jupyter
+matplotlib
+numpy
+pandas
+pip
+setuptools
+wheel
+-e .
