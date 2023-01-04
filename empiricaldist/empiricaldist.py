@@ -719,8 +719,9 @@ class Pmf(Distribution):
         """
         normalize = kwargs.pop("normalize", False)
 
-        cumulative = np.cumsum(self)
-        cdf = Cdf(cumulative, self.index.copy(), **kwargs)
+        pmf = self.sort_index()
+        cumulative = np.cumsum(pmf)
+        cdf = Cdf(cumulative, pmf.index.copy(), **kwargs)
 
         if normalize:
             cdf.normalize()

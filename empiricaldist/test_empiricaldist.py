@@ -70,6 +70,18 @@ class Test(unittest.TestCase):
         pmf = Pmf.from_seq([3, 6, 1, 7, 2], sort=False)
         # self.assertEqual(pmf.qs[0], 1)
 
+        # check that we can deal with an unsorted Pmf
+        qs = [3, 1, 2, 4]
+        ps = [0.1, 0.2, 0.3, 0.4]
+        pmf = Pmf(ps, qs)
+        self.assertEqual(pmf.mean(), 2.7)
+
+        # when you make a Cdf, it gets sorted, because otherwise
+        # it's not a sensible Cdf
+        cdf = pmf.make_cdf()
+        self.assertEqual(cdf.quantile(0.3), 2)
+        self.assertEqual(cdf.quantile(0.6), 3)
+
     def testStats(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         self.assertAlmostEqual(pmf.mean(), 3.5)
