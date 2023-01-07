@@ -12,5 +12,4 @@ python setup.py sdist
 # push it to PyPI
 twine upload dist/*
 
-# get username and password from Google passwords
-
+# pip install -U empiricaldist

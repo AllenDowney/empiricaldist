@@ -11,7 +11,7 @@ def readme():
 
 setup(
     name="empiricaldist",
-    version="0.6.7",
+    version="0.6.8",
     author="Allen B. Downey",
     author_email="downey@allendowney.com",
     packages=["empiricaldist"],
