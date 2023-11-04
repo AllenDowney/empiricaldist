@@ -6,7 +6,7 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = empiricaldist
-PYTHON_VERSION = 3.10
+PYTHON_VERSION = 3.11
 PYTHON_INTERPRETER = python
 
 
@@ -16,7 +16,7 @@ PYTHON_INTERPRETER = python
 
 
 ## Set up python interpreter environment
-create_environment:	
+create_environment:
 	conda create --name $(PROJECT_NAME) python=$(PYTHON_VERSION) -y
 	@echo ">>> conda env created. Activate with:\nconda activate $(PROJECT_NAME)"
 
@@ -24,9 +24,9 @@ create_environment:
 ## Install Python Dependencies
 requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt 
-	$(PYTHON_INTERPRETER) -m pip install -r requirements-dev.txt 
-	
+	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	$(PYTHON_INTERPRETER) -m pip install -r requirements-dev.txt
+
 
 ## Delete all compiled Python files
 clean:
@@ -50,7 +50,7 @@ tests:
 
 
 release:
-	# First edit setup.py and increment version number	
+	# First edit setup.py and increment version number
 	rm dist/*
 	$(PYTHON_INTERPRETER) setup.py sdist
 	twine upload dist/*
