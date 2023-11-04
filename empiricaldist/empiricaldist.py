@@ -34,7 +34,7 @@ def underride(d, **options):
 
 
 class Distribution(pd.Series):
-    def __init__(self, *args, **kwargs):
+    def __old_init__(self, *args, **kwargs):
         """Initialize a Pmf.
 
         Note: this cleans up a weird Series behavior, which is
@@ -353,7 +353,7 @@ class Distribution(pd.Series):
 class Pmf(Distribution):
     """Represents a probability Mass Function (PMF)."""
 
-    def copy(self, deep=True):
+    def copy(self, deep=False):
         """Make a copy.
 
         :return: new Pmf
@@ -373,12 +373,12 @@ class Pmf(Distribution):
     def add(self, x, **kwargs):
         """Override add to default fill_value to 0.
 
-        x: Distribution or sequence
+        x: Distribution, sequence, array, or scalar
 
         returns: Pmf
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series.add(self, x, **kwargs)
+        s = pd.Series(self, copy=False).add(x, **kwargs)
         return Pmf(s)
 
     __add__ = add
@@ -387,44 +387,45 @@ class Pmf(Distribution):
     def sub(self, x, **kwargs):
         """Override the - operator to default fill_value to 0.
 
-        x: Distribution or sequence
+        x: Distribution, sequence, array, or scalar
 
         returns: Pmf
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series.subtract(self, x, **kwargs)
+        s = pd.Series.sub(self, x, **kwargs)
+        # s = pd.Series(self, copy=False).sub(self, x, **kwargs)
         return Pmf(s)
 
+    subtract = sub
     __sub__ = sub
-    __rsub__ = sub
 
     def mul(self, x, **kwargs):
         """Override the * operator to default fill_value to 0.
 
-        x: Distribution or sequence
+        x: Distribution, sequence, array, or scalar
 
         returns: Pmf
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series.multiply(self, x, **kwargs)
+        s = pd.Series(self, copy=False).mul(x, **kwargs)
         return Pmf(s)
 
+    multiply = mul
     __mul__ = mul
     __rmul__ = mul
 
     def div(self, x, **kwargs):
         """Override the / operator to default fill_value to 0.
 
-        x: Distribution or sequence
+        x: Distribution, sequence, array, or scalar
 
         returns: Pmf
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series.divide(self, x, **kwargs)
+        s = pd.Series(self, copy=False).div(x, **kwargs)
         return Pmf(s)
 
-    __div__ = div
-    __rdiv__ = div
+    divide = div
     __truediv__ = div
     __rtruediv__ = div
 
@@ -442,8 +443,12 @@ class Pmf(Distribution):
 
         :return: float
         """
-        # TODO: error if not normalized
-        # TODO: error if the quantities are not numeric
+        if not np.allclose(1, self.sum()):
+            raise ValueError("Pmf must be normalized before computing mean")
+        
+        if not pd.api.types.is_numeric_dtype(self.dtype):
+            raise ValueError("mean is only defined for numeric data")
+        
         return np.sum(self.ps * self.qs)
 
     def mode(self, **kwargs):
@@ -551,8 +556,7 @@ class Pmf(Distribution):
     def gt_dist(self, x):
         """Probability that a value from pmf1 exceeds a value from pmf2.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution object or scalar
 
         :return: float probability
         """
@@ -564,8 +568,8 @@ class Pmf(Distribution):
     def lt_dist(self, x):
         """Probability that a value from pmf1 is less than a value from pmf2.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution object or scalar
+
 
         :return: float probability
         """
@@ -577,8 +581,7 @@ class Pmf(Distribution):
     def ge_dist(self, x):
         """Probability that a value from pmf1 is >= than a value from pmf2.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution object or scalar
 
         :return: float probability
         """
@@ -590,8 +593,7 @@ class Pmf(Distribution):
     def le_dist(self, x):
         """Probability that a value from pmf1 is <= than a value from pmf2.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution object or scalar
 
         :return: float probability
         """
@@ -603,8 +605,7 @@ class Pmf(Distribution):
     def eq_dist(self, x):
         """Probability that a value from pmf1 equals a value from pmf2.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution object or scalar
 
         :return: float probability
         """
@@ -616,8 +617,7 @@ class Pmf(Distribution):
     def ne_dist(self, x):
         """Probability that a value from pmf1 is <= than a value from pmf2.
 
-        dist1: Distribution object
-        dist2: Distribution object
+        x: Distribution object or scalar
 
         :return: float probability
         """
@@ -642,7 +642,7 @@ class Pmf(Distribution):
     def bar(self, **options):
         """Make a bar plot.
 
-        Note: A previous version of this function use pd.Series.plot.bar,
+        Note: A previous version of this function used pd.Series.plot.bar,
         but that was a mistake, because that function treats the quantities
         as categorical, even if they are numerical, leading to hilariously
         unexpected results!
@@ -776,7 +776,6 @@ class Pmf(Distribution):
         na_position: If ‘first’ puts NaNs at the beginning,
                         ‘last’ puts NaNs at the end.
         options: passed to the pd.Series constructor
-
 
         NOTE: In the current implementation, `from_seq` sorts numerical
            quantities whether you want to or not.  If keeping
