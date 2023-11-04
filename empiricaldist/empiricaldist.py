@@ -445,10 +445,10 @@ class Pmf(Distribution):
         """
         if not np.allclose(1, self.sum()):
             raise ValueError("Pmf must be normalized before computing mean")
-        
+
         if not pd.api.types.is_numeric_dtype(self.dtype):
             raise ValueError("mean is only defined for numeric data")
-        
+
         return np.sum(self.ps * self.qs)
 
     def mode(self, **kwargs):
