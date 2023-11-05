@@ -451,16 +451,6 @@ class Pmf(Distribution):
 
         return np.sum(self.ps * self.qs)
 
-    def mode(self, **kwargs):
-        """Most common value.
-
-        If multiple quantities have the maximum probability,
-        the first maximal quantity is returned.
-
-        :return: float
-        """
-        return self.idxmax(**kwargs)
-
     def var(self):
         """Variance of a PMF.
 
@@ -476,6 +466,19 @@ class Pmf(Distribution):
         :return: float
         """
         return np.sqrt(self.var())
+
+    def mode(self, **kwargs):
+        """Most common value.
+
+        If multiple quantities have the maximum probability,
+        the first maximal quantity is returned.
+
+        :return: float
+        """
+        underride(kwargs, skipna=True)
+        return self.idxmax(**kwargs)
+
+    max_prob = mode
 
     def choice(self, *args, **kwargs):
         """Makes a random sample.
@@ -704,13 +707,6 @@ class Pmf(Distribution):
             self[hypo] *= likelihood(data, hypo)
 
         return self.normalize()
-
-    def max_prob(self):
-        """Value with the highest probability.
-
-        :return: the value with the highest probability
-        """
-        return self.idxmax()
 
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Pmf.
