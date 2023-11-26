@@ -353,7 +353,7 @@ class Distribution(pd.Series):
 class Pmf(Distribution):
     """Represents a probability Mass Function (PMF)."""
 
-    def copy(self, deep=False):
+    def copy(self, deep=True):
         """Make a copy.
 
         :return: new Pmf
