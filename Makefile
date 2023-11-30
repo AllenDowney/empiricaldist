@@ -50,7 +50,14 @@ tests:
 
 
 release:
+	# Make sure you have the latest version of setuptools and wheel installed
+	# pip install --upgrade setuptools wheel
+	# Make sure you have the latest version of twine installed
+	# pip install --upgrade twine
+
 	# First edit setup.py and increment version number
+	# Get pypi API token from LastPass
+	# login with username __token__ and the token as password 
 	rm dist/*
 	$(PYTHON_INTERPRETER) setup.py sdist
 	twine upload dist/*
