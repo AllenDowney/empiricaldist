@@ -84,6 +84,19 @@ class Distribution(pd.Series):
         s = super().tail(n)
         return self.__class__(s)
 
+    def bar(self, **options):
+        """Make a bar plot.
+
+        Note: A previous version of this function used pd.Series.plot.bar,
+        but that was a mistake, because that function treats the quantities
+        as categorical, even if they are numerical, leading to hilariously
+        unexpected results!
+
+        options: passed to plt.bar
+        """
+        underride(options, label=self.name)
+        plt.bar(self.qs, self.ps, **options)
+        
     def transform(self, *args, **kwargs):
         """Override to transform the quantities, not the probabilities."""
         qs = self.index.to_series().transform(*args, **kwargs)
@@ -642,18 +655,6 @@ class Pmf(Distribution):
         ps = np.multiply.outer(self.ps, dist.ps)
         return qs * ps
 
-    def bar(self, **options):
-        """Make a bar plot.
-
-        Note: A previous version of this function used pd.Series.plot.bar,
-        but that was a mistake, because that function treats the quantities
-        as categorical, even if they are numerical, leading to hilariously
-        unexpected results!
-
-        options: passed to plt.bar
-        """
-        plt.bar(self.qs, self.ps, **options)
-
     def make_joint(self, other, **options):
         """Make joint distribution (assuming independence).
 
@@ -679,7 +680,7 @@ class Pmf(Distribution):
         # return Pmf(self.sum(level=i))
 
         # here's the new version
-        return Pmf(self.groupby(level=i).sum())
+        return Pmf(self.groupby(level=i).sum(), name=name)
 
     def conditional(self, i, val, name=None):
         """Gets the conditional distribution of the indicated variable.
@@ -690,7 +691,7 @@ class Pmf(Distribution):
 
         :return: Pmf
         """
-        pmf = Pmf(self.xs(key=val, level=i), copy=True)
+        pmf = Pmf(self.xs(key=val, level=i), copy=True, name=name)
         pmf.normalize()
         return pmf
 
@@ -773,11 +774,6 @@ class Pmf(Distribution):
                         ‘last’ puts NaNs at the end.
         options: passed to the pd.Series constructor
 
-        NOTE: In the current implementation, `from_seq` sorts numerical
-           quantities whether you want to or not.  If keeping
-           the order of the elements is important, let me know and
-           I'll rethink the implementation
-
         :return: Pmf object
         """
         # compute the value counts
@@ -787,6 +783,7 @@ class Pmf(Distribution):
         # make the result a Pmf
         # (since we just made a fresh Series, there is no reason to copy it)
         options["copy"] = False
+        underride(options, name="")
         pmf = Pmf(series, **options)
 
         # sort in place, if desired
@@ -796,6 +793,31 @@ class Pmf(Distribution):
             )
 
         return pmf
+
+
+class Hist(Pmf):
+
+    @staticmethod
+    def from_seq(seq, normalize=False, **options):
+        """Make a distribution from a sequence of values.
+
+        seq: sequence of anything
+        normalize: whether to normalize the probabilities
+        options: passed along to Pmf
+
+        returns: Counter object
+        """
+        pmf = Pmf.from_seq(seq, normalize=normalize, **options)
+        return Hist(pmf, copy=False)
+
+    def _repr_html_(self):
+        """Returns an HTML representation of the series.
+
+        Mostly used for Jupyter notebooks.
+        """
+        df = pd.DataFrame(dict(freqs=self))
+        return df._repr_html_()
+
 
 
 class Cdf(Distribution):
@@ -1133,18 +1155,6 @@ class Hazard(Distribution):
         old_total = getattr(self, "total", 1.0)
         self.total = 1.0
         return old_total
-
-    def bar(self, **options):
-        """Make a bar plot.
-
-        Note: A previous version of this function use pd.Series.plot.bar,
-        but that was a mistake, because that function treats the quantities
-        as categorical, even if they are numerical, leading to hilariously
-        unexpected results!
-
-        options: passed to plt.bar
-        """
-        plt.bar(self.qs, self.ps, **options)
 
     def make_surv(self, **kwargs):
         """Make a Surv from the Hazard.

@@ -9,10 +9,22 @@ from collections import Counter
 
 import numpy as np
 
-from empiricaldist import Cdf, Hazard, Pmf, Surv
+from empiricaldist import Hist, Cdf, Hazard, Pmf, Surv
 
 
 class Test(unittest.TestCase):
+    def testHist(self):
+        t = list("allen")
+        hist = Hist.from_seq(t, sort=False)
+        print(hist)
+
+        self.assertEqual(len(hist), 4)
+        self.assertEqual(hist["l"], 2)
+
+        pmf = Pmf(hist)
+        self.assertEqual(len(pmf), 4)
+        self.assertEqual(pmf["l"], 2)
+
     def testPmf(self):
         t = list("allen")
         pmf = Pmf.from_seq(t)
@@ -39,7 +51,7 @@ class Test(unittest.TestCase):
         self.assertListEqual(xs.tolist(), ["l", "n", "e", "l", "a", "a", "a"])
 
         # test a Pmf with an explicit 0
-        t = [1, 2, 2, 3, 5]
+        t = [2, 1, 2, 3, 5]
         pmf = Pmf.from_seq(t, normalize=False)
         pmf[0] = 0
         pmf.sort_index(inplace=True)
