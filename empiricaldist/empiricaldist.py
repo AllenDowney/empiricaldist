@@ -96,7 +96,7 @@ class Distribution(pd.Series):
         """
         underride(options, label=self.name)
         plt.bar(self.qs, self.ps, **options)
-        
+
     def transform(self, *args, **kwargs):
         """Override to transform the quantities, not the probabilities."""
         qs = self.index.to_series().transform(*args, **kwargs)
@@ -796,7 +796,6 @@ class Pmf(Distribution):
 
 
 class Hist(Pmf):
-
     @staticmethod
     def from_seq(seq, normalize=False, **options):
         """Make a distribution from a sequence of values.
@@ -817,7 +816,6 @@ class Hist(Pmf):
         """
         df = pd.DataFrame(dict(freqs=self))
         return df._repr_html_()
-
 
 
 class Cdf(Distribution):
