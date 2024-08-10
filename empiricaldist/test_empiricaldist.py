@@ -16,7 +16,6 @@ class Test(unittest.TestCase):
     def testHist(self):
         t = list("allen")
         hist = Hist.from_seq(t, sort=False)
-        print(hist)
 
         self.assertEqual(len(hist), 4)
         self.assertEqual(hist["l"], 2)
