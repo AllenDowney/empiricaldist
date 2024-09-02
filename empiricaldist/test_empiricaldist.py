@@ -8,6 +8,7 @@ import unittest
 from collections import Counter
 
 import numpy as np
+import pandas as pd
 
 from empiricaldist import Hist, Cdf, Hazard, Pmf, Surv
 
@@ -209,6 +210,13 @@ class Test(unittest.TestCase):
 
     def testAddDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        series = pd.Series(1 / 12, pmf.index)
+
+        total = pmf + series
+        self.assertAlmostEqual(total[1], 3 / 12)
+
+        total = series + pmf
+        self.assertAlmostEqual(total[1], 3 / 12)
 
         pmf1 = pmf.add_dist(1)
         self.assertAlmostEqual(pmf1.mean(), 4.5)
@@ -230,6 +238,13 @@ class Test(unittest.TestCase):
 
     def testSubDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
+        series = pd.Series(1 / 12, pmf.index)
+
+        diff = pmf - series
+        self.assertAlmostEqual(diff[1], 1 / 12)
+
+        diff = series - pmf
+        self.assertAlmostEqual(diff[1], -1 / 12)
 
         pmf3 = pmf.sub_dist(1)
         self.assertAlmostEqual(pmf3.mean(), 2.5)
@@ -251,6 +266,13 @@ class Test(unittest.TestCase):
 
     def testMulDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
+        series = pd.Series(2, pmf.index)
+
+        prod = pmf * series
+        self.assertAlmostEqual(prod[1], 0.5)
+
+        prod = series * pmf
+        self.assertAlmostEqual(prod[1], 0.5)
 
         pmf3 = pmf.mul_dist(2)
         self.assertAlmostEqual(pmf3.mean(), 5)
@@ -272,6 +294,13 @@ class Test(unittest.TestCase):
 
     def testDivDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4])
+        series = pd.Series(2, pmf.index)
+
+        q = pmf / series
+        self.assertAlmostEqual(q[1], 0.125)
+
+        q = series / pmf
+        self.assertAlmostEqual(q[1], 8)
 
         pmf3 = pmf.div_dist(2)
         self.assertAlmostEqual(pmf3.mean(), 1.25)

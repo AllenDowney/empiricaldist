@@ -412,6 +412,11 @@ class Pmf(Distribution):
     subtract = sub
     __sub__ = sub
 
+    def __rsub__(self, x, **kwargs):
+        """Handle reverse subtraction operation."""
+        # Reverse the subtraction: x - self
+        return Pmf(x).sub(self, **kwargs)
+
     def mul(self, x, **kwargs):
         """Override the * operator to default fill_value to 0.
 
@@ -440,7 +445,11 @@ class Pmf(Distribution):
 
     divide = div
     __truediv__ = div
-    __rtruediv__ = div
+
+    def __rtruediv__(self, x, **kwargs):
+        """Handle reverse division operation."""
+        # Reverse the division: x / self
+        return Pmf(x).div(self, **kwargs)
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
