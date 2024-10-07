@@ -22,10 +22,11 @@ from scipy.interpolate import interp1d
 def underride(d, **options):
     """Add key-value pairs to d only if key is not in d.
 
+    Args:
     d: dictionary
     options: keyword args to add to d
 
-    :return: modified d
+    Returns: modified d
     """
     for key, val in options.items():
         d.setdefault(key, val)
@@ -34,25 +35,12 @@ def underride(d, **options):
 
 
 class Distribution(pd.Series):
-    def __old_init__(self, *args, **kwargs):
-        """Initialize a Pmf.
-
-        Note: this cleans up a weird Series behavior, which is
-        that Series() and Series([]) yield different results.
-        See: https://github.com/pandas-dev/pandas/issues/16737
-        """
-        underride(kwargs, name="")
-        if args or ("index" in kwargs):
-            super().__init__(*args, **kwargs)
-        else:
-            underride(kwargs, dtype=np.float64)
-            super().__init__([], **kwargs)
 
     @property
     def qs(self):
         """Get the quantities.
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         return self.index.values
 
@@ -60,16 +48,17 @@ class Distribution(pd.Series):
     def ps(self):
         """Get the probabilities.
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         return self.values
 
     def head(self, n=3):
         """Override Series.head to return a Distribution.
 
+        Args:
         n: number of rows
 
-        returns: Distribution
+        Returns: Distribution
         """
         s = super().head(n)
         return self.__class__(s)
@@ -77,9 +66,10 @@ class Distribution(pd.Series):
     def tail(self, n=3):
         """Override Series.tail to return a Distribution.
 
+        Args:
         n: number of rows
 
-        returns: Distribution
+        Returns: Distribution
         """
         s = super().tail(n)
         return self.__class__(s)
@@ -92,6 +82,7 @@ class Distribution(pd.Series):
         as categorical, even if they are numerical, leading to hilariously
         unexpected results!
 
+        Args:
         options: passed to plt.bar
         """
         underride(options, label=self.name)
@@ -111,11 +102,12 @@ class Distribution(pd.Series):
         return df._repr_html_()
 
     def __call__(self, qs):
-        """Look up quantities.
+        """Look up quantities, return counts/probabilities/hazards.
 
+        Args:
         qs: quantity or sequence of quantities
 
-        returns: value or array of values
+        Returns: count/probability/hazard or array of count/probabiliy/hazard
         """
         string_types = (str, bytes, bytearray)
 
@@ -130,7 +122,7 @@ class Distribution(pd.Series):
     def mean(self):
         """Expected value.
 
-        :return: float
+        Returns: float
         """
         return self.make_pmf().mean()
 
@@ -140,21 +132,21 @@ class Distribution(pd.Series):
         If multiple quantities have the maximum probability,
         the first maximal quantity is returned.
 
-        :return: float
+        Returns: float
         """
         return self.make_pmf().mode(**kwargs)
 
     def var(self):
         """Variance.
 
-        :return: float
+        Returns: float
         """
         return self.make_pmf().var()
 
     def std(self):
         """Standard deviation.
 
-        :return: float
+        Returns: float
         """
         return self.make_pmf().std()
 
@@ -164,7 +156,7 @@ class Distribution(pd.Series):
         There are several definitions of median;
         the one implemented here is just the 50th percentile.
 
-        :return: float
+        Returns: float
         """
         return self.make_cdf().median()
 
@@ -174,16 +166,17 @@ class Distribution(pd.Series):
         Computes the inverse CDF of ps, that is,
         the values that correspond to the given probabilities.
 
-        :return: float
+        Returns: float
         """
         return self.make_cdf().quantile(ps, **kwargs)
 
     def credible_interval(self, p):
         """Credible interval containing the given probability.
 
+        Args:
         p: float 0-1
 
-        :return: array of two quantities
+        Returns: array of two quantities
         """
         tail = (1 - p) / 2
         ps = [tail, 1 - tail]
@@ -194,10 +187,11 @@ class Distribution(pd.Series):
 
         Uses the probabilities as weights unless `p` is provided.
 
+        Args:
         args: same as np.random.choice
         options: same as np.random.choice
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         pmf = self.make_pmf()
         return pmf.choice(*args, **kwargs)
@@ -207,9 +201,10 @@ class Distribution(pd.Series):
 
         Uses the inverse CDF.
 
+        Args:
         n: number of values
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         cdf = self.make_cdf()
         return cdf.sample(*args, **kwargs)
@@ -217,9 +212,10 @@ class Distribution(pd.Series):
     def add_dist(self, x):
         """Distribution of the sum of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Distribution, same subtype as self
+        Returns: new Distribution, same subtype as self
         """
         pmf = self.make_pmf()
         res = pmf.add_dist(x)
@@ -228,9 +224,10 @@ class Distribution(pd.Series):
     def sub_dist(self, x):
         """Distribution of the diff of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Distribution, same subtype as self
+        Returns: new Distribution, same subtype as self
         """
         pmf = self.make_pmf()
         res = pmf.sub_dist(x)
@@ -239,9 +236,10 @@ class Distribution(pd.Series):
     def mul_dist(self, x):
         """Distribution of the product of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Distribution, same subtype as self
+        Returns: new Distribution, same subtype as self
         """
         pmf = self.make_pmf()
         res = pmf.mul_dist(x)
@@ -250,9 +248,10 @@ class Distribution(pd.Series):
     def div_dist(self, x):
         """Distribution of the ratio of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Distribution, same subtype as self
+        Returns: new Distribution, same subtype as self
         """
         pmf = self.make_pmf()
         res = pmf.div_dist(x)
@@ -261,11 +260,12 @@ class Distribution(pd.Series):
     def pmf_outer(dist1, dist2, ufunc):
         """Computes the outer product of two PMFs.
 
+        Args:
         dist1: Distribution object
         dist2: Distribution object
         ufunc: function to apply to the qs
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         # TODO: convert other types to Pmf
         pmf1 = dist1
@@ -278,9 +278,10 @@ class Distribution(pd.Series):
     def gt_dist(self, x):
         """Probability that a value from self is greater than a value from x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: float probability
+        Returns: float probability
         """
         pmf = self.make_pmf()
         return pmf.gt_dist(x)
@@ -288,9 +289,10 @@ class Distribution(pd.Series):
     def lt_dist(self, x):
         """Probability that a value from self is less than a value from x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: float probability
+        Returns: float probability
         """
         pmf = self.make_pmf()
         return pmf.lt_dist(x)
@@ -298,9 +300,10 @@ class Distribution(pd.Series):
     def ge_dist(self, x):
         """Probability that a value from self is >= than a value from x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: float probability
+        Returns: float probability
         """
         pmf = self.make_pmf()
         return pmf.ge_dist(x)
@@ -308,9 +311,10 @@ class Distribution(pd.Series):
     def le_dist(self, x):
         """Probability that a value from self is <= than a value from x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: float probability
+        Returns: float probability
         """
         pmf = self.make_pmf()
         return pmf.le_dist(x)
@@ -318,9 +322,10 @@ class Distribution(pd.Series):
     def eq_dist(self, x):
         """Probability that a value from self equals a value from x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: float probability
+        Returns: float probability
         """
         pmf = self.make_pmf()
         return pmf.eq_dist(x)
@@ -328,9 +333,10 @@ class Distribution(pd.Series):
     def ne_dist(self, x):
         """Probability that a value from self is <= than a value from x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: float probability
+        Returns: float probability
         """
         pmf = self.make_pmf()
         return pmf.ne_dist(x)
@@ -338,9 +344,10 @@ class Distribution(pd.Series):
     def max_dist(self, n):
         """Distribution of the maximum of `n` values from this distribution.
 
+        Args:
         n: integer
 
-        :return: Distribution, same type as self
+        Returns: Distribution, same type as self
         """
         cdf = self.make_cdf().max_dist(n)
         return self.make_same(cdf)
@@ -348,9 +355,10 @@ class Distribution(pd.Series):
     def min_dist(self, n):
         """Distribution of the minimum of `n` values from this distribution.
 
+        Args:
         n: integer
 
-        :return: Distribution, same type as self
+        Returns: Distribution, same type as self
         """
         cdf = self.make_cdf().min_dist(n)
         return self.make_same(cdf)
@@ -369,14 +377,14 @@ class Pmf(Distribution):
     def copy(self, deep=True):
         """Make a copy.
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         return Pmf(self, copy=deep)
 
     def make_pmf(self, **kwargs):
         """Make a Pmf from the Pmf.
 
-        :return: Pmf
+        Returns: Pmf
         """
         return self
 
@@ -386,9 +394,10 @@ class Pmf(Distribution):
     def add(self, x, **kwargs):
         """Override add to default fill_value to 0.
 
+        Args:
         x: Distribution, sequence, array, or scalar
 
-        returns: Pmf
+        Returns: Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series(self, copy=False).add(x, **kwargs)
@@ -400,9 +409,10 @@ class Pmf(Distribution):
     def sub(self, x, **kwargs):
         """Override the - operator to default fill_value to 0.
 
+        Args:
         x: Distribution, sequence, array, or scalar
 
-        returns: Pmf
+        Returns:  Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series.sub(self, x, **kwargs)
@@ -420,9 +430,10 @@ class Pmf(Distribution):
     def mul(self, x, **kwargs):
         """Override the * operator to default fill_value to 0.
 
+        Args:
         x: Distribution, sequence, array, or scalar
 
-        returns: Pmf
+        Returns:  Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series(self, copy=False).mul(x, **kwargs)
@@ -435,9 +446,10 @@ class Pmf(Distribution):
     def div(self, x, **kwargs):
         """Override the / operator to default fill_value to 0.
 
+        Args:
         x: Distribution, sequence, array, or scalar
 
-        returns: Pmf
+        Returns:  Pmf
         """
         underride(kwargs, fill_value=0)
         s = pd.Series(self, copy=False).div(x, **kwargs)
@@ -447,14 +459,19 @@ class Pmf(Distribution):
     __truediv__ = div
 
     def __rtruediv__(self, x, **kwargs):
-        """Handle reverse division operation."""
+        """Handle reverse division operation.
+        
+        Args:
+        x: Distribution, sequence, array, or scalar
+        kwargs: passed to div
+        """
         # Reverse the division: x / self
         return Pmf(x).div(self, **kwargs)
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
 
-        :return: normalizing constant
+        Returns: normalizing constant
         """
         total = self.sum()
         self /= total
@@ -463,7 +480,7 @@ class Pmf(Distribution):
     def mean(self):
         """Computes expected value.
 
-        :return: float
+        Returns: float
         """
         if not np.allclose(1, self.sum()):
             raise ValueError("Pmf must be normalized before computing mean")
@@ -476,7 +493,7 @@ class Pmf(Distribution):
     def var(self):
         """Variance of a PMF.
 
-        :return: float
+        Returns: float
         """
         m = self.mean()
         d = self.qs - m
@@ -485,7 +502,7 @@ class Pmf(Distribution):
     def std(self):
         """Standard deviation of a PMF.
 
-        :return: float
+        Returns: float
         """
         return np.sqrt(self.var())
 
@@ -495,7 +512,7 @@ class Pmf(Distribution):
         If multiple quantities have the maximum probability,
         the first maximal quantity is returned.
 
-        :return: float
+        Returns: float
         """
         underride(kwargs, skipna=True)
         return self.idxmax(**kwargs)
@@ -507,10 +524,11 @@ class Pmf(Distribution):
 
         Uses the probabilities as weights unless `p` is provided.
 
+        Args:
         args: same as np.random.choice
         kwargs: same as np.random.choice
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         underride(kwargs, p=self.ps)
         return np.random.choice(self.qs, *args, **kwargs)
@@ -518,9 +536,10 @@ class Pmf(Distribution):
     def add_dist(self, x):
         """Computes the Pmf of the sum of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.add.outer)
@@ -530,9 +549,10 @@ class Pmf(Distribution):
     def sub_dist(self, x):
         """Computes the Pmf of the diff of values drawn from self and other.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.subtract.outer)
@@ -542,9 +562,10 @@ class Pmf(Distribution):
     def mul_dist(self, x):
         """Computes the Pmf of the product of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.multiply.outer)
@@ -554,9 +575,10 @@ class Pmf(Distribution):
     def div_dist(self, x):
         """Computes the Pmf of the ratio of values drawn from self and x.
 
+        Args:
         x: Distribution, scalar, or sequence
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         if isinstance(x, Distribution):
             return self.convolve_dist(x, np.divide.outer)
@@ -566,10 +588,11 @@ class Pmf(Distribution):
     def convolve_dist(self, dist, ufunc):
         """Convolve two distributions.
 
+        Args:
         dist: Distribution
         ufunc: elementwise function for arrays
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         dist = dist.make_pmf()
         qs = ufunc(self.qs, dist.qs).flatten()
@@ -581,9 +604,10 @@ class Pmf(Distribution):
     def gt_dist(self, x):
         """Probability that a value from pmf1 exceeds a value from pmf2.
 
+        Args:
         x: Distribution object or scalar
 
-        :return: float probability
+        Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.greater).sum()
@@ -593,10 +617,10 @@ class Pmf(Distribution):
     def lt_dist(self, x):
         """Probability that a value from pmf1 is less than a value from pmf2.
 
+        Args:
         x: Distribution object or scalar
 
-
-        :return: float probability
+        Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.less).sum()
@@ -606,9 +630,10 @@ class Pmf(Distribution):
     def ge_dist(self, x):
         """Probability that a value from pmf1 is >= than a value from pmf2.
 
+        Args:
         x: Distribution object or scalar
 
-        :return: float probability
+        Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.greater_equal).sum()
@@ -618,9 +643,10 @@ class Pmf(Distribution):
     def le_dist(self, x):
         """Probability that a value from pmf1 is <= than a value from pmf2.
 
+        Args:
         x: Distribution object or scalar
 
-        :return: float probability
+        Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.less_equal).sum()
@@ -630,9 +656,10 @@ class Pmf(Distribution):
     def eq_dist(self, x):
         """Probability that a value from pmf1 equals a value from pmf2.
 
+        Args:
         x: Distribution object or scalar
 
-        :return: float probability
+        Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.equal).sum()
@@ -642,9 +669,10 @@ class Pmf(Distribution):
     def ne_dist(self, x):
         """Probability that a value from pmf1 is <= than a value from pmf2.
 
+        Args:
         x: Distribution object or scalar
 
-        :return: float probability
+        Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.not_equal).sum()
@@ -654,10 +682,11 @@ class Pmf(Distribution):
     def pmf_outer(self, dist, ufunc):
         """Computes the outer product of two PMFs.
 
+        Args:
         dist: Distribution object
         ufunc: function to apply to the qs
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         dist = dist.make_pmf()
         qs = ufunc.outer(self.qs, dist.qs)
@@ -667,11 +696,11 @@ class Pmf(Distribution):
     def make_joint(self, other, **options):
         """Make joint distribution (assuming independence).
 
-        :param self:
-        :param other:
-        :param options: passed to Pmf constructor
+        Args:
+        other: Pmf
+        options: passed to Pmf constructor
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         qs = pd.MultiIndex.from_product([self.qs, other.qs])
         ps = np.multiply.outer(self.ps, other.ps).flatten()
@@ -680,10 +709,11 @@ class Pmf(Distribution):
     def marginal(self, i, name=None):
         """Gets the marginal distribution of the indicated variable.
 
+        Args:
         i: index of the variable we want
         name: string
 
-        :return: Pmf
+        Returns: Pmf
         """
         # The following is deprecated now
         # return Pmf(self.sum(level=i))
@@ -694,11 +724,12 @@ class Pmf(Distribution):
     def conditional(self, i, val, name=None):
         """Gets the conditional distribution of the indicated variable.
 
+        Args:
         i: index of the variable we're conditioning on
         val: the value the ith variable has to have
         name: string
 
-        :return: Pmf
+        Returns: Pmf
         """
         pmf = Pmf(self.xs(key=val, level=i), copy=True, name=name)
         pmf.normalize()
@@ -707,11 +738,12 @@ class Pmf(Distribution):
     def update(self, likelihood, data):
         """Bayesian update.
 
+        Args:
         likelihood: function that takes (data, hypo) and returns
                     likelihood of data under hypo, P(data|hypo)
         data: in whatever format likelihood understands
 
-        :return: normalizing constant
+        Returns: normalizing constant
         """
         for hypo in self.qs:
             self[hypo] *= likelihood(data, hypo)
@@ -721,7 +753,7 @@ class Pmf(Distribution):
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Pmf.
 
-        :return: Cdf
+        Returns: Cdf
         """
         normalize = kwargs.pop("normalize", False)
 
@@ -737,7 +769,7 @@ class Pmf(Distribution):
     def make_surv(self, **kwargs):
         """Make a Surv from the Pmf.
 
-        :return: Surv
+        Returns: Surv
         """
         cdf = self.make_cdf()
         return cdf.make_surv(**kwargs)
@@ -745,7 +777,7 @@ class Pmf(Distribution):
     def make_hazard(self, normalize=False, **kwargs):
         """Make a Hazard from the Pmf.
 
-        :return: Hazard
+        Returns: Hazard
         """
         surv = self.make_surv()
         haz = Hazard(self / (self + surv), **kwargs)
@@ -757,8 +789,10 @@ class Pmf(Distribution):
     def make_same(self, dist):
         """Convert the given dist to Pmf
 
-        :param dist:
-        :return: Pmf
+        Args:
+        dist: Distribution
+
+        Returns: Pmf
         """
         return dist.make_pmf()
 
@@ -774,6 +808,7 @@ class Pmf(Distribution):
     ):
         """Make a PMF from a sequence of values.
 
+        Args:
         seq: iterable
         normalize: whether to normalize the Pmf, default True
         sort: whether to sort the Pmf by values, default True
@@ -783,7 +818,7 @@ class Pmf(Distribution):
                         ‘last’ puts NaNs at the end.
         options: passed to the pd.Series constructor
 
-        :return: Pmf object
+        Returns: Pmf object
         """
         # compute the value counts
         series = pd.Series(seq).value_counts(
@@ -809,11 +844,12 @@ class Hist(Pmf):
     def from_seq(seq, normalize=False, **options):
         """Make a distribution from a sequence of values.
 
+        Args:
         seq: sequence of anything
         normalize: whether to normalize the probabilities
         options: passed along to Pmf
 
-        returns: Counter object
+        Returns:  Counter object
         """
         pmf = Pmf.from_seq(seq, normalize=normalize, **options)
         return Hist(pmf, copy=False)
@@ -833,7 +869,10 @@ class Cdf(Distribution):
     def copy(self, deep=True):
         """Make a copy.
 
-        :return: new Cdf
+        Args:
+        deep: whether to make a deep copy
+
+        Returns: new Cdf
         """
         return Cdf(self, copy=deep)
 
@@ -841,12 +880,13 @@ class Cdf(Distribution):
     def from_seq(seq, normalize=True, sort=True, **options):
         """Make a CDF from a sequence of values.
 
+        Args:
         seq: iterable
         normalize: whether to normalize the Cdf, default True
         sort: whether to sort the Cdf by values, default True
         options: passed to the pd.Series constructor
 
-        :return: CDF object
+        Returns: CDF object
         """
         # if normalize==True, normalize AFTER making the Cdf
         # so the last element is exactly 1.0
@@ -856,9 +896,8 @@ class Cdf(Distribution):
     def step(self, **options):
         """Plot the Cdf as a step function.
 
-        :param options: passed to pd.Series.plot
-
-        :return:
+        Args:
+        options: passed to pd.Series.plot
         """
         underride(options, drawstyle="steps-post")
         self.plot(**options)
@@ -866,7 +905,7 @@ class Cdf(Distribution):
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
 
-        :return: normalizing constant
+        Returns: normalizing constant
         """
         total = self.ps[-1]
         self /= total
@@ -874,11 +913,12 @@ class Cdf(Distribution):
 
     @property
     def forward(self, **kwargs):
-        """Compute the forward Cdf
+        """Make a function that computes the forward Cdf.
 
-        :param kwargs: keyword arguments passed to interp1d
+        Args:
+        kwargs: keyword arguments passed to interp1d
 
-        :return interpolation function from qs to ps
+        Returns: interpolation function from qs to ps
         """
 
         underride(
@@ -895,11 +935,12 @@ class Cdf(Distribution):
 
     @property
     def inverse(self, **kwargs):
-        """Compute the inverse Cdf
+        """Make a function that computes the inverse Cdf.
 
-        :param kwargs: keyword arguments passed to interp1d
+        Args:
+        kwargs: keyword arguments passed to interp1d
 
-        :return: interpolation function from ps to qs
+        Returns: interpolation function from ps to qs
         """
         underride(
             kwargs,
@@ -922,16 +963,17 @@ class Cdf(Distribution):
     def median(self):
         """Median (50th percentile).
 
-        :return: float
+        Returns: float
         """
         return self.quantile(0.5)
 
     def make_pmf(self, **kwargs):
         """Make a Pmf from the Cdf.
 
-        :param normalize: Boolean, whether to normalize the Pmf
+        Args:
+        normalize: Boolean, whether to normalize the Pmf
 
-        :return: Pmf
+        Returns: Pmf
         """
         # TODO: check for consistent behavior of copy flag for all make_x
         normalize = kwargs.pop("normalize", False)
@@ -945,7 +987,7 @@ class Cdf(Distribution):
     def make_surv(self, **kwargs):
         """Make a Surv object from the Cdf.
 
-        :return: Surv object
+        Returns: Surv object
         """
         normalize = kwargs.pop("normalize", False)
         total = self.ps[-1]
@@ -958,7 +1000,7 @@ class Cdf(Distribution):
     def make_hazard(self, **kwargs):
         """Make a Hazard from the Cdf.
 
-        :return: Hazard
+        Returns: Hazard
         """
         pmf = self.make_pmf()
         surv = self.make_surv()
@@ -969,17 +1011,20 @@ class Cdf(Distribution):
     def make_same(self, dist):
         """Convert the given dist to Cdf
 
-        :param dist:
-        :return: Cdf
+        Args:
+        dist: Distribution
+
+        Returns: Cdf
         """
         return dist.make_cdf()
 
     def sample(self, n=1):
         """Samples with replacement using probabilities as weights.
 
+        Args:
         n: number of values
 
-        :return: NumPy array
+        Returns: NumPy array
         """
         ps = np.random.random(n)
         return self.inverse(ps)
@@ -987,9 +1032,10 @@ class Cdf(Distribution):
     def max_dist(self, n):
         """Distribution of the maximum of `n` values from this distribution.
 
+        Args:
         n: integer
 
-        :return: Cdf
+        Returns: Cdf
         """
         ps = self**n
         return Cdf(ps, self.index.copy())
@@ -997,9 +1043,10 @@ class Cdf(Distribution):
     def min_dist(self, n):
         """Distribution of the minimum of `n` values from this distribution.
 
+        Args:
         n: integer
 
-        :return: Cdf
+        Returns: Cdf
         """
         ps = 1 - (1 - self) ** n
         return Cdf(ps, self.index.copy())
@@ -1011,7 +1058,7 @@ class Surv(Distribution):
     def copy(self, deep=True):
         """Make a copy.
 
-        :return: new Surv
+        Returns: new Surv
         """
         return Surv(self, copy=deep)
 
@@ -1019,12 +1066,13 @@ class Surv(Distribution):
     def from_seq(seq, normalize=True, sort=True, **options):
         """Make a Surv from a sequence of values.
 
+        Args:
         seq: iterable
         normalize: whether to normalize the Surv, default True
         sort: whether to sort the Surv by values, default True
         options: passed to the pd.Series constructor
 
-        :return: Surv object
+        Returns: Surv object
         """
         cdf = Cdf.from_seq(seq, normalize=normalize, sort=sort, **options)
         return cdf.make_surv()
@@ -1032,8 +1080,8 @@ class Surv(Distribution):
     def step(self, **options):
         """Plot the Surv as a step function.
 
-        :param options: passed to pd.Series.plot
-        :return:
+        Args:
+        options: passed to pd.Series.plot
         """
         underride(options, drawstyle="steps-post")
         self.plot(**options)
@@ -1041,7 +1089,7 @@ class Surv(Distribution):
     def normalize(self):
         """Normalize the survival function (modifies self).
 
-        :return: normalizing constant
+        Returns: normalizing constant
         """
         old_total = getattr(self, "total", 1.0)
         self.ps /= old_total
@@ -1050,11 +1098,12 @@ class Surv(Distribution):
 
     @property
     def forward(self, **kwargs):
-        """Compute the forward survival function
+        """Make a function that computes the forward survival function.
 
-        :param kwargs: keyword arguments passed to interp1d
+        Args:
+        kwargs: keyword arguments passed to interp1d
 
-        :return array of probabilities
+        Returns: array of probabilities
         """
         total = getattr(self, "total", 1.0)
         underride(
@@ -1070,11 +1119,12 @@ class Surv(Distribution):
 
     @property
     def inverse(self, **kwargs):
-        """Compute the inverse survival function
+        """Make a function that computes the inverse survival function.
+        
+        Args:
+        kwargs: keyword arguments passed to interp1d
 
-        :param kwargs: keyword arguments passed to interp1d
-
-        :return: interpolation function from ps to qs
+        Returns: interpolation function from ps to qs
         """
         total = getattr(self, "total", 1.0)
         underride(
@@ -1103,7 +1153,7 @@ class Surv(Distribution):
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Surv.
 
-        :return: Cdf
+        Returns: Cdf
         """
         normalize = kwargs.pop("normalize", False)
         total = getattr(self, "total", 1.0)
@@ -1115,7 +1165,7 @@ class Surv(Distribution):
     def make_pmf(self, **kwargs):
         """Make a Pmf from the Surv.
 
-        :return: Pmf
+        Returns: Pmf
         """
         cdf = self.make_cdf()
         pmf = cdf.make_pmf(**kwargs)
@@ -1124,7 +1174,7 @@ class Surv(Distribution):
     def make_hazard(self, **kwargs):
         """Make a Hazard from the Surv.
 
-        :return: Hazard
+        Returns: Hazard
         """
         pmf = self.make_pmf()
         at_risk = self + pmf
@@ -1136,8 +1186,10 @@ class Surv(Distribution):
     def make_same(self, dist):
         """Convert the given dist to Surv
 
-        :param dist:
-        :return: Surv
+        Args:
+        dist: Distribution
+        
+        Returns: Surv
         """
         return dist.make_surv()
 
@@ -1148,7 +1200,7 @@ class Hazard(Distribution):
     def copy(self, deep=True):
         """Make a copy.
 
-        :return: new Pmf
+        Returns: new Pmf
         """
         return Hazard(self, copy=deep)
 
@@ -1157,7 +1209,7 @@ class Hazard(Distribution):
     def normalize(self):
         """Normalize the hazard function (modifies self).
 
-        :return: normalizing constant
+        Returns: normalizing constant
         """
         old_total = getattr(self, "total", 1.0)
         self.total = 1.0
@@ -1166,7 +1218,7 @@ class Hazard(Distribution):
     def make_surv(self, **kwargs):
         """Make a Surv from the Hazard.
 
-        :return: Surv
+        Returns: Surv
         """
         normalize = kwargs.pop("normalize", False)
         ps = (1 - self).cumprod()
@@ -1181,22 +1233,24 @@ class Hazard(Distribution):
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Hazard.
 
-        :return: Cdf
+        Returns: Cdf
         """
         return self.make_surv().make_cdf(**kwargs)
 
     def make_pmf(self, **kwargs):
         """Make a Pmf from the Hazard.
 
-        :return: Pmf
+        Returns: Pmf
         """
         return self.make_surv().make_cdf().make_pmf(**kwargs)
 
     def make_same(self, dist):
         """Convert the given dist to Hazard.
 
-        :param dist:
-        :return: Hazard
+        Args:
+        dist: Distribution
+
+        Returns: Hazard
         """
         return dist.make_hazard()
 
@@ -1204,12 +1258,13 @@ class Hazard(Distribution):
     def from_seq(seq, **kwargs):
         """Make a Hazard from a sequence of values.
 
+        Args:
         seq: iterable
         normalize: whether to normalize the Pmf, default True
         sort: whether to sort the Pmf by values, default True
         kwargs: passed to the pd.Series constructor
 
-        :return: Hazard object
+        Returns: Hazard object
         """
         pmf = Pmf.from_seq(seq, **kwargs)
         return pmf.make_hazard()
