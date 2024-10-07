@@ -35,7 +35,6 @@ def underride(d, **options):
 
 
 class Distribution(pd.Series):
-
     @property
     def qs(self):
         """Get the quantities.
@@ -460,7 +459,7 @@ class Pmf(Distribution):
 
     def __rtruediv__(self, x, **kwargs):
         """Handle reverse division operation.
-        
+
         Args:
         x: Distribution, sequence, array, or scalar
         kwargs: passed to div
@@ -1120,7 +1119,7 @@ class Surv(Distribution):
     @property
     def inverse(self, **kwargs):
         """Make a function that computes the inverse survival function.
-        
+
         Args:
         kwargs: keyword arguments passed to interp1d
 
@@ -1188,7 +1187,7 @@ class Surv(Distribution):
 
         Args:
         dist: Distribution
-        
+
         Returns: Surv
         """
         return dist.make_surv()
