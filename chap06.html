@@ -1,0 +1,2817 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Probability Density Functions &#8212; Think Stats</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]]}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'chap06';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. Relationships between variables" href="chap07.html" />
+    <link rel="prev" title="5. Modeling Distributions" href="chap05.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Think Stats</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Think Stats, 3rd edition
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Front Matter</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chap00.html">Preface</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chap01.html">1. Exploratory Data Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap02.html">2. Distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap03.html">3. Probability Mass Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap04.html">4. Cumulative Distribution Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap05.html">5. Modeling Distributions</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">6. Probability Density Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap07.html">7. Relationships between variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap08.html">8. Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap09.html">9. Hypothesis Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap10.html">10. Least Squares</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap11.html">11. Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap12.html">12. Time series analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap13.html">13. Survival analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap14.html">14. Analytic methods</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ripoff_etf.html">Rip-off ETF?</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/AllenDowney/ThinkStats/tree/v3" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/chap06.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Probability Density Functions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-distributions">6.1. Comparing Distributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density">6.2. Probability Density</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-exponential-pdf">6.3. The Exponential PDF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-pmfs-and-pdfs">6.4. Comparing PMFs and PDFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-density-estimation">6.5. Kernel Density Estimation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-distribution-framework">6.6. The distribution framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#glossary">6.7. Glossary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">6.8. Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise">6.8.1. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">6.8.2. Exercise</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="probability-density-functions">
+<h1><span class="section-number">6. </span>Probability Density Functions<a class="headerlink" href="#probability-density-functions" title="Link to this heading">#</a></h1>
+<p>In the previous chapter, we modeled empirical distributions with theoretical distributions including the binomial, Poisson, exponential, and normal distributions.</p>
+<p>The binomial and Poisson distributions are <strong>discrete</strong>, which means that the outcomes have to be distinct or separate elements, like an integer number of hits and misses, or goals scored.
+In a discrete distribution, each outcome is associated with a probability mass.</p>
+<p>The exponential and normal distribution are <strong>continuous</strong>, which means the outcomes can be locations on a spectrum – like a wavelength – or ratios – like height and weight, which are ratios relative to their units of measure.
+In a discrete distribution, each outcome is associated with a <strong>probability density</strong>.
+To understand probability density, let’s start by comparing distributions.</p>
+<p><a class="reference external" href="https://colab.research.google.com/github/AllenDowney/ThinkStats/blob/v3/nb/chap06.ipynb">Click here to run this notebook on Colab</a>.</p>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">exists</span>
+
+
+<span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlretrieve</span>
+
+        <span class="n">local</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloaded &quot;</span> <span class="o">+</span> <span class="n">local</span><span class="p">)</span>
+
+
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 2;
+                var nbb_unformatted_code = "from os.path import basename, exists\n\n\ndef download(url):\n    filename = basename(url)\n    if not exists(filename):\n        from urllib.request import urlretrieve\n\n        local, _ = urlretrieve(url, filename)\n        print(\"Downloaded \" + local)\n\n\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py\")";
+                var nbb_formatted_code = "from os.path import basename, exists\n\n\ndef download(url):\n    filename = basename(url)\n    if not exists(filename):\n        from urllib.request import urlretrieve\n\n        local, _ = urlretrieve(url, filename)\n        print(\"Downloaded \" + local)\n\n\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">empiricaldist</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>empiricaldist
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 3;
+                var nbb_unformatted_code = "try:\n    import empiricaldist\nexcept ImportError:\n    !pip install empiricaldist";
+                var nbb_formatted_code = "try:\n    import empiricaldist\nexcept ImportError:\n    !pip install empiricaldist";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">decorate</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 4;
+                var nbb_unformatted_code = "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\nfrom thinkstats import decorate";
+                var nbb_formatted_code = "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\nfrom thinkstats import decorate";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<section id="comparing-distributions">
+<h2><span class="section-number">6.1. </span>Comparing Distributions<a class="headerlink" href="#comparing-distributions" title="Link to this heading">#</a></h2>
+<p>In the previous chapter, when we compared discrete distributions, we used a bar plot to show their probability mass functions (PMFs).
+When we compared continuous distributions, we used a line plot to show their cumulative distribution functions (CDFs).</p>
+<p>For the discrete distributions, we could also have used CDFs.
+For example, here’s the PMF of a Poisson distribution with parameter <code class="docutils literal notranslate"><span class="pre">lam=2.2</span></code>, which is a good model for the distribution of household size in the NSFG.
+Instructions for downloading the data are in the notebook for this chapter.</p>
+<p>The following cells download the data files and install <code class="docutils literal notranslate"><span class="pre">statadict</span></code>, which we need to read the data.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/nb/nsfg.py&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dct&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dat.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 5;
+                var nbb_unformatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/nb/nsfg.py\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dct\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dat.gz\")";
+                var nbb_formatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/nb/nsfg.py\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dct\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dat.gz\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">statadict</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>statadict
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 6;
+                var nbb_unformatted_code = "try:\n    import statadict\nexcept ImportError:\n    !pip install statadict";
+                var nbb_formatted_code = "try:\n    import statadict\nexcept ImportError:\n    !pip install statadict";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nsfg</span> <span class="kn">import</span> <span class="n">read_fem_resp</span>
+
+<span class="n">resp</span> <span class="o">=</span> <span class="n">read_fem_resp</span><span class="p">()</span>
+<span class="n">older</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;age &gt;= 25&quot;</span><span class="p">)</span>
+<span class="n">num_family</span> <span class="o">=</span> <span class="n">older</span><span class="p">[</span><span class="s2">&quot;numfmhh&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 7;
+                var nbb_unformatted_code = "from nsfg import read_fem_resp\n\nresp = read_fem_resp()\nolder = resp.query(\"age >= 25\")\nnum_family = older[\"numfmhh\"]";
+                var nbb_formatted_code = "from nsfg import read_fem_resp\n\nresp = read_fem_resp()\nolder = resp.query(\"age >= 25\")\nnum_family = older[\"numfmhh\"]";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">empiricaldist</span> <span class="kn">import</span> <span class="n">Pmf</span>
+
+<span class="n">pmf_family</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">num_family</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 8;
+                var nbb_unformatted_code = "from empiricaldist import Pmf\n\npmf_family = Pmf.from_seq(num_family, name=\"data\")";
+                var nbb_formatted_code = "from empiricaldist import Pmf\n\npmf_family = Pmf.from_seq(num_family, name=\"data\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">poisson_pmf</span>
+
+<span class="n">lam</span> <span class="o">=</span> <span class="mf">2.2</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">poisson_pmf</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 9;
+                var nbb_unformatted_code = "from thinkstats import poisson_pmf\n\nlam = 2.2\nks = np.arange(11)\nps = poisson_pmf(ks, lam)";
+                var nbb_formatted_code = "from thinkstats import poisson_pmf\n\nlam = 2.2\nks = np.arange(11)\nps = poisson_pmf(ks, lam)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_poisson</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Poisson model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 10;
+                var nbb_unformatted_code = "pmf_poisson = Pmf(ps, ks, name=\"Poisson model\")";
+                var nbb_formatted_code = "pmf_poisson = Pmf(ps, ks, name=\"Poisson model\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">two_bar_plots</span>
+
+<span class="n">two_bar_plots</span><span class="p">(</span><span class="n">pmf_family</span><span class="p">,</span> <span class="n">pmf_poisson</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Number of family members&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/01f8dd62e1081b034a15bdf410a7b8a1766636c9a87c21e31d5194cabb07dc7c.png" src="_images/01f8dd62e1081b034a15bdf410a7b8a1766636c9a87c21e31d5194cabb07dc7c.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 11;
+                var nbb_unformatted_code = "from thinkstats import two_bar_plots\n\ntwo_bar_plots(pmf_family, pmf_poisson)\ndecorate(xlabel=\"Number of family members\")";
+                var nbb_formatted_code = "from thinkstats import two_bar_plots\n\ntwo_bar_plots(pmf_family, pmf_poisson)\ndecorate(xlabel=\"Number of family members\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Comparing the PMFs, we can see where the data deviates from the model.
+But PMFs tend to emphasize small differences that might be due to random variation.
+Sometimes we can see the big picture more clearly by comparing CDFs.</p>
+<p>For example, here’s the CDF of family size compared to the CDF of the Poisson model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf_family</span> <span class="o">=</span> <span class="n">pmf_family</span><span class="o">.</span><span class="n">make_cdf</span><span class="p">()</span>
+<span class="n">cdf_poisson</span> <span class="o">=</span> <span class="n">pmf_poisson</span><span class="o">.</span><span class="n">make_cdf</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 12;
+                var nbb_unformatted_code = "cdf_family = pmf_family.make_cdf()\ncdf_poisson = pmf_poisson.make_cdf()";
+                var nbb_formatted_code = "cdf_family = pmf_family.make_cdf()\ncdf_poisson = pmf_poisson.make_cdf()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">two_cdf_plots</span>
+
+<span class="n">two_cdf_plots</span><span class="p">(</span><span class="n">cdf_poisson</span><span class="p">,</span> <span class="n">cdf_family</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Number of family members&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/b0fd6c4e887a05ee50a09ba17d6550f6d849ee31d2de5492cd89229aca160fe5.png" src="_images/b0fd6c4e887a05ee50a09ba17d6550f6d849ee31d2de5492cd89229aca160fe5.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 13;
+                var nbb_unformatted_code = "from thinkstats import two_cdf_plots\n\ntwo_cdf_plots(cdf_poisson, cdf_family)\ndecorate(xlabel=\"Number of family members\")";
+                var nbb_formatted_code = "from thinkstats import two_cdf_plots\n\ntwo_cdf_plots(cdf_poisson, cdf_family)\ndecorate(xlabel=\"Number of family members\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>In my opinion, CDFs are usually the best way to compare data to a model, or compare data from different groups, etc.</p>
+<p>Also, CDFs work well with continuous data.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 14;
+                var nbb_unformatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz\")";
+                var nbb_formatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nsfg</span> <span class="kn">import</span> <span class="n">read_fem_preg</span>
+
+<span class="n">preg</span> <span class="o">=</span> <span class="n">read_fem_preg</span><span class="p">()</span>
+<span class="n">birth_weights</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;totalwgt_lb&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 15;
+                var nbb_unformatted_code = "from nsfg import read_fem_preg\n\npreg = read_fem_preg()\nbirth_weights = preg[\"totalwgt_lb\"].dropna()";
+                var nbb_formatted_code = "from nsfg import read_fem_preg\n\npreg = read_fem_preg()\nbirth_weights = preg[\"totalwgt_lb\"].dropna()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">trimboth</span>
+
+<span class="n">trimmed</span> <span class="o">=</span> <span class="n">trimboth</span><span class="p">(</span><span class="n">birth_weights</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 16;
+                var nbb_unformatted_code = "from scipy.stats import trimboth\n\ntrimmed = trimboth(birth_weights, 0.01)";
+                var nbb_formatted_code = "from scipy.stats import trimboth\n\ntrimmed = trimboth(birth_weights, 0.01)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">make_normal_model</span>
+
+<span class="n">cdf_model</span> <span class="o">=</span> <span class="n">make_normal_model</span><span class="p">(</span><span class="n">trimmed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 17;
+                var nbb_unformatted_code = "from thinkstats import make_normal_model\n\ncdf_model = make_normal_model(trimmed)";
+                var nbb_formatted_code = "from thinkstats import make_normal_model\n\ncdf_model = make_normal_model(trimmed)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">empiricaldist</span> <span class="kn">import</span> <span class="n">Cdf</span>
+
+<span class="n">cdf_birth_weight</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">birth_weights</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+<span class="n">two_cdf_plots</span><span class="p">(</span><span class="n">cdf_model</span><span class="p">,</span> <span class="n">cdf_birth_weight</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/6c2fc1d648cc49d93887a25edcbe4b9981b614b52f1c54937132cd9ba392b13c.png" src="_images/6c2fc1d648cc49d93887a25edcbe4b9981b614b52f1c54937132cd9ba392b13c.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 18;
+                var nbb_unformatted_code = "from empiricaldist import Cdf\n\ncdf_birth_weight = Cdf.from_seq(birth_weights, name=\"sample\")\ntwo_cdf_plots(cdf_model, cdf_birth_weight, xlabel=\"Birth weight (pounds)\")";
+                var nbb_formatted_code = "from empiricaldist import Cdf\n\ncdf_birth_weight = Cdf.from_seq(birth_weights, name=\"sample\")\ntwo_cdf_plots(cdf_model, cdf_birth_weight, xlabel=\"Birth weight (pounds)\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+</section>
+<section id="probability-density">
+<h2><span class="section-number">6.2. </span>Probability Density<a class="headerlink" href="#probability-density" title="Link to this heading">#</a></h2>
+<p>The familiar bell curve is actually the probability density function (PDF) of the normal distribution, which we can compute like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">normal_pdf</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluates the normal probability density function.</span>
+
+<span class="sd">    xs: float or sequence of floats</span>
+<span class="sd">    mu: mean of the distribution</span>
+<span class="sd">    sigma: standard deviation of the distribution</span>
+
+<span class="sd">    returns: float or NumPy array of probability density</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">xs</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 19;
+                var nbb_unformatted_code = "def normal_pdf(xs, mu, sigma):\n    \"\"\"Evaluates the normal probability density function.\n\n    xs: float or sequence of floats\n    mu: mean of the distribution\n    sigma: standard deviation of the distribution\n\n    returns: float or NumPy array of probability density\n    \"\"\"\n    z = (xs - mu) / sigma\n    return np.exp(-(z**2) / 2) / sigma / np.sqrt(2 * np.pi)";
+                var nbb_formatted_code = "def normal_pdf(xs, mu, sigma):\n    \"\"\"Evaluates the normal probability density function.\n\n    xs: float or sequence of floats\n    mu: mean of the distribution\n    sigma: standard deviation of the distribution\n\n    returns: float or NumPy array of probability density\n    \"\"\"\n    z = (xs - mu) / sigma\n    return np.exp(-(z**2) / 2) / sigma / np.sqrt(2 * np.pi)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">thinkstats</span></code> provides a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> object that represents the PDF of a normal distribution.
+We can use it to create a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> with the same mean and standard deviation as the birth weights in the NSFG dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">NormalPdf</span>
+
+<span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">trimmed</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">trimmed</span><span class="p">)</span>
+<span class="n">pdf_model</span> <span class="o">=</span> <span class="n">NormalPdf</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;normal model&quot;</span><span class="p">)</span>
+<span class="n">pdf_model</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NormalPdf(7.280883100022579, 1.2430657948614345, name=&#39;normal model&#39;)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 20;
+                var nbb_unformatted_code = "from thinkstats import NormalPdf\n\nm, s = np.mean(trimmed), np.std(trimmed)\npdf_model = NormalPdf(m, s, name=\"normal model\")\npdf_model";
+                var nbb_formatted_code = "from thinkstats import NormalPdf\n\nm, s = np.mean(trimmed), np.std(trimmed)\npdf_model = NormalPdf(m, s, name=\"normal model\")\npdf_model";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>If we call the <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> object as a function, it evaluates the normal PDF.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">low</span> <span class="o">=</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">s</span>
+<span class="n">high</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">s</span>
+<span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">pdf_model</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 21;
+                var nbb_unformatted_code = "low = m - 4 * s\nhigh = m + 4 * s\nqs = np.linspace(low, high, 201)\nps = pdf_model(qs)";
+                var nbb_formatted_code = "low = m - 4 * s\nhigh = m + 4 * s\nqs = np.linspace(low, high, 201)\nps = pdf_model(qs)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result looks like a bell curve.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;normal model&quot;</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/2771a8ea2d474d2cbeec027676f9adec4c2a3889402856146d4e19866d96de49.png" src="_images/2771a8ea2d474d2cbeec027676f9adec4c2a3889402856146d4e19866d96de49.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 22;
+                var nbb_unformatted_code = "plt.plot(qs, ps, label=\"normal model\")\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")";
+                var nbb_formatted_code = "plt.plot(qs, ps, label=\"normal model\")\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">PdfNormal</span></code> object provides a <code class="docutils literal notranslate"><span class="pre">plot</span></code> function that does the same thing.</p>
+<p>The peak of the distribution is at <code class="docutils literal notranslate"><span class="pre">m</span></code>.
+If we evaluate the PDF there, the result is a probability density.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pdf_model</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.32093416297880123
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 23;
+                var nbb_unformatted_code = "pdf_model(m)";
+                var nbb_formatted_code = "pdf_model(m)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>By itself, a probability density doesn’t mean much – most importantly, it is <em>not</em> a probability.
+It would be incorrect to say that the probability is 32% that a randomly-chosen birth weight equals <code class="docutils literal notranslate"><span class="pre">m</span></code>.
+In fact, the probability that a birth weight is truly, exactly, and precisely equal to <code class="docutils literal notranslate"><span class="pre">m</span></code> – or any other specific value – is effectively zero.</p>
+<p>However, we can use these probability densities to compute the probability that a birth weight falls in an interval between two values, by computing the area under the curve.
+The following function takes a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> object and the bounds of an interval, <code class="docutils literal notranslate"><span class="pre">low</span></code> and <code class="docutils literal notranslate"><span class="pre">high</span></code>.
+It evaluates the normal PDF at equally-spaced quantities between <code class="docutils literal notranslate"><span class="pre">low</span></code> and <code class="docutils literal notranslate"><span class="pre">high</span></code>, and uses Simpson’s method to estimate the area under the curve.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">simpson</span>
+
+
+<span class="k">def</span> <span class="nf">area_under</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the area under a PDF.</span>
+
+<span class="sd">    pdf: Pdf object</span>
+<span class="sd">    low: low end of the interval</span>
+<span class="sd">    high: high end of the interval</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="mi">501</span><span class="p">)</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">simpson</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 24;
+                var nbb_unformatted_code = "from scipy.integrate import simpson\n\n\ndef area_under(pdf, low, high):\n    \"\"\"Find the area under a PDF.\n\n    pdf: Pdf object\n    low: low end of the interval\n    high: high end of the interval\n    \"\"\"\n    qs = np.linspace(low, high, 501)\n    ps = pdf(qs)\n    return simpson(y=ps, x=qs)";
+                var nbb_formatted_code = "from scipy.integrate import simpson\n\n\ndef area_under(pdf, low, high):\n    \"\"\"Find the area under a PDF.\n\n    pdf: Pdf object\n    low: low end of the interval\n    high: high end of the interval\n    \"\"\"\n    qs = np.linspace(low, high, 501)\n    ps = pdf(qs)\n    return simpson(y=ps, x=qs)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>If we compute the area under the curve from the lowest to the highest point in the graph, the result is close to 1.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">area_under</span><span class="p">(</span><span class="n">pdf_model</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9999158086616793
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 25;
+                var nbb_unformatted_code = "area_under(pdf_model, 2, 12)";
+                var nbb_formatted_code = "area_under(pdf_model, 2, 12)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>If we extend the interval from negative infinity to positive infinity, the total area is exactly 1.</p>
+<p>If we start from 0 – or any value far below the mean – we can compute the fraction of birth weights less than or equal to 8.5 pounds.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">area_under</span><span class="p">(</span><span class="n">pdf_model</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">8.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.8366380335513807
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 26;
+                var nbb_unformatted_code = "area_under(pdf_model, 0, 8.5)";
+                var nbb_formatted_code = "area_under(pdf_model, 0, 8.5)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>You might recall that the “fraction less than or equal to a given value” is the definition of the CDF.
+So we could compute the same result using the CDF of the normal distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">8.5</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.8366380358092718
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 27;
+                var nbb_unformatted_code = "from scipy.stats import norm\n\nnorm.cdf(8.5, m, s)";
+                var nbb_formatted_code = "from scipy.stats import norm\n\nnorm.cdf(8.5, m, s)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Similarly, we can use the area under the density curve to compute the fraction of birth weights between 6 and 8 pounds.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">area_under</span><span class="p">(</span><span class="n">pdf_model</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5671317752927691
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 28;
+                var nbb_unformatted_code = "area_under(pdf_model, 6, 8)";
+                var nbb_formatted_code = "area_under(pdf_model, 6, 8)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Or we can get the same result using the CDF to compute the fraction less than 8 and then subtracting off the fraction less than 6.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5671317752921801
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 29;
+                var nbb_unformatted_code = "norm.cdf(8, m, s) - norm.cdf(6, m, s)";
+                var nbb_formatted_code = "norm.cdf(8, m, s) - norm.cdf(6, m, s)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>So the CDF is the area under the curve of the PDF.
+If you know calculus, another way to say the same thing is that the CDF is the integral of the PDF.
+And conversely, the PDF is the derivative of the CDF.</p>
+</section>
+<section id="the-exponential-pdf">
+<h2><span class="section-number">6.3. </span>The Exponential PDF<a class="headerlink" href="#the-exponential-pdf" title="Link to this heading">#</a></h2>
+<p>To get your head around probability density, it might help to look at another example.
+In the previous chapter, we used an exponential distribution to model the time until the first goal in a hockey game.
+We used the following function to compute the exponential CDF.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">exponential_cdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the exponential CDF.</span>
+
+<span class="sd">    x: float or sequence of floats</span>
+<span class="sd">    lam: rate parameter</span>
+
+<span class="sd">    returns: float or NumPy array of cumulative probability</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lam</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 30;
+                var nbb_unformatted_code = "def exponential_cdf(x, lam):\n    \"\"\"Compute the exponential CDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of cumulative probability\n    \"\"\"\n    return 1 - np.exp(-lam * x)";
+                var nbb_formatted_code = "def exponential_cdf(x, lam):\n    \"\"\"Compute the exponential CDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of cumulative probability\n    \"\"\"\n    return 1 - np.exp(-lam * x)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">lam</span></code> is the rate parameter in goals per unit of time.
+We can compute the exponential PDF like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">exponential_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluates the exponential PDF.</span>
+
+<span class="sd">    x: float or sequence of floats</span>
+<span class="sd">    lam: rate parameter</span>
+
+<span class="sd">    returns: float or NumPy array of probability density</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lam</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 31;
+                var nbb_unformatted_code = "def exponential_pdf(x, lam):\n    \"\"\"Evaluates the exponential PDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of probability density\n    \"\"\"\n    return lam * np.exp(-lam * x)";
+                var nbb_formatted_code = "def exponential_pdf(x, lam):\n    \"\"\"Evaluates the exponential PDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of probability density\n    \"\"\"\n    return lam * np.exp(-lam * x)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">thinkstats</span></code> provides an <code class="docutils literal notranslate"><span class="pre">ExponentialPdf</span></code> object that uses this function to compute the exponential PDF.
+We can use one to represent an exponential distribution with rate parameter 6 goals per game.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">ExponentialPdf</span>
+
+<span class="n">lam</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">pdf_expo</span> <span class="o">=</span> <span class="n">ExponentialPdf</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+<span class="n">pdf_expo</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ExponentialPdf(6, name=&#39;model&#39;)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 32;
+                var nbb_unformatted_code = "from thinkstats import ExponentialPdf\n\nlam = 6\npdf_expo = ExponentialPdf(lam, name=\"model\")\npdf_expo";
+                var nbb_formatted_code = "from thinkstats import ExponentialPdf\n\nlam = 6\npdf_expo = ExponentialPdf(lam, name=\"model\")\npdf_expo";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ExponentialPdf</span></code> provides a <code class="docutils literal notranslate"><span class="pre">plot</span></code> function we can use to plot the PDF – notice that the unit of time is games here, rather than seconds as in the previous chapter.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+<span class="n">pdf_expo</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time (games)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/c1019bd2307578031c7488df0c47aee05469c42136a15b1598108276da0e42cf.png" src="_images/c1019bd2307578031c7488df0c47aee05469c42136a15b1598108276da0e42cf.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 33;
+                var nbb_unformatted_code = "qs = np.linspace(0, 1.5, 201)\npdf_expo.plot(qs)\ndecorate(xlabel=\"Time (games)\", ylabel=\"Density\")";
+                var nbb_formatted_code = "qs = np.linspace(0, 1.5, 201)\npdf_expo.plot(qs)\ndecorate(xlabel=\"Time (games)\", ylabel=\"Density\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Looking at the y-axis, you might notice that some of these densities are greater than 1, which is a reminder that a probability density is not a probability.
+But the area under a density curve is a probability, so it should never be greater than 1.</p>
+<p>If we compute the area under this curve from 0 to 1.5 games, we can confirm that the result is close to 1.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">area_under</span><span class="p">(</span><span class="n">pdf_expo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.999876590779019
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 34;
+                var nbb_unformatted_code = "area_under(pdf_expo, 0, 1.5)";
+                var nbb_formatted_code = "area_under(pdf_expo, 0, 1.5)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>If we extend the interval much farther, the result is slightly great than 1, but that’s because we’re approximating the area numerically.
+Mathematically, it is exactly 1, as we can confirm using the exponential CDF.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">exponential_cdf</span>
+
+<span class="n">exponential_cdf</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 35;
+                var nbb_unformatted_code = "from thinkstats import exponential_cdf\n\nexponential_cdf(7, lam)";
+                var nbb_formatted_code = "from thinkstats import exponential_cdf\n\nexponential_cdf(7, lam)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>We can use the area under the density curve to compute the probability of a goal during any interval.
+For example, here is the probability of a goal during the first minute of a 60-minute game.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">area_under</span><span class="p">(</span><span class="n">pdf_expo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.09516258196404043
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 36;
+                var nbb_unformatted_code = "area_under(pdf_expo, 0, 1 / 60)";
+                var nbb_formatted_code = "area_under(pdf_expo, 0, 1 / 60)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>We can compute the same result using the exponential CDF.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exponential_cdf</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.09516258196404048
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 37;
+                var nbb_unformatted_code = "exponential_cdf(1 / 60, lam)";
+                var nbb_formatted_code = "exponential_cdf(1 / 60, lam)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+</section>
+<section id="comparing-pmfs-and-pdfs">
+<h2><span class="section-number">6.4. </span>Comparing PMFs and PDFs<a class="headerlink" href="#comparing-pmfs-and-pdfs" title="Link to this heading">#</a></h2>
+<p>It is a common error to compare the PMF of a sample with the PDF of a theoretical model.
+For example, suppose we want to compare the distribution of birth weights to a normal model.
+Here’s a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> that represents the distribution of the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_birth_weight</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">birth_weights</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 38;
+                var nbb_unformatted_code = "pmf_birth_weight = Pmf.from_seq(birth_weights, name=\"data\")";
+                var nbb_formatted_code = "pmf_birth_weight = Pmf.from_seq(birth_weights, name=\"data\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>And we already have <code class="docutils literal notranslate"><span class="pre">pdf_model</span></code>, which represents the PDF of the normal distribution with the same mean and standard deviation.
+Here’s what happens if we plot them on the same axis.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_birth_weight</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">pdf_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF? Density?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/c4dde542eea6a859a814c043c03edba4cf84511ab06d4a12ce9b1f6e6dc61063.png" src="_images/c4dde542eea6a859a814c043c03edba4cf84511ab06d4a12ce9b1f6e6dc61063.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 39;
+                var nbb_unformatted_code = "pmf_birth_weight.plot()\npdf_model.plot(color=\"gray\")\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF? Density?\")";
+                var nbb_formatted_code = "pmf_birth_weight.plot()\npdf_model.plot(color=\"gray\")\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF? Density?\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>It doesn’t work very well.
+One reason is that they are not in the same units.
+A <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> contains probability masses and a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> contains probability densities, so we can’t compare them, and we shouldn’t plot them on the same axes.</p>
+<p>As a first attempt to solve the problem, we can make a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> that approximates the normal distribution by evaluating the PDF at a discrete set of points.
+<code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> provides a <code class="docutils literal notranslate"><span class="pre">make_pmf</span></code> method that does that.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_model</span> <span class="o">=</span> <span class="n">pdf_model</span><span class="o">.</span><span class="n">make_pmf</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 40;
+                var nbb_unformatted_code = "pmf_model = pdf_model.make_pmf()";
+                var nbb_formatted_code = "pmf_model = pdf_model.make_pmf()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result contain probability masses, so we can at least plot it on the same axes as the PMF of the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">pmf_birth_weight</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/9ddd9103b985364092f059ef8dfa13d589d6157987c5cad6995a74714d7c4d46.png" src="_images/9ddd9103b985364092f059ef8dfa13d589d6157987c5cad6995a74714d7c4d46.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 41;
+                var nbb_unformatted_code = "pmf_model.plot(color=\"gray\")\npmf_birth_weight.plot()\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF\")";
+                var nbb_formatted_code = "pmf_model.plot(color=\"gray\")\npmf_birth_weight.plot()\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>But this is still not a good way to compare distributions.
+One problem is that the two <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects contains different numbers of quantities, and the quantities in <code class="docutils literal notranslate"><span class="pre">pmf_birth_weight</span></code> are not equally spaced, so the probability masses are not really comparable.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">pmf_model</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pmf_birth_weight</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(201, 184)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 42;
+                var nbb_unformatted_code = "len(pmf_model), len(pmf_birth_weight)";
+                var nbb_formatted_code = "len(pmf_model), len(pmf_birth_weight)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The other problem is that the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> of the data is noisy.</p>
+</section>
+<section id="kernel-density-estimation">
+<h2><span class="section-number">6.5. </span>Kernel Density Estimation<a class="headerlink" href="#kernel-density-estimation" title="Link to this heading">#</a></h2>
+<p>So let’s try something else – instead of converting the model to a PMF, we can convert the distribution of the data to a PDF.
+To show how that works, I’ll start with a small sample of the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">birth_weights</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 43;
+                var nbb_unformatted_code = "np.random.seed(3)\n\nn = 10\nsample = birth_weights.sample(n)";
+                var nbb_formatted_code = "np.random.seed(3)\n\nn = 10\nsample = birth_weights.sample(n)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> of this sample looks like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+    <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="n">weight</span><span class="p">])</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">pmf</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">xlim</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">]</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">xlim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/d4da519be64ffcd67f999025412db85097a2d3fafa39805eeb33098a95524193.png" src="_images/d4da519be64ffcd67f999025412db85097a2d3fafa39805eeb33098a95524193.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 44;
+                var nbb_unformatted_code = "for weight in sample:\n    pmf = Pmf.from_seq([weight]) / n\n    pmf.bar(width=0.08, alpha=0.5)\n\nxlim = [1.5, 12.5]\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF\", xlim=xlim)";
+                var nbb_formatted_code = "for weight in sample:\n    pmf = Pmf.from_seq([weight]) / n\n    pmf.bar(width=0.08, alpha=0.5)\n\nxlim = [1.5, 12.5]\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF\", xlim=xlim)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>This way of representing the distribution treats the data as if it is discrete, so each probability mass is stacked up on a single point.
+But birth weight is actually a continuous quantity, so the quantities between the measurements are also possible.
+We can represent that possibility by replacing each discrete probability mass with a continuous probability density, like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">NormalPdf</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">)(</span><span class="n">qs</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PDF&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">xlim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/bd2daec0182480aac5b135f27d619430160506baef0c579b4ad2356fca08184f.png" src="_images/bd2daec0182480aac5b135f27d619430160506baef0c579b4ad2356fca08184f.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 45;
+                var nbb_unformatted_code = "qs = np.linspace(2, 12, 201)\n\nfor weight in sample:\n    ps = NormalPdf(weight, 0.75)(qs) / n\n    plt.plot(qs, ps, alpha=0.5)\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PDF\", xlim=xlim)";
+                var nbb_formatted_code = "qs = np.linspace(2, 12, 201)\n\nfor weight in sample:\n    ps = NormalPdf(weight, 0.75)(qs) / n\n    plt.plot(qs, ps, alpha=0.5)\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PDF\", xlim=xlim)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>For each weight in the sample, we create a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> with the observed weight as the mean – now let’s add them up.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">low_ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">NormalPdf</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">)(</span><span class="n">qs</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">high_ps</span> <span class="o">=</span> <span class="n">low_ps</span> <span class="o">+</span> <span class="n">ps</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">low_ps</span><span class="p">,</span> <span class="n">high_ps</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">low_ps</span> <span class="o">=</span> <span class="n">high_ps</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PDF&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">xlim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/a2f9cff8fe849b6b617f3e1b1ced495ad53f84e761484501098ec985cfd4a535.png" src="_images/a2f9cff8fe849b6b617f3e1b1ced495ad53f84e761484501098ec985cfd4a535.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 46;
+                var nbb_unformatted_code = "low_ps = np.zeros_like(qs)\n\nfor weight in sample:\n    ps = NormalPdf(weight, 0.75)(qs) / n\n    high_ps = low_ps + ps\n    plt.fill_between(qs, low_ps, high_ps, alpha=0.5, lw=0)\n    low_ps = high_ps\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PDF\", xlim=xlim)";
+                var nbb_formatted_code = "low_ps = np.zeros_like(qs)\n\nfor weight in sample:\n    ps = NormalPdf(weight, 0.75)(qs) / n\n    high_ps = low_ps + ps\n    plt.fill_between(qs, low_ps, high_ps, alpha=0.5, lw=0)\n    low_ps = high_ps\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PDF\", xlim=xlim)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>When we add up the probability densities for each data point, the result is an estimate of the probability density for the whole sample.
+This process is called <strong>kernel density estimation</strong> or KDE.
+In this context, a “kernel” is one of the small density functions we added up.
+Because the kernels we used are normal distributions – also known as Gaussians – we could say more specifically that we computed a Gaussian KDE.</p>
+<p>SciPy provides a function called <code class="docutils literal notranslate"><span class="pre">gaussian_kde</span></code> that implements this algorithm.
+Here’s how we can use it to estimate the distribution of birth weights.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gaussian_kde</span>
+
+<span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">birth_weights</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 47;
+                var nbb_unformatted_code = "from scipy.stats import gaussian_kde\n\nkde = gaussian_kde(birth_weights)";
+                var nbb_formatted_code = "from scipy.stats import gaussian_kde\n\nkde = gaussian_kde(birth_weights)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result is an object that represents the estimated PDF, which we can evaluate by calling it like  a function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ps</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 48;
+                var nbb_unformatted_code = "ps = kde(qs)";
+                var nbb_formatted_code = "ps = kde(qs)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Here’s what the result looks like.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/e439502495e67aa8555711c4477a4d2040303f8d93148134e876977273e24aa4.png" src="_images/e439502495e67aa8555711c4477a4d2040303f8d93148134e876977273e24aa4.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 49;
+                var nbb_unformatted_code = "plt.plot(qs, ps)\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")";
+                var nbb_formatted_code = "plt.plot(qs, ps)\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">thinkstats</span></code> provides a <code class="docutils literal notranslate"><span class="pre">Pdf</span></code> object that takes the result from <code class="docutils literal notranslate"><span class="pre">gaussian_kde</span></code>, and a domain that indicates where the density should be evaluated.
+Here’s how we make one.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">Pdf</span>
+
+<span class="n">domain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">birth_weights</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">birth_weights</span><span class="p">)</span>
+<span class="n">kde_birth_weights</span> <span class="o">=</span> <span class="n">Pdf</span><span class="p">(</span><span class="n">kde</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 50;
+                var nbb_unformatted_code = "from thinkstats import Pdf\n\ndomain = np.min(birth_weights), np.max(birth_weights)\nkde_birth_weights = Pdf(kde, domain, name=\"data\")";
+                var nbb_formatted_code = "from thinkstats import Pdf\n\ndomain = np.min(birth_weights), np.max(birth_weights)\nkde_birth_weights = Pdf(kde, domain, name=\"data\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pdf</span></code> provides a <code class="docutils literal notranslate"><span class="pre">plot</span></code> method we can use to compare the estimated PDF of the sample to the PDF of a normal distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kde_birth_weights</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">pdf_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Birth weight (pounds)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/ed907e1c413ddc96de21643297f1556345fb5db8e3d1e4306af692ff638ef529.png" src="_images/ed907e1c413ddc96de21643297f1556345fb5db8e3d1e4306af692ff638ef529.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 51;
+                var nbb_unformatted_code = "kde_birth_weights.plot()\npdf_model.plot(color=\"gray\")\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")";
+                var nbb_formatted_code = "kde_birth_weights.plot()\npdf_model.plot(color=\"gray\")\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>KDE makes it possible to compare the distribution of a dataset to a theoretical model, and for some audiences, this is a good way to visualize the comparison.
+But for continuous quantities, I think it’s usually better to compare CDFs.</p>
+</section>
+<section id="the-distribution-framework">
+<h2><span class="section-number">6.6. </span>The distribution framework<a class="headerlink" href="#the-distribution-framework" title="Link to this heading">#</a></h2>
+<p>At this point we have a complete set of ways to represent distributions: PMFs, CDFs, and PDFs
+The following figure shows these representations and the transitions from one to another.
+For example, if we have a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, we can use the <code class="docutils literal notranslate"><span class="pre">cumsum</span></code> function to compute the cumulative sum of the probabilities and get a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> that represents the same distribution.</p>
+<a class="reference internal image-reference" href="https://github.com/AllenDowney/ThinkStats/raw/v3/figs/distribution_framework.png"><img alt="https://github.com/AllenDowney/ThinkStats/raw/v3/figs/distribution_framework.png" src="https://github.com/AllenDowney/ThinkStats/raw/v3/figs/distribution_framework.png" style="width: 400px;" /></a>
+<p>To demonstrate these transitions, we’ll use a new dataset that “contains the time of birth, sex, and birth weight for each of 44 babies born in one 24-hour period at a Brisbane, Australia, hospital.”</p>
+<p><code class="docutils literal notranslate"><span class="pre">thinkstats</span></code> provides a function that reads the data and returns a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/babyboom.dat&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 52;
+                var nbb_unformatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/babyboom.dat\")";
+                var nbb_formatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/babyboom.dat\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">read_baby_boom</span>
+
+<span class="n">boom</span> <span class="o">=</span> <span class="n">read_baby_boom</span><span class="p">()</span>
+<span class="n">boom</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>sex</th>
+      <th>weight_g</th>
+      <th>minutes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5</td>
+      <td>1</td>
+      <td>3837</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>104</td>
+      <td>1</td>
+      <td>3334</td>
+      <td>64</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>118</td>
+      <td>2</td>
+      <td>3554</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>155</td>
+      <td>2</td>
+      <td>3838</td>
+      <td>115</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>257</td>
+      <td>2</td>
+      <td>3625</td>
+      <td>177</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 53;
+                var nbb_unformatted_code = "from thinkstats import read_baby_boom\n\nboom = read_baby_boom()\nboom.head()";
+                var nbb_formatted_code = "from thinkstats import read_baby_boom\n\nboom = read_baby_boom()\nboom.head()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">minutes</span></code> records “the number of minutes since midnight for each birth”.
+So can use the <code class="docutils literal notranslate"><span class="pre">diff</span></code> method to compute the interval between each successive birth.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">diffs</span> <span class="o">=</span> <span class="n">boom</span><span class="p">[</span><span class="s2">&quot;minutes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 54;
+                var nbb_unformatted_code = "diffs = boom[\"minutes\"].diff().dropna()";
+                var nbb_formatted_code = "diffs = boom[\"minutes\"].diff().dropna()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>If births happen with equal probability during any minute of the day, we expect these intervals to follow an exponential distribution.
+In reality, that assumption is not precisely true, but the exponential distribution might still be a good model for the data.</p>
+<p>To find out, we’ll start by making a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> that represents the distribution of intervals.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_diffs</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">diffs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">pmf_diffs</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/adf6f9b1013cba6c0970c5827a1cceb1b17a009fc23fb7f5022dc171bcc6cee9.png" src="_images/adf6f9b1013cba6c0970c5827a1cceb1b17a009fc23fb7f5022dc171bcc6cee9.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 55;
+                var nbb_unformatted_code = "pmf_diffs = Pmf.from_seq(diffs, name=\"data\")\npmf_diffs.bar(width=1)\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"PMF\")";
+                var nbb_formatted_code = "pmf_diffs = Pmf.from_seq(diffs, name=\"data\")\npmf_diffs.bar(width=1)\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"PMF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">make_cdf</span></code> method computes the cumulative sum of the probabilities in the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> object.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf_diffs</span> <span class="o">=</span> <span class="n">pmf_diffs</span><span class="o">.</span><span class="n">make_cdf</span><span class="p">()</span>
+<span class="n">cdf_diffs</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;CDF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/8657bceb6ebce11db212f09fd7f2e39dc45cb24dff5547947954319326df52bb.png" src="_images/8657bceb6ebce11db212f09fd7f2e39dc45cb24dff5547947954319326df52bb.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 56;
+                var nbb_unformatted_code = "cdf_diffs = pmf_diffs.make_cdf()\ncdf_diffs.step(color=\"C1\")\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_formatted_code = "cdf_diffs = pmf_diffs.make_cdf()\ncdf_diffs.step(color=\"C1\")\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> and <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> are equivalent in the sense that if we are given either one, we can compute the other.
+To demonstrate, we’ll use the <code class="docutils literal notranslate"><span class="pre">make_pmf</span></code> method, which computes the differences between successive probabilities in a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf_diffs2</span> <span class="o">=</span> <span class="n">cdf_diffs</span><span class="o">.</span><span class="n">make_pmf</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 57;
+                var nbb_unformatted_code = "pmf_diffs2 = cdf_diffs.make_pmf()";
+                var nbb_formatted_code = "pmf_diffs2 = cdf_diffs.make_pmf()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result should be identical to the original <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, but there might be small floating-point errors.
+We can use <code class="docutils literal notranslate"><span class="pre">allclose</span></code> to check that the result is close to the original <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">pmf_diffs</span><span class="p">,</span> <span class="n">pmf_diffs2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 58;
+                var nbb_unformatted_code = "np.allclose(pmf_diffs, pmf_diffs2)";
+                var nbb_formatted_code = "np.allclose(pmf_diffs, pmf_diffs2)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>And it is.</p>
+<p>From a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, we can estimate a density function by calling <code class="docutils literal notranslate"><span class="pre">gaussian_kde</span></code> with the probabilities from the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> as weights.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">pmf_diffs</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pmf_diffs</span><span class="o">.</span><span class="n">ps</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 59;
+                var nbb_unformatted_code = "kde = gaussian_kde(pmf_diffs.qs, weights=pmf_diffs.ps)";
+                var nbb_formatted_code = "kde = gaussian_kde(pmf_diffs.qs, weights=pmf_diffs.ps)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">domain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pmf_diffs</span><span class="o">.</span><span class="n">qs</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pmf_diffs</span><span class="o">.</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">kde_diffs</span> <span class="o">=</span> <span class="n">Pdf</span><span class="p">(</span><span class="n">kde</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;estimated density&quot;</span><span class="p">)</span>
+
+<span class="n">kde_diffs</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/9953dd90e1fb8c63bbe1d3b5f7d38cf323ab485c36c0b00929b130f0e4f3b880.png" src="_images/9953dd90e1fb8c63bbe1d3b5f7d38cf323ab485c36c0b00929b130f0e4f3b880.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 60;
+                var nbb_unformatted_code = "domain = np.min(pmf_diffs.qs), np.max(pmf_diffs.qs)\nkde_diffs = Pdf(kde, domain=domain, name=\"estimated density\")\n\nkde_diffs.plot()\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"Density\")";
+                var nbb_formatted_code = "domain = np.min(pmf_diffs.qs), np.max(pmf_diffs.qs)\nkde_diffs = Pdf(kde, domain=domain, name=\"estimated density\")\n\nkde_diffs.plot()\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"Density\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>To see whether the estimated density follows an exponential model, we can make an <code class="docutils literal notranslate"><span class="pre">ExponentialPdf</span></code> with the same mean as the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">diffs</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">lam</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">m</span>
+<span class="n">pdf_model</span> <span class="o">=</span> <span class="n">ExponentialPdf</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;exponential PDF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 61;
+                var nbb_unformatted_code = "m = diffs.mean()\nlam = 1 / m\npdf_model = ExponentialPdf(lam, name=\"exponential PDF\")";
+                var nbb_formatted_code = "m = diffs.mean()\nlam = 1 / m\npdf_model = ExponentialPdf(lam, name=\"exponential PDF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Here’s what it looks like compared to the estimated density.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pdf_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">kde_diffs</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/29ead44fb9e7b12a323e2e6482169d179dfb21fc1e4b79bf741adbd32d44d853.png" src="_images/29ead44fb9e7b12a323e2e6482169d179dfb21fc1e4b79bf741adbd32d44d853.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 62;
+                var nbb_unformatted_code = "pdf_model.plot(color=\"gray\")\nkde_diffs.plot()\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"Density\")";
+                var nbb_formatted_code = "pdf_model.plot(color=\"gray\")\nkde_diffs.plot()\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"Density\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Comparing the estimated density to an exponential PDF, it doesn’t seem like the data fit the model well.
+But that might be misleading – again, I think comparing CDFs provides the clearer picture.</p>
+<p>Here’s the CDF of an exponential distribution compared to the CDF of the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">ExponentialCdf</span>
+
+<span class="n">cdf_model</span> <span class="o">=</span> <span class="n">ExponentialCdf</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;exponential CDF&quot;</span><span class="p">)</span>
+<span class="n">cdf_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">cdf_diffs</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;CDF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/a004a57306625469fd4d16222fc5a4f3ceb6b7056c6402f1a7cb47578dbf9566.png" src="_images/a004a57306625469fd4d16222fc5a4f3ceb6b7056c6402f1a7cb47578dbf9566.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 63;
+                var nbb_unformatted_code = "from thinkstats import ExponentialCdf\n\ncdf_model = ExponentialCdf(lam, name=\"exponential CDF\")\ncdf_model.plot(color=\"gray\")\ncdf_diffs.step(color=\"C1\")\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_formatted_code = "from thinkstats import ExponentialCdf\n\ncdf_model = ExponentialCdf(lam, name=\"exponential CDF\")\ncdf_model.plot(color=\"gray\")\ncdf_diffs.step(color=\"C1\")\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The exponential CDF fits the CDF of the data well.</p>
+<p>Given an <code class="docutils literal notranslate"><span class="pre">ExponentialPdf</span></code>, we can use <code class="docutils literal notranslate"><span class="pre">make_pmf</span></code> to <strong>discretize</strong> the PDF – that is, to make a discrete approximation by evaluating the PDF at a sequence of equally spaced quantities.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="n">pmf_model</span> <span class="o">=</span> <span class="n">pdf_model</span><span class="o">.</span><span class="n">make_pmf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">pmf_model</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/8976ca235be9c877832e64a5928aaf67c79efea11c2354f8cc2b0538e546eb5a.png" src="_images/8976ca235be9c877832e64a5928aaf67c79efea11c2354f8cc2b0538e546eb5a.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 64;
+                var nbb_unformatted_code = "qs = np.linspace(0, 175, 31)\npmf_model = pdf_model.make_pmf(qs)\npmf_model.bar(width=2)\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"PMF\")";
+                var nbb_formatted_code = "qs = np.linspace(0, 175, 31)\npmf_model = pdf_model.make_pmf(qs)\npmf_model.bar(width=2)\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"PMF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>And given an <code class="docutils literal notranslate"><span class="pre">ExponentialCdf</span></code>, we can use <code class="docutils literal notranslate"><span class="pre">make_cdf</span></code> to make a discrete approximation of the exponential CDF.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">discrete_cdf_model</span> <span class="o">=</span> <span class="n">cdf_model</span><span class="o">.</span><span class="n">make_cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">discrete_cdf_model</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;CDF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/ba59d84cc620082e6b950e2617ff401e70d9629e1ac4f8dab55264f62a46a629.png" src="_images/ba59d84cc620082e6b950e2617ff401e70d9629e1ac4f8dab55264f62a46a629.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 65;
+                var nbb_unformatted_code = "discrete_cdf_model = cdf_model.make_cdf(qs)\ndiscrete_cdf_model.step()\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_formatted_code = "discrete_cdf_model = cdf_model.make_cdf(qs)\ndiscrete_cdf_model.step()\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Finally, to get from a discrete CDF to a continuous CDF, we can interpolate between the steps, which is what we see if we use the <code class="docutils literal notranslate"><span class="pre">plot</span></code> method instead of the <code class="docutils literal notranslate"><span class="pre">step</span></code> method.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">discrete_cdf_model</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Interval (minutes)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;CDF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/dbffae86a7b9164cbd653ea44682b4fb268f9b6865076653ba1a48e114d4ebb0.png" src="_images/dbffae86a7b9164cbd653ea44682b4fb268f9b6865076653ba1a48e114d4ebb0.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 66;
+                var nbb_unformatted_code = "discrete_cdf_model.plot()\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_formatted_code = "discrete_cdf_model.plot()\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Finally, a PDF is the derivative of a continuous CDF, and a CDF is the integral of a PDF.</p>
+<p>To demonstrate, we can use SymPy to define the CDF of an exponential distribution and compute its derivative.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sympy</span> <span class="k">as</span> <span class="nn">sp</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">λ</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;λ&quot;</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">cdf</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">sp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">λ</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">cdf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_latex math notranslate nohighlight">
+\[\displaystyle 1 - e^{- x λ}\]</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 67;
+                var nbb_unformatted_code = "import sympy as sp\n\nx = sp.Symbol(\"x\", real=True, positive=True)\n\u03bb = sp.Symbol(\"\u03bb\", real=True, positive=True)\n\ncdf = 1 - sp.exp(-\u03bb * x)\ncdf";
+                var nbb_formatted_code = "import sympy as sp\n\nx = sp.Symbol(\"x\", real=True, positive=True)\n\u03bb = sp.Symbol(\"\u03bb\", real=True, positive=True)\n\ncdf = 1 - sp.exp(-\u03bb * x)\ncdf";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pdf</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">cdf</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">pdf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_latex math notranslate nohighlight">
+\[\displaystyle λ e^{- x λ}\]</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 68;
+                var nbb_unformatted_code = "pdf = sp.diff(cdf, x)\npdf";
+                var nbb_formatted_code = "pdf = sp.diff(cdf, x)\npdf";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>And if we integrate the result, we get the CDF back – although we lose the constant of integration in the process.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sp</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_latex math notranslate nohighlight">
+\[\displaystyle - e^{- x λ}\]</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 69;
+                var nbb_unformatted_code = "sp.integrate(pdf, x)";
+                var nbb_formatted_code = "sp.integrate(pdf, x)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+</section>
+<section id="glossary">
+<h2><span class="section-number">6.7. </span>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Probability density function (PDF)</strong>: The derivative of a continuous CDF, a function that maps a value to its probability density.</p></li>
+<li><p><strong>Probability density</strong>: A quantity that can be integrated over a range of values to yield a probability. If the values are in units of cm, for example, probability density is in units of probability per cm.</p></li>
+<li><p><strong>Kernel density estimation (KDE)</strong>: An algorithm that estimates a PDF based on a sample.</p></li>
+<li><p><strong>discretize</strong>: To approximate a continuous function or distribution with a discrete function. The opposite of smoothing.</p></li>
+</ul>
+</section>
+<section id="exercises">
+<h2><span class="section-number">6.8. </span>Exercises<a class="headerlink" href="#exercises" title="Link to this heading">#</a></h2>
+<section id="exercise">
+<h3><span class="section-number">6.8.1. </span>Exercise<a class="headerlink" href="#exercise" title="Link to this heading">#</a></h3>
+<p>In World Cup soccer (football), suppose the time until the first goal is well modeled by an exponential distribution with rate parameter <code class="docutils literal notranslate"><span class="pre">lam=2.5</span></code> goals per game.
+Make an <code class="docutils literal notranslate"><span class="pre">ExponentialPdf</span></code> to represent this distribution and use <code class="docutils literal notranslate"><span class="pre">area_under</span></code> to compute the probability a goal is scored in the first half of a game.
+Then use an <code class="docutils literal notranslate"><span class="pre">ExponentialCdf</span></code> to compute the same probability and check that the results are consistent.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">ExponentialPdf</span></code> to compute the probability the first goal is scored in the second half of the game.
+Then use an <code class="docutils literal notranslate"><span class="pre">ExponentialCdf</span></code> to compute the same probability and check that the results are consistent.</p>
+</section>
+<section id="id1">
+<h3><span class="section-number">6.8.2. </span>Exercise<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>In order to join Blue Man Group, you have to be male between 5’10” and 6’1”, which is roughly 178 to 185 centimeters.
+Let’s see what fraction of the male adult population in the United States meets this requirement.</p>
+<p>The heights of male participants in the BRFSS are well modeled by a normal distribution with mean 178 cm and standard deviation 7 cm.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/CDBRFS08.ASC.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 75;
+                var nbb_unformatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/CDBRFS08.ASC.gz\")";
+                var nbb_formatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/CDBRFS08.ASC.gz\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">read_brfss</span>
+
+<span class="n">brfss</span> <span class="o">=</span> <span class="n">read_brfss</span><span class="p">()</span>
+<span class="n">male</span> <span class="o">=</span> <span class="n">brfss</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;sex == 1&quot;</span><span class="p">)</span>
+<span class="n">heights</span> <span class="o">=</span> <span class="n">male</span><span class="p">[</span><span class="s2">&quot;htm3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 76;
+                var nbb_unformatted_code = "from thinkstats import read_brfss\n\nbrfss = read_brfss()\nmale = brfss.query(\"sex == 1\")\nheights = male[\"htm3\"].dropna()";
+                var nbb_formatted_code = "from thinkstats import read_brfss\n\nbrfss = read_brfss()\nmale = brfss.query(\"sex == 1\")\nheights = male[\"htm3\"].dropna()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">trimboth</span>
+
+<span class="n">trimmed</span> <span class="o">=</span> <span class="n">trimboth</span><span class="p">(</span><span class="n">heights</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">trimmed</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">trimmed</span><span class="p">)</span>
+<span class="n">m</span><span class="p">,</span> <span class="n">s</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(178.10278947124948, 7.017054887136004)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 77;
+                var nbb_unformatted_code = "from scipy.stats import trimboth\n\ntrimmed = trimboth(heights, 0.01)\nm, s = np.mean(trimmed), np.std(trimmed)\nm, s";
+                var nbb_formatted_code = "from scipy.stats import trimboth\n\ntrimmed = trimboth(heights, 0.01)\nm, s = np.mean(trimmed), np.std(trimmed)\nm, s";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Here’s a <code class="docutils literal notranslate"><span class="pre">NormalCdf</span></code> object that represents a normal distribution with the same mean and standard deviation as the trimmed data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">NormalCdf</span>
+
+<span class="n">cdf_normal_model</span> <span class="o">=</span> <span class="n">NormalCdf</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 78;
+                var nbb_unformatted_code = "from thinkstats import NormalCdf\n\ncdf_normal_model = NormalCdf(m, s)";
+                var nbb_formatted_code = "from thinkstats import NormalCdf\n\ncdf_normal_model = NormalCdf(m, s)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>And here’s how it compares to the CDF of the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf_height</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">heights</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">cdf_normal_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">cdf_height</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="n">xlim</span> <span class="o">=</span> <span class="p">[</span><span class="mi">140</span><span class="p">,</span> <span class="mi">210</span><span class="p">]</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Height (cm)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;CDF&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">xlim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/4c89a230d5f676ee91b20ef3738e4a64770128ce76a668a5da4c666fd7418949.png" src="_images/4c89a230d5f676ee91b20ef3738e4a64770128ce76a668a5da4c666fd7418949.png" />
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 79;
+                var nbb_unformatted_code = "cdf_height = Cdf.from_seq(heights, name=\"data\")\ncdf_normal_model.plot(color=\"gray\")\ncdf_height.step()\n\nxlim = [140, 210]\ndecorate(xlabel=\"Height (cm)\", ylabel=\"CDF\", xlim=xlim)";
+                var nbb_formatted_code = "cdf_height = Cdf.from_seq(heights, name=\"data\")\ncdf_normal_model.plot(color=\"gray\")\ncdf_height.step()\n\nxlim = [140, 210]\ndecorate(xlabel=\"Height (cm)\", ylabel=\"CDF\", xlim=xlim)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">gaussian_kde</span></code> to make an <code class="docutils literal notranslate"><span class="pre">Pdf</span></code> to represent the PDF of male height.
+Hint: Investigate the <code class="docutils literal notranslate"><span class="pre">bw_method</span></code> argument, which can be used to control the smoothness of the estimated density.</p>
+<p>Plot the estimated density and compare it to a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> with mean <code class="docutils literal notranslate"><span class="pre">m</span></code> and standard deviation <code class="docutils literal notranslate"><span class="pre">s</span></code>.</p>
+<p>Use a <code class="docutils literal notranslate"><span class="pre">NormalPdf</span></code> and <code class="docutils literal notranslate"><span class="pre">area_under</span></code> to compute the fraction of people in the normal model that are between 178 and 185 centimeters.
+Use a <code class="docutils literal notranslate"><span class="pre">NormalCdf</span></code> to compute the same fraction, and check that the results are consistent.
+Finally, use the empirical <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> of the data to see what fraction of people in the dataset are in the same range.</p>
+<p><a class="reference external" href="https://allendowney.github.io/ThinkStats/index.html">Think Stats: Exploratory Data Analysis in Python, 3rd Edition</a></p>
+<p>Copyright 2024 <a class="reference external" href="https://allendowney.com">Allen B. Downey</a></p>
+<p>Code license: <a class="reference external" href="https://mit-license.org/">MIT License</a></p>
+<p>Text license: <a class="reference external" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International</a></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="chap05.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">5. </span>Modeling Distributions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="chap07.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">7. </span>Relationships between variables</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-distributions">6.1. Comparing Distributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density">6.2. Probability Density</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-exponential-pdf">6.3. The Exponential PDF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-pmfs-and-pdfs">6.4. Comparing PMFs and PDFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-density-estimation">6.5. Kernel Density Estimation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-distribution-framework">6.6. The distribution framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#glossary">6.7. Glossary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">6.8. Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise">6.8.1. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">6.8.2. Exercise</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Allen B. Downey
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+<div class="extra_footer">
+  <div style="text-align: left;">
+  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+    <img alt="Creative Commons License" style="border-width:0"
+         src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+  </a>
+  <br />
+  This work is licensed under a
+  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+  </a>.
+</div>
+
+</div>
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

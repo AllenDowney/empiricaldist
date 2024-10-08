@@ -1,0 +1,1962 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>1. Exploratory Data Analysis &#8212; Think Stats</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'chap01';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Distributions" href="chap02.html" />
+    <link rel="prev" title="Preface" href="chap00.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Think Stats</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Think Stats, 3rd edition
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Front Matter</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chap00.html">Preface</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">1. Exploratory Data Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap02.html">2. Distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap03.html">3. Probability Mass Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap04.html">4. Cumulative Distribution Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap05.html">5. Modeling Distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap06.html">6. Probability Density Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap07.html">7. Relationships between variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap08.html">8. Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap09.html">9. Hypothesis Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap10.html">10. Least Squares</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap11.html">11. Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap12.html">12. Time series analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap13.html">13. Survival analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap14.html">14. Analytic methods</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ripoff_etf.html">Rip-off ETF?</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/AllenDowney/ThinkStats/tree/v3" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/chap01.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Exploratory Data Analysis</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evidence">1.1. Evidence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-national-survey-of-family-growth">1.2. The National Survey of Family Growth</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-data">1.3. Reading the Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variables">1.4. Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">1.5. Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transformation">1.6. Transformation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-statistics">1.7. Summary Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpretation">1.8. Interpretation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">1.9. Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise">1.9.1. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">1.9.2. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">1.9.3. Exercise</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="exploratory-data-analysis">
+<h1><span class="section-number">1. </span>Exploratory Data Analysis<a class="headerlink" href="#exploratory-data-analysis" title="Link to this heading">#</a></h1>
+<p>The thesis of this book is we can use data to answer questions, resolve debates, and make better decions.</p>
+<p>This chapter introduces the steps we’ll use to do that: loading and validating data, exploring, and choosing statistics that measure what your are interested in.
+As an example, it uses data from the National Survey of Family Growth (NSFG) to answer a question I heard when my wife and I were expecting our first child: do first babies tend to arrive late?</p>
+<p><a class="reference external" href="https://colab.research.google.com/github/AllenDowney/ThinkStats/blob/v3/nb/chap01.ipynb">Click here to run this notebook on Colab</a>.</p>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> nb_black
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 1;
+                var nbb_unformatted_code = "%load_ext nb_black\n%load_ext autoreload\n%autoreload 2";
+                var nbb_formatted_code = "%load_ext nb_black\n%load_ext autoreload\n%autoreload 2";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">exists</span>
+
+
+<span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlretrieve</span>
+
+        <span class="n">local</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloaded &quot;</span> <span class="o">+</span> <span class="n">local</span><span class="p">)</span>
+
+
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 2;
+                var nbb_unformatted_code = "from os.path import basename, exists\n\n\ndef download(url):\n    filename = basename(url)\n    if not exists(filename):\n        from urllib.request import urlretrieve\n\n        local, _ = urlretrieve(url, filename)\n        print(\"Downloaded \" + local)\n\n\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py\")";
+                var nbb_formatted_code = "from os.path import basename, exists\n\n\ndef download(url):\n    filename = basename(url)\n    if not exists(filename):\n        from urllib.request import urlretrieve\n\n        local, _ = urlretrieve(url, filename)\n        print(\"Downloaded \" + local)\n\n\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<div class="cell tag_hide-cell tag_remove-print docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">empiricaldist</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>empiricaldist
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 3;
+                var nbb_unformatted_code = "try:\n    import empiricaldist\nexcept ImportError:\n    !pip install empiricaldist";
+                var nbb_formatted_code = "try:\n    import empiricaldist\nexcept ImportError:\n    !pip install empiricaldist";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<div class="cell tag_hide-cell tag_remove-print docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">decorate</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 4;
+                var nbb_unformatted_code = "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\nfrom thinkstats import decorate";
+                var nbb_formatted_code = "import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\nfrom thinkstats import decorate";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</details>
+</div>
+<section id="evidence">
+<h2><span class="section-number">1.1. </span>Evidence<a class="headerlink" href="#evidence" title="Link to this heading">#</a></h2>
+<p>You might have heard that first babies are more likely to be late.
+If you Google this question, you will find plenty of discussion.
+Some people claim it’s true, others say it’s a myth, and some people say it’s the other way around: first babies come early.</p>
+<p>In many of these discussions, people provide data to support their claims.
+I found many examples like these:</p>
+<blockquote>
+<div><p>“My two friends that have given birth recently to their first babies, BOTH went almost 2 weeks overdue before going into labour or being induced.”</p>
+</div></blockquote>
+<blockquote>
+<div><p>“My first one came 2 weeks late and now I think the second one is going to come out two weeks early!!”</p>
+</div></blockquote>
+<blockquote>
+<div><p>“I don’t think that can be true because my sister was my mother’s first and she was early, as with many of my cousins.”</p>
+</div></blockquote>
+<p>Reports like these are called <strong>anecdotal evidence</strong> because they are based on data that is unpublished and usually personal.
+In casual conversation, there is nothing wrong with anecdotes, so I don’t mean to pick on the people I quoted.</p>
+<p>But we might want evidence that is more persuasive and an answer that is more reliable.
+By those standards, anecdotal evidence usually fails, because:</p>
+<ul class="simple">
+<li><p>Small number of observations: If pregnancy length is longer for first babies, the difference is probably small compared to natural variation. In that case, we might have to compare a large number of pregnancies to be sure that a difference exists.</p></li>
+<li><p>Selection bias: People who join a discussion of this question might be interested because their first babies were late. In that case the process of selecting data would bias the results.</p></li>
+<li><p>Confirmation bias: People who believe the claim might be more likely to contribute examples that confirm it. People who doubt the claim are more likely to cite counterexamples.</p></li>
+<li><p>Inaccuracy: Anecdotes are often personal stories, and often misremembered, misrepresented, repeated inaccurately, etc.</p></li>
+</ul>
+<p>To address the limitations of anecdotes, we will use the tools of statistics, which include:</p>
+<ul class="simple">
+<li><p>Data collection: We will use data from a large national survey that was designed explicitly with the goal of generating statistically valid inferences about the U.S. population.</p></li>
+<li><p>Descriptive statistics: We will generate statistics that summarize the data concisely, and evaluate different ways to visualize data.</p></li>
+<li><p>Exploratory data analysis: We will look for patterns, differences, and other features that address the questions we are interested in. At the same time we will check for inconsistencies and identify limitations.</p></li>
+<li><p>Estimation: We will use data from a sample to estimate characteristics of the general population.</p></li>
+<li><p>Hypothesis testing: Where we see apparent effects, like a difference between two groups, we will evaluate whether the effect might have happened by chance.</p></li>
+</ul>
+<p>By performing these steps with care to avoid pitfalls, we can reach conclusions that are more justifiable and more likely to be correct.</p>
+</section>
+<section id="the-national-survey-of-family-growth">
+<h2><span class="section-number">1.2. </span>The National Survey of Family Growth<a class="headerlink" href="#the-national-survey-of-family-growth" title="Link to this heading">#</a></h2>
+<p>Since 1973 the U.S. Centers for Disease Control and Prevention (CDC) have conducted the National Survey of Family Growth (NSFG), which is intended to gather “information on family life, marriage and divorce, pregnancy, infertility, use of contraception, and men’s and women’s health. The survey results are used…to plan health services and health education programs, and to do statistical studies of families, fertility, and health.”</p>
+<p>You can read more about the NSFG at <a class="reference external" href="http://cdc.gov/nchs/nsfg.htm">http://cdc.gov/nchs/nsfg.htm</a>.</p>
+<p>We will use data collected by this survey to investigate whether first babies tend to come late, and other questions.
+In order to use this data effectively, we have to understand the design of the study.</p>
+<p>The NSFG is a <strong>cross-sectional</strong> study, which means that it captures a snapshot of a group at a point in time.
+The most common alternative is a <strong>longitudinal</strong> study, which observes a group repeatedly over time.</p>
+<p>The NSFG has been conducted seven times; each deployment is called a <strong>cycle</strong>.
+We will use data from Cycle 6, which was conducted from January 2002 to March 2003.</p>
+<p>The goal of the survey is to draw conclusions about a <strong>population</strong>; the target population of the NSFG is people in the United States aged 15-44.
+Ideally surveys would collect data from every member of the population, but that’s seldom possible.
+Instead we collect data from a subset of the population called a <strong>sample</strong>.
+The people who participate in a survey are called <strong>respondents</strong>.</p>
+<p>In general, cross-sectional studies are meant to be <strong>representative</strong>, which means that every member of the target population has an equal chance of participating.
+That ideal is hard to achieve in practice, but people who conduct surveys come as close as they can.</p>
+<p>The NSFG is not representative; instead it is deliberately <strong>oversampled</strong>.
+The designers of the study recruited three groups – Hispanics, African-Americans and teenagers – at rates higher than their representation in the U.S. population, in order to make sure that the number of respondents in each of these groups is large enough to draw valid statistical inferences.</p>
+<p>Of course, the drawback of oversampling is that it is not as easy to draw conclusions about the general population based on statistics from the survey.
+We will come back to this point later.</p>
+<p>When working with this kind of data, it is important to be familiar with the <strong>codebook</strong>, which documents the design of the study, the survey questions, and the encoding of the responses.</p>
+<p>The codebook and user’s guide for the NSFG data are available from <a class="reference external" href="http://www.cdc.gov/nchs/nsfg/nsfg_cycle6.htm">http://www.cdc.gov/nchs/nsfg/nsfg_cycle6.htm</a></p>
+</section>
+<section id="reading-the-data">
+<h2><span class="section-number">1.3. </span>Reading the Data<a class="headerlink" href="#reading-the-data" title="Link to this heading">#</a></h2>
+<p>TODO: Fill this in…</p>
+<p>Instructions for downloading the data are in the notebook for this chapter.</p>
+<p>The following cells download the data files and install <code class="docutils literal notranslate"><span class="pre">statadict</span></code>, which we need to read the data.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 5;
+                var nbb_unformatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz\")";
+                var nbb_formatted_code = "download(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct\")\ndownload(\"https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz\")";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">statadict</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>statadict
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 6;
+                var nbb_unformatted_code = "try:\n    import statadict\nexcept ImportError:\n    !pip install statadict";
+                var nbb_formatted_code = "try:\n    import statadict\nexcept ImportError:\n    !pip install statadict";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">statadict</span> <span class="kn">import</span> <span class="n">parse_stata_dict</span>
+
+
+<span class="k">def</span> <span class="nf">read_stata</span><span class="p">(</span><span class="n">dct_file</span><span class="p">,</span> <span class="n">dat_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read NSFG data.</span>
+
+<span class="sd">    dct_file: string file name</span>
+<span class="sd">    dat_file: string file name</span>
+
+<span class="sd">    returns: DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stata_dict</span> <span class="o">=</span> <span class="n">parse_stata_dict</span><span class="p">(</span><span class="n">dct_file</span><span class="p">)</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_fwf</span><span class="p">(</span>
+        <span class="n">dat_file</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="n">stata_dict</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+        <span class="n">colspecs</span><span class="o">=</span><span class="n">stata_dict</span><span class="o">.</span><span class="n">colspecs</span><span class="p">,</span>
+        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">resp</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 7;
+                var nbb_unformatted_code = "from statadict import parse_stata_dict\n\n\ndef read_stata(dct_file, dat_file):\n    \"\"\"Read NSFG data.\n\n    dct_file: string file name\n    dat_file: string file name\n\n    returns: DataFrame\n    \"\"\"\n    stata_dict = parse_stata_dict(dct_file)\n    resp = pd.read_fwf(\n        dat_file,\n        names=stata_dict.names,\n        colspecs=stata_dict.colspecs,\n        compression=\"gzip\",\n    )\n    return resp";
+                var nbb_formatted_code = "from statadict import parse_stata_dict\n\n\ndef read_stata(dct_file, dat_file):\n    \"\"\"Read NSFG data.\n\n    dct_file: string file name\n    dat_file: string file name\n\n    returns: DataFrame\n    \"\"\"\n    stata_dict = parse_stata_dict(dct_file)\n    resp = pd.read_fwf(\n        dat_file,\n        names=stata_dict.names,\n        colspecs=stata_dict.colspecs,\n        compression=\"gzip\",\n    )\n    return resp";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Here’s how we use it.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dct_file</span> <span class="o">=</span> <span class="s2">&quot;2002FemPreg.dct&quot;</span>
+<span class="n">dat_file</span> <span class="o">=</span> <span class="s2">&quot;2002FemPreg.dat.gz&quot;</span>
+
+<span class="n">preg</span> <span class="o">=</span> <span class="n">read_stata</span><span class="p">(</span><span class="n">dct_file</span><span class="p">,</span> <span class="n">dat_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 8;
+                var nbb_unformatted_code = "dct_file = \"2002FemPreg.dct\"\ndat_file = \"2002FemPreg.dat.gz\"\n\npreg = read_stata(dct_file, dat_file)";
+                var nbb_formatted_code = "dct_file = \"2002FemPreg.dct\"\ndat_file = \"2002FemPreg.dat.gz\"\n\npreg = read_stata(dct_file, dat_file)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result is a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, which is the fundamental data structure provided by Pandas.
+A <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> contains a row for each record – in this case one row per pregnancy – and a column for each variable.
+In addition to the data, a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> also contains the variable names and their types, and it provides methods for accessing and modifying the data.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> has an attribute called <code class="docutils literal notranslate"><span class="pre">shape</span></code> that contains the number of rows and columns.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(13593, 243)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 9;
+                var nbb_unformatted_code = "preg.shape";
+                var nbb_formatted_code = "preg.shape";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>And it has a method called <code class="docutils literal notranslate"><span class="pre">head</span></code> that displays the first few rows.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>caseid</th>
+      <th>pregordr</th>
+      <th>howpreg_n</th>
+      <th>howpreg_p</th>
+      <th>moscurrp</th>
+      <th>nowprgdk</th>
+      <th>pregend1</th>
+      <th>pregend2</th>
+      <th>nbrnaliv</th>
+      <th>multbrth</th>
+      <th>...</th>
+      <th>poverty_i</th>
+      <th>laborfor_i</th>
+      <th>religion_i</th>
+      <th>metro_i</th>
+      <th>basewgt</th>
+      <th>adj_mod_basewgt</th>
+      <th>finalwgt</th>
+      <th>secu_p</th>
+      <th>sest</th>
+      <th>cmintvw</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3410.389399</td>
+      <td>3869.349602</td>
+      <td>6448.271112</td>
+      <td>2</td>
+      <td>9</td>
+      <td>1231</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3410.389399</td>
+      <td>3869.349602</td>
+      <td>6448.271112</td>
+      <td>2</td>
+      <td>9</td>
+      <td>1231</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7226.301740</td>
+      <td>8567.549110</td>
+      <td>12999.542264</td>
+      <td>2</td>
+      <td>12</td>
+      <td>1231</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7226.301740</td>
+      <td>8567.549110</td>
+      <td>12999.542264</td>
+      <td>2</td>
+      <td>12</td>
+      <td>1231</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7226.301740</td>
+      <td>8567.549110</td>
+      <td>12999.542264</td>
+      <td>2</td>
+      <td>12</td>
+      <td>1231</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 243 columns</p>
+</div></div><script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 10;
+                var nbb_unformatted_code = "preg.head()";
+                var nbb_formatted_code = "preg.head()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The first column is the <code class="docutils literal notranslate"><span class="pre">Index</span></code> of the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, which contains a label for each row.
+In this case, the labels are integers starting from 0, but they can also be strings and other types.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> also has an attribute called <code class="docutils literal notranslate"><span class="pre">columns</span></code> that contains the names of the columns.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Index([&#39;caseid&#39;, &#39;pregordr&#39;, &#39;howpreg_n&#39;, &#39;howpreg_p&#39;, &#39;moscurrp&#39;, &#39;nowprgdk&#39;,
+       &#39;pregend1&#39;, &#39;pregend2&#39;, &#39;nbrnaliv&#39;, &#39;multbrth&#39;,
+       ...
+       &#39;poverty_i&#39;, &#39;laborfor_i&#39;, &#39;religion_i&#39;, &#39;metro_i&#39;, &#39;basewgt&#39;,
+       &#39;adj_mod_basewgt&#39;, &#39;finalwgt&#39;, &#39;secu_p&#39;, &#39;sest&#39;, &#39;cmintvw&#39;],
+      dtype=&#39;object&#39;, length=243)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 11;
+                var nbb_unformatted_code = "preg.columns";
+                var nbb_formatted_code = "preg.columns";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>To access a column from a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, you can use the column name as a key:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pregordr</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;pregordr&quot;</span><span class="p">]</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">pregordr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pandas.core.series.Series
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 12;
+                var nbb_unformatted_code = "pregordr = preg[\"pregordr\"]\ntype(pregordr)";
+                var nbb_formatted_code = "pregordr = preg[\"pregordr\"]\ntype(pregordr)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result is a Pandas <code class="docutils literal notranslate"><span class="pre">Series</span></code>, which represents a sequence of values.
+<code class="docutils literal notranslate"><span class="pre">Series</span></code> also provides <code class="docutils literal notranslate"><span class="pre">head</span></code>, which displays the first few values in the <code class="docutils literal notranslate"><span class="pre">Series</span></code> and their labels.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pregordr</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0    1
+1    2
+2    1
+3    2
+4    3
+Name: pregordr, dtype: int64
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 13;
+                var nbb_unformatted_code = "pregordr.head()";
+                var nbb_formatted_code = "pregordr.head()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The last line includes the name of the <code class="docutils literal notranslate"><span class="pre">Series</span></code> and <code class="docutils literal notranslate"><span class="pre">dtype</span></code>, which is the type of the values.
+In this example, <code class="docutils literal notranslate"><span class="pre">int64</span></code> indicates that the values are 64-bit integers.</p>
+<p>You can access a value in a <code class="docutils literal notranslate"><span class="pre">Series</span></code> using the bracket operator integer with a single index.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pregordr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 14;
+                var nbb_unformatted_code = "pregordr[0]";
+                var nbb_formatted_code = "pregordr[0]";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Or a subsequence of the values using a slice index.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pregordr</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2    1
+3    2
+4    3
+Name: pregordr, dtype: int64
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 15;
+                var nbb_unformatted_code = "pregordr[2:5]";
+                var nbb_formatted_code = "pregordr[2:5]";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>You can also access the columns of a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> using dot notation:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pregordr</span> <span class="o">=</span> <span class="n">preg</span><span class="o">.</span><span class="n">pregordr</span>  <span class="c1"># NOT RECOMMENDED</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 16;
+                var nbb_unformatted_code = "pregordr = preg.pregordr  # NOT RECOMMENDED";
+                var nbb_formatted_code = "pregordr = preg.pregordr  # NOT RECOMMENDED";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>But this notation only works if the column name is a valid Python identifier, so it has to begin with a letter, can’t contain spaces, etc.
+Because of this limitation, I recommend using bracket operators to select columns from a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+</section>
+<section id="variables">
+<h2><span class="section-number">1.4. </span>Variables<a class="headerlink" href="#variables" title="Link to this heading">#</a></h2>
+<p>We have already seen two variables in the NSFG dataset, <code class="docutils literal notranslate"><span class="pre">caseid</span></code> and <code class="docutils literal notranslate"><span class="pre">pregordr</span></code>, and we have seen that there are 243 variables in total.
+For the explorations in this book, we’ll use the following variables:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">caseid</span></code> is the integer ID of the respondent.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prglngth</span></code> is the integer duration of the pregnancy in weeks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outcome</span></code> is an integer code for the outcome of the pregnancy. The code 1 indicates a live birth.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pregordr</span></code> is a pregnancy serial number; for example, the code for a respondent’s first pregnancy is 1, for the second pregnancy is 2, and so on.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">birthord</span></code> is a serial number for live births; the code for a respondent’s first child is 1, and so on. For outcomes other than live birth, this field is blank.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">birthwgt_lb</span></code> and <code class="docutils literal notranslate"><span class="pre">birthwgt_oz</span></code> contain the pounds and ounces parts of the birth weight of the baby.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agepreg</span></code> is the mother’s age at the end of the pregnancy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finalwgt</span></code> is the statistical weight associated with the respondent.
+It is a floating-point value that indicates the number of people in the U.S. population this respondent represents.</p></li>
+</ul>
+<p>If you read the codebook carefully, you will see that many of the variables are <strong>recodes</strong>, which means that they are not part of the <strong>raw data</strong> collected by the survey – they are calculated using the raw data.</p>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">prglngth</span></code> for live births is equal to the raw variable <code class="docutils literal notranslate"><span class="pre">wksgest</span></code> (weeks of gestation) if it is available; otherwise it is estimated using <code class="docutils literal notranslate"><span class="pre">mosgest</span> <span class="pre">*</span> <span class="pre">4.33</span></code> (months of gestation times the average number of weeks in a month).</p>
+<p>Recodes are often based on logic that checks the consistency and accuracy of the data.
+In general it is a good idea to use recodes when they are available, unless there is a compelling reason to process the raw data yourself.</p>
+</section>
+<section id="validation">
+<h2><span class="section-number">1.5. </span>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<p>When data is exported from one software environment and imported into another, errors might be introduced.
+And when you are getting familiar with a new dataset, you might interpret data incorrectly or introduce other misunderstandings.
+If you take time to validate the data, you can save time later and avoid errors.</p>
+<p>One way to validate data is to compute basic statistics and compare them with published results.
+For example, the NSFG codebook includes tables that summarize each variable.
+Here is the table for <code class="docutils literal notranslate"><span class="pre">outcome</span></code>, which encodes the outcome of each pregnancy.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Series</span></code> class provides a method, <code class="docutils literal notranslate"><span class="pre">value_counts</span></code>, that counts the number of times each value appears.
+Here’s how we use it to count the values in the <code class="docutils literal notranslate"><span class="pre">outcome</span></code> column.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="p">[</span><span class="s2">&quot;outcome&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>outcome
+1    9148
+2    1862
+3     120
+4    1921
+5     190
+6     352
+Name: count, dtype: int64
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 17;
+                var nbb_unformatted_code = "preg[\"outcome\"].value_counts().sort_index()";
+                var nbb_formatted_code = "preg[\"outcome\"].value_counts().sort_index()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result of <code class="docutils literal notranslate"><span class="pre">value_counts</span></code> is a <code class="docutils literal notranslate"><span class="pre">Series</span></code>; <code class="docutils literal notranslate"><span class="pre">sort_index()</span></code> sorts the <code class="docutils literal notranslate"><span class="pre">Series</span></code> by index, so the values appear in order.</p>
+<p>Comparing the results with the published table, it looks like the values in <code class="docutils literal notranslate"><span class="pre">outcome</span></code> are correct.
+Similarly, here is the published table for <code class="docutils literal notranslate"><span class="pre">birthwgt_lb</span></code></p>
+<p>And here are the value counts:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="o">.</span><span class="n">birthwgt_lb</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>birthwgt_lb
+0.0        8
+1.0       40
+2.0       53
+3.0       98
+4.0      229
+5.0      697
+6.0     2223
+7.0     3049
+8.0     1889
+9.0      623
+10.0     132
+11.0      26
+12.0      10
+13.0       3
+14.0       3
+15.0       1
+51.0       1
+97.0       1
+98.0       1
+99.0      57
+Name: count, dtype: int64
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 18;
+                var nbb_unformatted_code = "preg.birthwgt_lb.value_counts().sort_index()";
+                var nbb_formatted_code = "preg.birthwgt_lb.value_counts().sort_index()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The counts for 6, 7, and 8 pounds check out, and if you add up the counts for 0-5 and 9-95, they check out, too.
+But if you look more closely, you will notice one value that has to be an error, a 51 pound baby!</p>
+<p>To deal with this error, we can use a comparison operator to identify the rows with invalid data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">invalid</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_lb&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">20</span>
+<span class="n">invalid</span><span class="o">.</span><span class="n">dtype</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>dtype(&#39;bool&#39;)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 19;
+                var nbb_unformatted_code = "invalid = preg[\"birthwgt_lb\"] > 20\ninvalid.dtype";
+                var nbb_formatted_code = "invalid = preg[\"birthwgt_lb\"] > 20\ninvalid.dtype";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result is a Boolean <code class="docutils literal notranslate"><span class="pre">Series</span></code> that is <code class="docutils literal notranslate"><span class="pre">True</span></code> where the value of <code class="docutils literal notranslate"><span class="pre">birthwgt_lb</span></code> is invalid and <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.
+We can use this <code class="docutils literal notranslate"><span class="pre">Series</span></code> to replace invalid data with <code class="docutils literal notranslate"><span class="pre">nan</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">invalid</span><span class="p">,</span> <span class="s2">&quot;birthwgt_lb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 20;
+                var nbb_unformatted_code = "preg.loc[invalid, \"birthwgt_lb\"] = np.nan";
+                var nbb_formatted_code = "preg.loc[invalid, \"birthwgt_lb\"] = np.nan";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The attribute <code class="docutils literal notranslate"><span class="pre">loc</span></code> selects rows and columns from a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.
+In this example, the first expression in brackets selects the invalid rows; the second expression selects the column.</p>
+</section>
+<section id="transformation">
+<h2><span class="section-number">1.6. </span>Transformation<a class="headerlink" href="#transformation" title="Link to this heading">#</a></h2>
+<p>When you read data like this, you often have to check for errors, deal with special values, convert data into different formats, and perform calculations.
+These operations are called <strong>data cleaning</strong>.</p>
+<p>As an example, <code class="docutils literal notranslate"><span class="pre">agepreg</span></code> contains the mother’s age at the end of the pregnancy, but it is encoded as an integer number of centiyears (hundredths of a year).
+To convert it to year, we can divide through by 100.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="p">[</span><span class="s2">&quot;agepreg&quot;</span><span class="p">]</span> <span class="o">/=</span> <span class="mf">100.0</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 21;
+                var nbb_unformatted_code = "preg[\"agepreg\"] /= 100.0";
+                var nbb_formatted_code = "preg[\"agepreg\"] /= 100.0";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>As another example, <code class="docutils literal notranslate"><span class="pre">birthwgt_lb</span></code> and <code class="docutils literal notranslate"><span class="pre">birthwgt_oz</span></code> contain the weight of the baby, in pounds and ounces, for pregnancies that end in live birth – but they also contain several special values.</p>
+<p>Special values encoded as numbers are <em>dangerous</em> because if they are not handled properly, they can generate bogus results, like a 99-pound baby.
+The <code class="docutils literal notranslate"><span class="pre">replace</span></code> method replaces these values with <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>, which is a special floating-point value that represents “not a number”.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">na_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">97</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">]</span>
+<span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_lb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_lb&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">na_vals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_oz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_oz&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">na_vals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 22;
+                var nbb_unformatted_code = "na_vals = [97, 98, 99]\npreg[\"birthwgt_lb\"] = preg[\"birthwgt_lb\"].replace(na_vals, np.nan)\npreg[\"birthwgt_oz\"] = preg[\"birthwgt_oz\"].replace(na_vals, np.nan)";
+                var nbb_formatted_code = "na_vals = [97, 98, 99]\npreg[\"birthwgt_lb\"] = preg[\"birthwgt_lb\"].replace(na_vals, np.nan)\npreg[\"birthwgt_oz\"] = preg[\"birthwgt_oz\"].replace(na_vals, np.nan)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Now we can use the cleaned values to create a new column that combines pounds and ounces into a single quantity, in pounds.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preg</span><span class="p">[</span><span class="s2">&quot;totalwgt_lb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_lb&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;birthwgt_oz&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">16.0</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 23;
+                var nbb_unformatted_code = "preg[\"totalwgt_lb\"] = preg[\"birthwgt_lb\"] + preg[\"birthwgt_oz\"] / 16.0";
+                var nbb_formatted_code = "preg[\"totalwgt_lb\"] = preg[\"birthwgt_lb\"] + preg[\"birthwgt_oz\"] / 16.0";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>When you add a new column to a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, you have to use the bracket operator, not dot notation, like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># WRONG!</span>
+<span class="c1"># preg.totalwgt_lb = preg[&quot;birthwgt_lb&quot;] + preg[&quot;birthwgt_oz&quot;] / 16.0</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 24;
+                var nbb_unformatted_code = "# WRONG!\n# preg.totalwgt_lb = preg[\"birthwgt_lb\"] + preg[\"birthwgt_oz\"] / 16.0";
+                var nbb_formatted_code = "# WRONG!\n# preg.totalwgt_lb = preg[\"birthwgt_lb\"] + preg[\"birthwgt_oz\"] / 16.0";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The version with dot notation adds an attribute to the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> object, but that attribute is not treated as a new column.</p>
+</section>
+<section id="summary-statistics">
+<h2><span class="section-number">1.7. </span>Summary Statistics<a class="headerlink" href="#summary-statistics" title="Link to this heading">#</a></h2>
+<p>A <strong>statistic</strong> is a number derived from a dataset, usually intended to quantify some aspect of the data.
+Examples include the mean, variance, and standard deviation.</p>
+<p>A mean is a statistic intended to locate the center of a set of values.
+But there are many ways to define “center”, so there are many ways to compute a mean, including arithmetic, geometric, and harmonic means.
+For now, we’ll stick with the <strong>arithmetic mean</strong>, which is the sum of a set of values divided by the number of values.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">Series</span></code> object has a <code class="docutils literal notranslate"><span class="pre">count</span></code> method that returns the number of values that are not <code class="docutils literal notranslate"><span class="pre">nan</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span> <span class="o">=</span> <span class="n">preg</span><span class="p">[</span><span class="s2">&quot;totalwgt_lb&quot;</span><span class="p">]</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="n">n</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>9038
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 25;
+                var nbb_unformatted_code = "weights = preg[\"totalwgt_lb\"]\nn = weights.count()\nn";
+                var nbb_formatted_code = "weights = preg[\"totalwgt_lb\"]\nn = weights.count()\nn";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>It also provides a <code class="docutils literal notranslate"><span class="pre">sum</span></code> method that returns the sum of the values – we can use it to compute the mean like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">n</span>
+<span class="n">mean</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>7.265628457623368
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 26;
+                var nbb_unformatted_code = "mean = weights.sum() / n\nmean";
+                var nbb_formatted_code = "mean = weights.sum() / n\nmean";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>But as you might expect, there’s also a <code class="docutils literal notranslate"><span class="pre">mean</span></code> method that does the same thing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>7.265628457623368
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 27;
+                var nbb_unformatted_code = "weights.mean()";
+                var nbb_formatted_code = "weights.mean()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>In this dataset, the mean of the birth weights is about 7.3 pounds.</p>
+<p>Variance is a statistic that quantifies the spread of a set of values.
+It is the mean of the squared deviations, which are the distances of each point from the mean.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">squared_deviations</span> <span class="o">=</span> <span class="p">(</span><span class="n">weights</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 28;
+                var nbb_unformatted_code = "squared_deviations = (weights - mean) ** 2";
+                var nbb_formatted_code = "squared_deviations = (weights - mean) ** 2";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>We can compute the mean of the squared deviations like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="o">=</span> <span class="n">squared_deviations</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">n</span>
+<span class="n">var</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.983070989750022
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 29;
+                var nbb_unformatted_code = "var = squared_deviations.sum() / n\nvar";
+                var nbb_formatted_code = "var = squared_deviations.sum() / n\nvar";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>As you might expect, <code class="docutils literal notranslate"><span class="pre">Series</span></code> provides a <code class="docutils literal notranslate"><span class="pre">var</span></code> method that does the same thing, not <em>exactly</em> the same thing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.9832904288326545
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 30;
+                var nbb_unformatted_code = "weights.var()";
+                var nbb_formatted_code = "weights.var()";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result is slightly different because when the <code class="docutils literal notranslate"><span class="pre">var</span></code> method computes the mean of the squared deviations, it divides by <code class="docutils literal notranslate"><span class="pre">n-1</span></code> rather than <code class="docutils literal notranslate"><span class="pre">n</span></code>.
+That’s because there are two ways to compute the variance of a sample, depending on what you are trying to do.
+I’ll explain the difference in Chapter XXX – but in practice it usually doesn’t matter.
+If you prefer the version with <code class="docutils literal notranslate"><span class="pre">n</span></code> in the denominator, you can get it by passing <code class="docutils literal notranslate"><span class="pre">ddof=0</span></code> as a keyword argument to the <code class="docutils literal notranslate"><span class="pre">var</span></code> method.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.983070989750022
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 31;
+                var nbb_unformatted_code = "weights.var(ddof=0)";
+                var nbb_formatted_code = "weights.var(ddof=0)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>In this dataset, the variance of the birth weights is about 1.98, but that value is hard to interpret – for one thing, it is in units of pounds squared.
+Variance is useful in some computations, but not a good way to describe a dataset.</p>
+<p>A better option is the <strong>standard deviation</strong>, which is the square root of variance.
+We can compute it like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+<span class="n">std</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.40821553384062
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 32;
+                var nbb_unformatted_code = "std = np.sqrt(var)\nstd";
+                var nbb_formatted_code = "std = np.sqrt(var)\nstd";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>Or, we can use the <code class="docutils literal notranslate"><span class="pre">std</span></code> method.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.40821553384062
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 33;
+                var nbb_unformatted_code = "weights.std(ddof=0)";
+                var nbb_formatted_code = "weights.std(ddof=0)";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>In this dataset, the standard deviation of birth weights is about 1.4 pounds.</p>
+</section>
+<section id="interpretation">
+<h2><span class="section-number">1.8. </span>Interpretation<a class="headerlink" href="#interpretation" title="Link to this heading">#</a></h2>
+<p>To work with data effectively, you have to think on two levels at the same time: the level of statistics and the level of context.</p>
+<p>As an example, let’s select the rows in the pregnancy file with <code class="docutils literal notranslate"><span class="pre">caseid</span></code> 10229.
+The <code class="docutils literal notranslate"><span class="pre">query</span></code> method takes a string that can contain column names, comparison operators, and numbers, among other things.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subset</span> <span class="o">=</span> <span class="n">preg</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;caseid == 10229&quot;</span><span class="p">)</span>
+<span class="n">subset</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(7, 244)
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 34;
+                var nbb_unformatted_code = "subset = preg.query(\"caseid == 10229\")\nsubset.shape";
+                var nbb_formatted_code = "subset = preg.query(\"caseid == 10229\")\nsubset.shape";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The result is a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> that contains only the rows where the query is <code class="docutils literal notranslate"><span class="pre">True</span></code>.
+This respondent reported seven pregnancies – here are their outcomes, which are recorded in chronological order.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subset</span><span class="p">[</span><span class="s2">&quot;outcome&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>11093    4
+11094    4
+11095    4
+11096    4
+11097    4
+11098    4
+11099    1
+Name: outcome, dtype: int64
+</pre></div>
+</div>
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 35;
+                var nbb_unformatted_code = "subset[\"outcome\"]";
+                var nbb_formatted_code = "subset[\"outcome\"]";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p>The outcome code <code class="docutils literal notranslate"><span class="pre">1</span></code> indicates a live birth.
+Code <code class="docutils literal notranslate"><span class="pre">4</span></code> indicates a miscarriage – that is, a pregnancy that ended spontaneously, usually with no known medical cause.</p>
+<p>Statistically this respondent is not unusual.
+Miscarriages are common and there are other respondents who reported as many or more.
+But remembering the context, this data tells the story of a woman who was pregnant six times, each time ending in miscarriage.
+Her seventh and most recent pregnancy ended in a live birth.
+If we consider this data with empathy, it is natural to be moved by the story it tells.</p>
+<p>Each record in the NSFG dataset represents a person who provided honest answers to many personal and difficult questions.
+We can use this data to answer statistical questions about family life, reproduction, and health.
+At the same time, we have an obligation to consider the people represented by the data, and to afford them respect and gratitude.</p>
+</section>
+<section id="exercises">
+<h2><span class="section-number">1.9. </span>Exercises<a class="headerlink" href="#exercises" title="Link to this heading">#</a></h2>
+<section id="exercise">
+<h3><span class="section-number">1.9.1. </span>Exercise<a class="headerlink" href="#exercise" title="Link to this heading">#</a></h3>
+<p>Select the <code class="docutils literal notranslate"><span class="pre">birthord</span></code> column, print the value counts, and compare to results published in the  codebook.</p>
+<p>The codebook for this dataset is at <a class="reference external" href="https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Pregnancy.pdf">https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Pregnancy.pdf</a>.</p>
+</section>
+<section id="id1">
+<h3><span class="section-number">1.9.2. </span>Exercise<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>Create a new column named <code class="docutils literal notranslate"><span class="pre">totalwgt_kg</span></code> that contains birth weight in kilograms (there are approximately 2.2 pounds per kilogram).
+Remember that when you create a new column, you have to use the bracket operator, not dot notation.
+Compute the mean and standard deviation of the new column.</p>
+</section>
+<section id="id2">
+<h3><span class="section-number">1.9.3. </span>Exercise<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>What are the pregnancy lengths for the respondent with <code class="docutils literal notranslate"><span class="pre">caseid</span></code> 2298?</p>
+<p>What was the birth weight of the first baby born to the respondent with <code class="docutils literal notranslate"><span class="pre">caseid</span></code> 5013?
+Hint: You can use <code class="docutils literal notranslate"><span class="pre">and</span></code> to check more than one condition in a query.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO: add credit cell</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/javascript">
+            setTimeout(function() {
+                var nbb_cell_id = 41;
+                var nbb_unformatted_code = "# TODO: add credit cell";
+                var nbb_formatted_code = "# TODO: add credit cell";
+                var nbb_cells = Jupyter.notebook.get_cells();
+                for (var i = 0; i < nbb_cells.length; ++i) {
+                    if (nbb_cells[i].input_prompt_number == nbb_cell_id) {
+                        if (nbb_cells[i].get_text() == nbb_unformatted_code) {
+                             nbb_cells[i].set_text(nbb_formatted_code);
+                        }
+                        break;
+                    }
+                }
+            }, 500);
+            </script></div>
+</div>
+<p><a class="reference external" href="https://allendowney.github.io/ThinkStats/index.html">Think Stats: Exploratory Data Analysis in Python, 3rd Edition</a></p>
+<p>Copyright 2024 <a class="reference external" href="https://allendowney.com">Allen B. Downey</a></p>
+<p>Code license: <a class="reference external" href="https://mit-license.org/">MIT License</a></p>
+<p>Text license: <a class="reference external" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International</a></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="chap00.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Preface</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="chap02.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">2. </span>Distributions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evidence">1.1. Evidence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-national-survey-of-family-growth">1.2. The National Survey of Family Growth</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-data">1.3. Reading the Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variables">1.4. Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">1.5. Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transformation">1.6. Transformation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-statistics">1.7. Summary Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpretation">1.8. Interpretation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">1.9. Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise">1.9.1. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">1.9.2. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">1.9.3. Exercise</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Allen B. Downey
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+<div class="extra_footer">
+  <div style="text-align: left;">
+  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+    <img alt="Creative Commons License" style="border-width:0"
+         src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+  </a>
+  <br />
+  This work is licensed under a
+  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+  </a>.
+</div>
+
+</div>
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

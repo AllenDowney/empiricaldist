@@ -1,0 +1,1568 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Probability Mass Functions &#8212; Think Stats</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'chap03';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="4. Cumulative Distribution Functions" href="chap04.html" />
+    <link rel="prev" title="2. Distributions" href="chap02.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Think Stats</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Think Stats, 3rd edition
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Front Matter</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chap00.html">Preface</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chap01.html">1. Exploratory Data Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap02.html">2. Distributions</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Probability Mass Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap04.html">4. Cumulative Distribution Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap05.html">5. Modeling Distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap06.html">6. Probability Density Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap07.html">7. Relationships between variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap08.html">8. Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap09.html">9. Hypothesis Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap10.html">10. Least Squares</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap11.html">11. Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap12.html">12. Time series analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap13.html">13. Survival analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chap14.html">14. Analytic methods</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ripoff_etf.html">Rip-off ETF?</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/AllenDowney/ThinkStats/tree/v3" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/chap03.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Probability Mass Functions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pmfs">3.1. PMFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-statistics">3.2. Summary Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-class-size-paradox">3.3. The Class Size Paradox</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nsfg-data">3.4. NSFG Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-visualizations">3.5. Other Visualizations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#glossary">3.6. Glossary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">3.7. Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise">3.7.1. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3.7.2. Exercise</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="probability-mass-functions">
+<h1><span class="section-number">3. </span>Probability Mass Functions<a class="headerlink" href="#probability-mass-functions" title="Link to this heading">#</a></h1>
+<p>In the previous chapter we represented distributions using a <code class="docutils literal notranslate"><span class="pre">Hist</span></code> object, which contains a set of quantities and their frequencies – that is, the number of times each one appears.
+In this chapter we’ll introduce another way to represent a distribution: a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object, which contains a set of quantities and their probabilities.</p>
+<p>And we’ll use <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects to compute the mean and variance of a distribution, and the skewness, which indicates whether it is skewed to the left or right.
+Finally, we will explore how a phenomenon called the “inspection paradox” can cause a sample to give a biased view of a distribution.</p>
+<p><a class="reference external" href="https://colab.research.google.com/github/AllenDowney/ThinkStats/blob/v3/nb/chap03.ipynb">Click here to run this notebook on Colab</a>.</p>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> nb_black
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">exists</span>
+
+
+<span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlretrieve</span>
+
+        <span class="n">local</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloaded &quot;</span> <span class="o">+</span> <span class="n">local</span><span class="p">)</span>
+
+
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/nb/thinkstats.py&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell tag_remove-print tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">empiricaldist</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>empiricaldist
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">statadict</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>statadict
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">decorate</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="pmfs">
+<h2><span class="section-number">3.1. </span>PMFs<a class="headerlink" href="#pmfs" title="Link to this heading">#</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object is like a <code class="docutils literal notranslate"><span class="pre">Hist</span></code> that contains probabilities instead of frequencies.
+So one way to make a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> is to start with a <code class="docutils literal notranslate"><span class="pre">Hist</span></code>.
+For example, here’s a <code class="docutils literal notranslate"><span class="pre">Hist</span></code> that represents the distribution of values in a short sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">empiricaldist</span> <span class="kn">import</span> <span class="n">Hist</span>
+
+<span class="n">hist</span> <span class="o">=</span> <span class="n">Hist</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="n">hist</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>freqs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The sum of the frequencies is the size of the original sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">n</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>5
+</pre></div>
+</div>
+</div>
+</div>
+<p>If we divide the frequencies by <code class="docutils literal notranslate"><span class="pre">n</span></code>, they represent proportions, rather than counts.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span> <span class="o">=</span> <span class="n">hist</span> <span class="o">/</span> <span class="n">n</span>
+<span class="n">pmf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>This result indicates that 20% of the values in the sequence are 1, 40% are 2, and so on.</p>
+<p>We can also think of these proportions as probabilities in the following sense: if we choose a random value from the original sequence, the probability we choose the value 1 is 0.2, the probability we choose the value 2 is 0.4, and so on.</p>
+<p>Because we divided through by <code class="docutils literal notranslate"><span class="pre">n</span></code>, the sum of the probabilities is 1, which means that this distribution is <strong>normalized</strong>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0
+</pre></div>
+</div>
+</div>
+</div>
+<p>A normalized <code class="docutils literal notranslate"><span class="pre">Hist</span></code> object represents a <strong>probability mass function</strong> (PMF), so-called because probabilities associated with discrete quantities are also called “probability masses”.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">empiricaldist</span></code> library provides a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object that represents a probability mass function, so instead of creating a <code class="docutils literal notranslate"><span class="pre">Hist</span></code> object and then normalizing it, we can create a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object directly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">empiricaldist</span> <span class="kn">import</span> <span class="n">Pmf</span>
+
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="n">pmf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> is normalized so the total probability is 1.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> and <code class="docutils literal notranslate"><span class="pre">Hist</span></code> objects are similar in many ways.
+To look up the probability associated with a value, we can use the bracket operator.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.4
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or use parentheses to call the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> like a function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.4
+</pre></div>
+</div>
+</div>
+</div>
+<p>To assign a probability to a quantity, you have to use the bracket operator.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">pmf</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.2
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can modify an existing <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> by incrementing the probability associated with a value:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.3</span>
+<span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or you can multiply a probability by a factor:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">0.5</span>
+<span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.25
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you modify a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, the result may not be normalized – that is, the probabilities may no longer add up to 1.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.8500000000000001
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">normalize</span></code> method renormalizes the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> by dividing through by the sum – and returning the sum.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.8500000000000001
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects provide a <code class="docutils literal notranslate"><span class="pre">copy</span></code> method so you can make and modify a copy without affecting the original.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.235294</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.294118</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.235294</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.235294</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Like a <code class="docutils literal notranslate"><span class="pre">Hist</span></code> object, a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object has a <code class="docutils literal notranslate"><span class="pre">qs</span></code> attribute that accesses the quantities and a <code class="docutils literal notranslate"><span class="pre">ps</span></code> attribute that accesses the probabilities.</p>
+<p>It also has a <code class="docutils literal notranslate"><span class="pre">bar</span></code> method that plots the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> as a bar graph and a <code class="docutils literal notranslate"><span class="pre">plot</span></code> method that plots it as a line graph.</p>
+</section>
+<section id="summary-statistics">
+<h2><span class="section-number">3.2. </span>Summary Statistics<a class="headerlink" href="#summary-statistics" title="Link to this heading">#</a></h2>
+<p>In Section XXX we computed the mean of a sample by adding up the elements and dividing by <code class="docutils literal notranslate"><span class="pre">n</span></code>.
+Here’s a simple example.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+
+<span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+<span class="n">mean</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.6
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now suppose we compute the PMF of the values in the sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Given the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, we can still compute the mean, but the process is different – we have to multiply the probabilities and quantities and add up the products.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pmf</span><span class="o">.</span><span class="n">ps</span> <span class="o">*</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">mean</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.6
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">mean</span></code> method does the same thing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.6
+</pre></div>
+</div>
+</div>
+</div>
+<p>Notice that we <em>don’t</em> have to divide by <code class="docutils literal notranslate"><span class="pre">n</span></code>, because we already did that when we normalized the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>.</p>
+<p>Give a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, we can compute the variance by computing the deviation of each quantity from the mean.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">deviations</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span> <span class="o">-</span> <span class="n">mean</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we multiply the squared deviations by the probabilities and add up the products.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pmf</span><span class="o">.</span><span class="n">ps</span> <span class="o">*</span> <span class="n">deviations</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">var</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.84
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">var</span></code> method does the same thing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.84
+</pre></div>
+</div>
+</div>
+</div>
+<p>From the variance, we can compute the standard deviation in the usual way.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.3564659966250536
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or the <code class="docutils literal notranslate"><span class="pre">std</span></code> method does the same thing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.3564659966250536
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> also provides a <code class="docutils literal notranslate"><span class="pre">mode</span></code> method that finds the value with the highest probability.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">mode</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-class-size-paradox">
+<h2><span class="section-number">3.3. </span>The Class Size Paradox<a class="headerlink" href="#the-class-size-paradox" title="Link to this heading">#</a></h2>
+<p>As an example of what we can do with <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects, let’s consider a phenomenon I call “the class size paradox.”</p>
+<p>At many American colleges and universities, the student-to-faculty ratio is about 10:1.
+But students are often surprised to discover that their average class size is bigger than 10. There are two reasons for the discrepancy:</p>
+<ul class="simple">
+<li><p>Students typically take 4 or 5 classes per semester, but professors often teach 1 or 2.</p></li>
+<li><p>The number of students who enjoy a small class is small, but the number of students in a large class is large.</p></li>
+</ul>
+<p>The first effect is obvious, at least once it is pointed out; the second is more subtle.
+Let’s look at an example.
+Suppose that a college offers 65 classes in a given semester, and we are given the number of classes in each of the following size ranges.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ranges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+<span class="n">ranges</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;class size&quot;</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">ranges</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+    </tr>
+    <tr>
+      <th>class size</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>[5, 10)</th>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>[10, 15)</th>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>[15, 20)</th>
+      <td>14</td>
+    </tr>
+    <tr>
+      <th>[20, 25)</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>[25, 30)</th>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>[30, 35)</th>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>[35, 40)</th>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>[40, 45)</th>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>[45, 50)</th>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Since we don’t know the sizes of the classes in each range, let’s assume that all sizes are at the midpoint of the range.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sizes</span> <span class="o">=</span> <span class="n">ranges</span><span class="o">.</span><span class="n">left</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="n">sizes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Index([7, 12, 17, 22, 27, 32, 37, 42, 47], dtype=&#39;int64&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now let’s make a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> that represents the distribution of class sizes.
+Because we already know the frequency of each size, we don’t have to use <code class="docutils literal notranslate"><span class="pre">from_seq</span></code>; instead, we can create a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> directly, passing as arguments the counts, sizes, and name.
+When we normalize the new <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, the result is the sum of the counts.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
+<span class="n">actual_pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;actual&quot;</span><span class="p">)</span>
+<span class="n">actual_pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>65
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you ask the college for the average class size, they report the mean of this distribution, which is 23.7.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">actual_pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>mean 23.692307692307693
+</pre></div>
+</div>
+</div>
+</div>
+<p>But if you survey a group of students, ask them how many students are in their classes, and compute the mean, the average is bigger.
+Let’s see how much bigger.</p>
+<p>The following function takes the actual <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> of class sizes and makes a new <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> that represents the class sizes as seen by students.
+The quantities in the two distributions are the same, but the probabilities in the distribution are multiplied by the quantities, because in a class with size <code class="docutils literal notranslate"><span class="pre">x</span></code>, there are <code class="docutils literal notranslate"><span class="pre">x</span></code> students who observe that class.
+So the probability of observing a class is proportional to its size.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bias</span><span class="p">(</span><span class="n">pmf</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">ps</span> <span class="o">*</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span>
+
+    <span class="n">new_pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">new_pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">new_pmf</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we can compute the biased <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> as observed by students.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">observed_pmf</span> <span class="o">=</span> <span class="n">bias</span><span class="p">(</span><span class="n">actual_pmf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;observed&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here’s what the two distributions look like.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">thinkstats</span> <span class="kn">import</span> <span class="n">two_bar_plots</span>
+
+<span class="n">two_bar_plots</span><span class="p">(</span><span class="n">actual_pmf</span><span class="p">,</span> <span class="n">observed_pmf</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Class size&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/998cca01074ed044a827246ffb36afccbebd352a005d07021393dc9888b252c7.png" src="_images/998cca01074ed044a827246ffb36afccbebd352a005d07021393dc9888b252c7.png" />
+</div>
+</div>
+<p>In the observed distribution there are fewer small classes and more large ones.
+And the mean is 29.1, almost 25% higher than the actual mean.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">observed_pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>29.123376623376622
+</pre></div>
+</div>
+</div>
+</div>
+<p>It is also possible to invert this operation.
+Suppose you want to find the distribution of class sizes at a college, but you can’t get reliable data.
+One option is to choose a random sample of students and ask how many students are in their classes.</p>
+<p>The result would be biased for the reasons we’ve just seen, but you can use it to estimate the actual distribution.
+Here’s the function that unbiases a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> by dividing the probabilities by the sizes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">unbias</span><span class="p">(</span><span class="n">pmf</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">ps</span> <span class="o">/</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span>
+
+    <span class="n">new_pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">pmf</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">new_pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">new_pmf</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>And here’s the result.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">debiased_pmf</span> <span class="o">=</span> <span class="n">unbias</span><span class="p">(</span><span class="n">observed_pmf</span><span class="p">,</span> <span class="s2">&quot;debiased&quot;</span><span class="p">)</span>
+<span class="n">debiased_pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>23.692307692307693
+</pre></div>
+</div>
+</div>
+</div>
+<p>The mean of the debiased <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> is the same as the mean of the actual distribution we started with.
+If you think this example is interesting, you might like Chapter 2 of <em>Probably Overthinking It</em>, which includes this and several other examples of what’s called the “inspection paradox”.</p>
+</section>
+<section id="nsfg-data">
+<h2><span class="section-number">3.4. </span>NSFG Data<a class="headerlink" href="#nsfg-data" title="Link to this heading">#</a></h2>
+<p>In the previous chapter, we plotting histograms for the distributions of pregnancy lengths for first babies and others.
+But the sizes of the groups are not the same, so we can’t compare the histograms directly.
+Because PMFs are normalized so they add up to 1, we can compare them.</p>
+<p>TODO: Intro NSFG data
+Instructions for downloading the data are in the notebook for this chapter.</p>
+<p>The following cells download the data files and install <code class="docutils literal notranslate"><span class="pre">statadict</span></code>, which we need to read the data.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">statadict</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>statadict
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/nb/nsfg.py&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dct&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemPreg.dat.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Again, we can use <code class="docutils literal notranslate"><span class="pre">read_fem_preg</span></code> to read the pregnancy file and use the <code class="docutils literal notranslate"><span class="pre">query</span></code> method to select live births.</p>
+<p>We can use <code class="docutils literal notranslate"><span class="pre">birthord</span></code> to separate first babies and others into two groups.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nsfg</span> <span class="kn">import</span> <span class="n">read_fem_preg</span>
+
+
+<span class="k">def</span> <span class="nf">get_nsfg_groups</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the NSFG pregnancy file and split into groups.</span>
+<span class="sd">    </span>
+<span class="sd">    returns: all live births, first babies, other babies</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">preg</span> <span class="o">=</span> <span class="n">read_fem_preg</span><span class="p">()</span>
+    <span class="n">live</span> <span class="o">=</span> <span class="n">preg</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;outcome == 1&quot;</span><span class="p">)</span>
+    <span class="n">firsts</span> <span class="o">=</span> <span class="n">live</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;birthord == 1&quot;</span><span class="p">)</span>
+    <span class="n">others</span> <span class="o">=</span> <span class="n">live</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;birthord != 1&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">live</span><span class="p">,</span> <span class="n">firsts</span><span class="p">,</span> <span class="n">others</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">live</span><span class="p">,</span> <span class="n">firsts</span><span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="n">get_nsfg_groups</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>And make a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> for the pregnancy lengths in each group.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">first_pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">firsts</span><span class="p">[</span><span class="s2">&quot;prglngth&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;firsts&quot;</span><span class="p">)</span>
+<span class="n">other_pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">others</span><span class="p">[</span><span class="s2">&quot;prglngth&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;others&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here are the PMFs of pregnancy length for first babies and others, plotted as bar graphs.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">two_bar_plots</span><span class="p">(</span><span class="n">first_pmf</span><span class="p">,</span> <span class="n">other_pmf</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;weeks&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;probability&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/f89951ee9108b82276d0fd4341fe899227bc628535f0f92e1374684a207ed7c5.png" src="_images/f89951ee9108b82276d0fd4341fe899227bc628535f0f92e1374684a207ed7c5.png" />
+</div>
+</div>
+<p>By plotting the PMF instead of the histogram, we can compare the two distributions without being misled by the difference in sample size.
+Based on this figure, first babies seem to be less likely than others to arrive on time (week 39) and more likely to be late (weeks 41 and 42).</p>
+</section>
+<section id="other-visualizations">
+<h2><span class="section-number">3.5. </span>Other Visualizations<a class="headerlink" href="#other-visualizations" title="Link to this heading">#</a></h2>
+<p>Histograms and PMFs are useful while you are exploring data and trying to identify patterns and relationships.
+Once you have an idea what is going on, a good next step is to design a visualization that makes the patterns you have identified as clear as possible.</p>
+<p>In the NSFG data, the biggest differences in the distributions are near the mode.
+So it makes sense to zoom in on that part of the graph, and select data from weeks 35 to 46.</p>
+<p>When we call a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object like a function, we can look up a sequence of quantities and get a sequence of probabilities.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weeks</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">46</span><span class="p">)</span>
+<span class="n">first_pmf</span><span class="p">(</span><span class="n">weeks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.03602991, 0.03897575, 0.04713347, 0.06163608, 0.4790392 ,
+       0.12145932, 0.08157716, 0.04645366, 0.01971448, 0.00521187,
+       0.00135962])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">other_pmf</span><span class="p">(</span><span class="n">weeks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.03210137, 0.03146779, 0.05216473, 0.07074974, 0.54466737,
+       0.12249208, 0.04794087, 0.02597677, 0.01288279, 0.00485744,
+       0.00084477])
+</pre></div>
+</div>
+</div>
+</div>
+<p>So we can compute the differences in the probabilities like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">diffs</span> <span class="o">=</span> <span class="n">first_pmf</span><span class="p">(</span><span class="n">weeks</span><span class="p">)</span> <span class="o">-</span> <span class="n">other_pmf</span><span class="p">(</span><span class="n">weeks</span><span class="p">)</span>
+<span class="n">diffs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([ 0.00392854,  0.00750796, -0.00503126, -0.00911366, -0.06562817,
+       -0.00103276,  0.03363629,  0.02047689,  0.00683169,  0.00035443,
+        0.00051485])
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here’s what they look like, multiplied by 100 to express the differences in percentage points.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">weeks</span><span class="p">,</span> <span class="n">diffs</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Weeks&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Difference (percentage points)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/e3dacb16510c1b4c7b4b9a402a43ab334fb79d8f07dc8cc553333e856bf9f5b8.png" src="_images/e3dacb16510c1b4c7b4b9a402a43ab334fb79d8f07dc8cc553333e856bf9f5b8.png" />
+</div>
+</div>
+<p>This figure makes the pattern clearer: first babies are less likely to be born in week 39, and somewhat more likely to be born in weeks 41 and 42.</p>
+<p>For now we can’t be sure this effect is real – it might be due to random variation.
+We’ll revisit that question in Chapter xxx.</p>
+</section>
+<section id="glossary">
+<h2><span class="section-number">3.6. </span>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Probability mass function (PMF)</strong>: a representation of a distribution as a function that maps from values to probabilities.</p></li>
+<li><p><strong>probability</strong>: A frequency expressed as a fraction of the sample size.</p></li>
+<li><p><strong>normalization</strong>: The process of dividing a frequency by a sample size to get a probability.</p></li>
+<li><p><strong>index</strong>: In a Pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, the index is a special column that contains the row labels.</p></li>
+</ul>
+</section>
+<section id="exercises">
+<h2><span class="section-number">3.7. </span>Exercises<a class="headerlink" href="#exercises" title="Link to this heading">#</a></h2>
+<p>For the exercises in this chapter, we’ll use the NSFG respondent file, which contains one row for each respondent.</p>
+<div class="cell tag_remove-print docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dct&quot;</span><span class="p">)</span>
+<span class="n">download</span><span class="p">(</span><span class="s2">&quot;https://github.com/AllenDowney/ThinkStats/raw/v3/data/2002FemResp.dat.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The codebook for this dataset is at <a class="reference external" href="https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Female.pdf">https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Female.pdf</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">nsfg.py</span></code> module provides a function that reads the respondent file and returns a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nsfg</span> <span class="kn">import</span> <span class="n">read_fem_resp</span>
+
+<span class="n">resp</span> <span class="o">=</span> <span class="n">read_fem_resp</span><span class="p">()</span>
+<span class="n">resp</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(7643, 3092)
+</pre></div>
+</div>
+</div>
+</div>
+<p>This <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> contains 7643 rows and 3092 columns.</p>
+<section id="exercise">
+<h3><span class="section-number">3.7.1. </span>Exercise<a class="headerlink" href="#exercise" title="Link to this heading">#</a></h3>
+<p>Select the column <code class="docutils literal notranslate"><span class="pre">numbabes</span></code>, which records the “number of babies born alive” to the respondent.
+Make a <code class="docutils literal notranslate"><span class="pre">Hist</span></code> object and display the frequencies of the values in this column.
+Check that they are consistent with the frequencies in the code book.
+Are there any special values that should be replaced with <code class="docutils literal notranslate"><span class="pre">nan</span></code>?</p>
+<p>Then make a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object and plot it as a bar graph. Is the distribution symmetric, skewed to the left, or skewed to the right?</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>
+<span class="n">decorate</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Number of babies&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;PMF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/57bf5fafd31f76d9aa002cc79a110478a9c5b48f6a7042862c6bc16365841c7d.png" src="_images/57bf5fafd31f76d9aa002cc79a110478a9c5b48f6a7042862c6bc16365841c7d.png" />
+</div>
+</div>
+</section>
+<section id="id1">
+<h3><span class="section-number">3.7.2. </span>Exercise<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>In the same way that the mean identifies a central point in a distribution, and variance quantifies its spread, there is another statistic, called <strong>skewness</strong>, that is intended to indicate whether a distribution is skewed to the left or right.</p>
+<p>Given a sample, we can compute the skewness by computing the sum of the cubed deviations and dividing by the standard deviation cubed.
+For example, here’s how we compute the skewness of <code class="docutils literal notranslate"><span class="pre">numbabes</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">numbabes</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;numbabes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">deviations</span> <span class="o">=</span> <span class="n">numbabes</span> <span class="o">-</span> <span class="n">numbabes</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">skewness</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">deviations</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">numbabes</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span>
+<span class="n">skewness</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.7018914266755958
+</pre></div>
+</div>
+</div>
+</div>
+<p>In general, a positive value indicates that a distribution is skewed to the right, and a negative value indicates that it is skewed to the left.</p>
+<p>If you are given a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, rather than a sequence of values, you can compute skewness like this:</p>
+<ol class="arabic simple">
+<li><p>Compute the deviation of each quantity in the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> from the mean.</p></li>
+<li><p>Cube the deviations, multiply by the probabilities in the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, and add up the products.</p></li>
+<li><p>Divide the sum by the standard deviation cubed.</p></li>
+</ol>
+<p>Write a function called <code class="docutils literal notranslate"><span class="pre">pmf_skewness</span></code> that takes a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object and returns its skewness.</p>
+<p>Use your function and the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> of <code class="docutils literal notranslate"><span class="pre">numbabes</span></code> to compute skewness, and confirm you get the same result.</p>
+<p><strong>Exercise:</strong> Something like the class size paradox appears if you survey children and ask how many children are in their family.
+Families with many children are more likely to appear in your sample, and families with no children have no chance to be in the sample.</p>
+<p>From <code class="docutils literal notranslate"><span class="pre">resp</span></code>, select <code class="docutils literal notranslate"><span class="pre">numkdhh</span></code>, which records the number of children under 18 in each respondent’s household.
+Make a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> of the values in this column.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">bias</span></code> function to compute the distribution we would see if we surveyed the children and asked them how many children under 18 (including themselves) are in their household.</p>
+<p>Plot the actual and biased distributions, and compute their means.</p>
+<p><a class="reference external" href="https://allendowney.github.io/ThinkStats/index.html">Think Stats: Exploratory Data Analysis in Python, 3rd Edition</a></p>
+<p>Copyright 2024 <a class="reference external" href="https://allendowney.com">Allen B. Downey</a></p>
+<p>Code license: <a class="reference external" href="https://mit-license.org/">MIT License</a></p>
+<p>Text license: <a class="reference external" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International</a></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="chap02.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">2. </span>Distributions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="chap04.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">4. </span>Cumulative Distribution Functions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pmfs">3.1. PMFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-statistics">3.2. Summary Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-class-size-paradox">3.3. The Class Size Paradox</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nsfg-data">3.4. NSFG Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-visualizations">3.5. Other Visualizations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#glossary">3.6. Glossary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises">3.7. Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise">3.7.1. Exercise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3.7.2. Exercise</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Allen B. Downey
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+<div class="extra_footer">
+  <div style="text-align: left;">
+  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+    <img alt="Creative Commons License" style="border-width:0"
+         src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+  </a>
+  <br />
+  This work is licensed under a
+  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+  </a>.
+</div>
+
+</div>
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
