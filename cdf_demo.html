@@ -1,0 +1,3604 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Implementing CDFs &#8212; empiricaldist</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'cdf_demo';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">empiricaldist</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    empiricaldist
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dist_demo.html">The empiricaldist API</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/AllenDowney/empiricaldist/tree/master" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/cdf_demo.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Implementing CDFs</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constructor">Constructor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#properties">Properties</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sharing">Sharing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying-cdfs">Displaying CDFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-cdf-from-sequence">Make Cdf from sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selection">Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-cdfs">Evaluating CDFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#statistics">Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arithmetic">Arithmetic</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-operators">Comparison operators</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="implementing-cdfs">
+<h1>Implementing CDFs<a class="headerlink" href="#implementing-cdfs" title="Link to this heading">#</a></h1>
+<p>This notebook outlines the API for <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> objects in the <code class="docutils literal notranslate"><span class="pre">empiricaldist</span></code> library, showing the implementations of many methods.</p>
+<p><a class="reference external" href="https://colab.research.google.com/github/AllenDowney/empiricaldist/blob/master/empiricaldist/cdf_demo.ipynb">Click here to run this notebook on Colab</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">empiricaldist</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>empiricaldist
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="k">def</span> <span class="nf">psource</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prints the source code for a given object.</span>
+
+<span class="sd">    obj: function or method object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="constructor">
+<h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/11">this issue</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> class inherits its constructor from <code class="docutils literal notranslate"><span class="pre">pd.Series</span></code>.</p>
+<p>You can create an empty <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> and then add elements.</p>
+<p>Here’s a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> that representat a four-sided die.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">empiricaldist</span> <span class="kn">import</span> <span class="n">Cdf</span>
+
+<span class="n">d4</span> <span class="o">=</span> <span class="n">Cdf</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">d4</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">d4</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">d4</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>In a normalized <code class="docutils literal notranslate"><span class="pre">Cdf</span></code>, the last probability is 1.</p>
+<p><code class="docutils literal notranslate"><span class="pre">normalize</span></code> makes that true.  The return value is the total probability before normalizing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">normalize</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def normalize(self):
+        &quot;&quot;&quot;Make the probabilities add up to 1 (modifies self).
+
+        Returns: normalizing constant
+        &quot;&quot;&quot;
+        total = self.ps[-1]
+        self /= total
+        return total
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>4
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now the Cdf is normalized.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="properties">
+<h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/2">this issue</a>.</p>
+<p>In a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> the index contains the quantities (<code class="docutils literal notranslate"><span class="pre">qs</span></code>) and the values contain the probabilities (<code class="docutils literal notranslate"><span class="pre">ps</span></code>).</p>
+<p>These attributes are available as properties that return arrays (same semantics as the Pandas <code class="docutils literal notranslate"><span class="pre">values</span></code> property)</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">qs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([1, 2, 3, 4])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.25, 0.5 , 0.75, 1.  ])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sharing">
+<h2>Sharing<a class="headerlink" href="#sharing" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/12">this issue</a>.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> is a <code class="docutils literal notranslate"><span class="pre">Series</span></code> you can initialize it with any type <code class="docutils literal notranslate"><span class="pre">Series.__init__</span></code> can handle.</p>
+<p>Here’s an example with a dictionary.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">cdf</span> <span class="o">=</span> <span class="n">Cdf</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="n">cdf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+<span class="n">cdf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>a</th>
+      <td>0.333333</td>
+    </tr>
+    <tr>
+      <th>b</th>
+      <td>0.666667</td>
+    </tr>
+    <tr>
+      <th>c</th>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Here’s an example with two lists.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">d4</span> <span class="o">=</span> <span class="n">Cdf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>You can copy a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4_copy</span> <span class="o">=</span> <span class="n">Cdf</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+<span class="n">d4_copy</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>However, you have to be careful about sharing.  In this example, the copies share the arrays:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ps</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can avoid sharing with <code class="docutils literal notranslate"><span class="pre">copy=True</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4_copy</span> <span class="o">=</span> <span class="n">Cdf</span><span class="p">(</span><span class="n">d4</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">d4_copy</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ps</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or by calling <code class="docutils literal notranslate"><span class="pre">copy</span></code> explicitly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4_copy</span> <span class="o">=</span> <span class="n">d4</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">d4_copy</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ps</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="displaying-cdfs">
+<h2>Displaying CDFs<a class="headerlink" href="#displaying-cdfs" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/13">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> provides <code class="docutils literal notranslate"><span class="pre">_repr_html_</span></code>, so it looks good when displayed in a notebook.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">_repr_html_</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def _repr_html_(self):
+        &quot;&quot;&quot;Returns an HTML representation of the series.
+
+        Mostly used for Jupyter notebooks.
+        &quot;&quot;&quot;
+        df = pd.DataFrame(dict(probs=self))
+        return df._repr_html_()
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> provides <code class="docutils literal notranslate"><span class="pre">plot</span></code>, which plots the Cdf as a line.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>class PlotAccessor(PandasObject):
+    &quot;&quot;&quot;
+    Make plots of Series or DataFrame.
+
+    Uses the backend specified by the
+    option ``plotting.backend``. By default, matplotlib is used.
+
+    Parameters
+    ----------
+    data : Series or DataFrame
+        The object for which the method is called.
+    x : label or position, default None
+        Only used if data is a DataFrame.
+    y : label, position or list of label, positions, default None
+        Allows plotting of one column versus another. Only used if data is a
+        DataFrame.
+    kind : str
+        The kind of plot to produce:
+
+        - &#39;line&#39; : line plot (default)
+        - &#39;bar&#39; : vertical bar plot
+        - &#39;barh&#39; : horizontal bar plot
+        - &#39;hist&#39; : histogram
+        - &#39;box&#39; : boxplot
+        - &#39;kde&#39; : Kernel Density Estimation plot
+        - &#39;density&#39; : same as &#39;kde&#39;
+        - &#39;area&#39; : area plot
+        - &#39;pie&#39; : pie plot
+        - &#39;scatter&#39; : scatter plot (DataFrame only)
+        - &#39;hexbin&#39; : hexbin plot (DataFrame only)
+    ax : matplotlib axes object, default None
+        An axes of the current figure.
+    subplots : bool or sequence of iterables, default False
+        Whether to group columns into subplots:
+
+        - ``False`` : No subplots will be used
+        - ``True`` : Make separate subplots for each column.
+        - sequence of iterables of column labels: Create a subplot for each
+          group of columns. For example `[(&#39;a&#39;, &#39;c&#39;), (&#39;b&#39;, &#39;d&#39;)]` will
+          create 2 subplots: one with columns &#39;a&#39; and &#39;c&#39;, and one
+          with columns &#39;b&#39; and &#39;d&#39;. Remaining columns that aren&#39;t specified
+          will be plotted in additional subplots (one per column).
+
+          .. versionadded:: 1.5.0
+
+    sharex : bool, default True if ax is None else False
+        In case ``subplots=True``, share x axis and set some x axis labels
+        to invisible; defaults to True if ax is None otherwise False if
+        an ax is passed in; Be aware, that passing in both an ax and
+        ``sharex=True`` will alter all x axis labels for all axis in a figure.
+    sharey : bool, default False
+        In case ``subplots=True``, share y axis and set some y axis labels to invisible.
+    layout : tuple, optional
+        (rows, columns) for the layout of subplots.
+    figsize : a tuple (width, height) in inches
+        Size of a figure object.
+    use_index : bool, default True
+        Use index as ticks for x axis.
+    title : str or list
+        Title to use for the plot. If a string is passed, print the string
+        at the top of the figure. If a list is passed and `subplots` is
+        True, print each item in the list above the corresponding subplot.
+    grid : bool, default None (matlab style default)
+        Axis grid lines.
+    legend : bool or {&#39;reverse&#39;}
+        Place legend on axis subplots.
+    style : list or dict
+        The matplotlib line style per column.
+    logx : bool or &#39;sym&#39;, default False
+        Use log scaling or symlog scaling on x axis.
+
+    logy : bool or &#39;sym&#39; default False
+        Use log scaling or symlog scaling on y axis.
+
+    loglog : bool or &#39;sym&#39;, default False
+        Use log scaling or symlog scaling on both x and y axes.
+
+    xticks : sequence
+        Values to use for the xticks.
+    yticks : sequence
+        Values to use for the yticks.
+    xlim : 2-tuple/list
+        Set the x limits of the current axes.
+    ylim : 2-tuple/list
+        Set the y limits of the current axes.
+    xlabel : label, optional
+        Name to use for the xlabel on x-axis. Default uses index name as xlabel, or the
+        x-column name for planar plots.
+
+        .. versionchanged:: 1.2.0
+
+           Now applicable to planar plots (`scatter`, `hexbin`).
+
+        .. versionchanged:: 2.0.0
+
+            Now applicable to histograms.
+
+    ylabel : label, optional
+        Name to use for the ylabel on y-axis. Default will show no ylabel, or the
+        y-column name for planar plots.
+
+        .. versionchanged:: 1.2.0
+
+           Now applicable to planar plots (`scatter`, `hexbin`).
+
+        .. versionchanged:: 2.0.0
+
+            Now applicable to histograms.
+
+    rot : float, default None
+        Rotation for ticks (xticks for vertical, yticks for horizontal
+        plots).
+    fontsize : float, default None
+        Font size for xticks and yticks.
+    colormap : str or matplotlib colormap object, default None
+        Colormap to select colors from. If string, load colormap with that
+        name from matplotlib.
+    colorbar : bool, optional
+        If True, plot colorbar (only relevant for &#39;scatter&#39; and &#39;hexbin&#39;
+        plots).
+    position : float
+        Specify relative alignments for bar plot layout.
+        From 0 (left/bottom-end) to 1 (right/top-end). Default is 0.5
+        (center).
+    table : bool, Series or DataFrame, default False
+        If True, draw a table using the data in the DataFrame and the data
+        will be transposed to meet matplotlib&#39;s default layout.
+        If a Series or DataFrame is passed, use passed data to draw a
+        table.
+    yerr : DataFrame, Series, array-like, dict and str
+        See :ref:`Plotting with Error Bars &lt;visualization.errorbars&gt;` for
+        detail.
+    xerr : DataFrame, Series, array-like, dict and str
+        Equivalent to yerr.
+    stacked : bool, default False in line and bar plots, and True in area plot
+        If True, create stacked plot.
+    secondary_y : bool or sequence, default False
+        Whether to plot on the secondary y-axis if a list/tuple, which
+        columns to plot on secondary y-axis.
+    mark_right : bool, default True
+        When using a secondary_y axis, automatically mark the column
+        labels with &quot;(right)&quot; in the legend.
+    include_bool : bool, default is False
+        If True, boolean values can be plotted.
+    backend : str, default None
+        Backend to use instead of the backend specified in the option
+        ``plotting.backend``. For instance, &#39;matplotlib&#39;. Alternatively, to
+        specify the ``plotting.backend`` for the whole session, set
+        ``pd.options.plotting.backend``.
+    **kwargs
+        Options to pass to matplotlib plotting method.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.Axes` or numpy.ndarray of them
+        If the backend is not the default matplotlib one, the return value
+        will be the object returned by the backend.
+
+    Notes
+    -----
+    - See matplotlib documentation online for more on this subject
+    - If `kind` = &#39;bar&#39; or &#39;barh&#39;, you can specify relative alignments
+      for bar plot layout by `position` keyword.
+      From 0 (left/bottom-end) to 1 (right/top-end). Default is 0.5
+      (center)
+
+    Examples
+    --------
+    For Series:
+
+    .. plot::
+        :context: close-figs
+
+        &gt;&gt;&gt; ser = pd.Series([1, 2, 3, 3])
+        &gt;&gt;&gt; plot = ser.plot(kind=&#39;hist&#39;, title=&quot;My plot&quot;)
+
+    For DataFrame:
+
+    .. plot::
+        :context: close-figs
+
+        &gt;&gt;&gt; df = pd.DataFrame({&#39;length&#39;: [1.5, 0.5, 1.2, 0.9, 3],
+        ...                   &#39;width&#39;: [0.7, 0.2, 0.15, 0.2, 1.1]},
+        ...                   index=[&#39;pig&#39;, &#39;rabbit&#39;, &#39;duck&#39;, &#39;chicken&#39;, &#39;horse&#39;])
+        &gt;&gt;&gt; plot = df.plot(title=&quot;DataFrame Plot&quot;)
+
+    For SeriesGroupBy:
+
+    .. plot::
+        :context: close-figs
+
+        &gt;&gt;&gt; lst = [-1, -2, -3, 1, 2, 3]
+        &gt;&gt;&gt; ser = pd.Series([1, 2, 2, 4, 6, 6], index=lst)
+        &gt;&gt;&gt; plot = ser.groupby(lambda x: x &gt; 0).plot(title=&quot;SeriesGroupBy Plot&quot;)
+
+    For DataFrameGroupBy:
+
+    .. plot::
+        :context: close-figs
+
+        &gt;&gt;&gt; df = pd.DataFrame({&quot;col1&quot; : [1, 2, 3, 4],
+        ...                   &quot;col2&quot; : [&quot;A&quot;, &quot;B&quot;, &quot;A&quot;, &quot;B&quot;]})
+        &gt;&gt;&gt; plot = df.groupby(&quot;col2&quot;).plot(kind=&quot;bar&quot;, title=&quot;DataFrameGroupBy Plot&quot;)
+    &quot;&quot;&quot;
+
+    _common_kinds = (&quot;line&quot;, &quot;bar&quot;, &quot;barh&quot;, &quot;kde&quot;, &quot;density&quot;, &quot;area&quot;, &quot;hist&quot;, &quot;box&quot;)
+    _series_kinds = (&quot;pie&quot;,)
+    _dataframe_kinds = (&quot;scatter&quot;, &quot;hexbin&quot;)
+    _kind_aliases = {&quot;density&quot;: &quot;kde&quot;}
+    _all_kinds = _common_kinds + _series_kinds + _dataframe_kinds
+
+    def __init__(self, data) -&gt; None:
+        self._parent = data
+
+    @staticmethod
+    def _get_call_args(backend_name: str, data, args, kwargs):
+        &quot;&quot;&quot;
+        This function makes calls to this accessor `__call__` method compatible
+        with the previous `SeriesPlotMethods.__call__` and
+        `DataFramePlotMethods.__call__`. Those had slightly different
+        signatures, since `DataFramePlotMethods` accepted `x` and `y`
+        parameters.
+        &quot;&quot;&quot;
+        if isinstance(data, ABCSeries):
+            arg_def = [
+                (&quot;kind&quot;, &quot;line&quot;),
+                (&quot;ax&quot;, None),
+                (&quot;figsize&quot;, None),
+                (&quot;use_index&quot;, True),
+                (&quot;title&quot;, None),
+                (&quot;grid&quot;, None),
+                (&quot;legend&quot;, False),
+                (&quot;style&quot;, None),
+                (&quot;logx&quot;, False),
+                (&quot;logy&quot;, False),
+                (&quot;loglog&quot;, False),
+                (&quot;xticks&quot;, None),
+                (&quot;yticks&quot;, None),
+                (&quot;xlim&quot;, None),
+                (&quot;ylim&quot;, None),
+                (&quot;rot&quot;, None),
+                (&quot;fontsize&quot;, None),
+                (&quot;colormap&quot;, None),
+                (&quot;table&quot;, False),
+                (&quot;yerr&quot;, None),
+                (&quot;xerr&quot;, None),
+                (&quot;label&quot;, None),
+                (&quot;secondary_y&quot;, False),
+                (&quot;xlabel&quot;, None),
+                (&quot;ylabel&quot;, None),
+            ]
+        elif isinstance(data, ABCDataFrame):
+            arg_def = [
+                (&quot;x&quot;, None),
+                (&quot;y&quot;, None),
+                (&quot;kind&quot;, &quot;line&quot;),
+                (&quot;ax&quot;, None),
+                (&quot;subplots&quot;, False),
+                (&quot;sharex&quot;, None),
+                (&quot;sharey&quot;, False),
+                (&quot;layout&quot;, None),
+                (&quot;figsize&quot;, None),
+                (&quot;use_index&quot;, True),
+                (&quot;title&quot;, None),
+                (&quot;grid&quot;, None),
+                (&quot;legend&quot;, True),
+                (&quot;style&quot;, None),
+                (&quot;logx&quot;, False),
+                (&quot;logy&quot;, False),
+                (&quot;loglog&quot;, False),
+                (&quot;xticks&quot;, None),
+                (&quot;yticks&quot;, None),
+                (&quot;xlim&quot;, None),
+                (&quot;ylim&quot;, None),
+                (&quot;rot&quot;, None),
+                (&quot;fontsize&quot;, None),
+                (&quot;colormap&quot;, None),
+                (&quot;table&quot;, False),
+                (&quot;yerr&quot;, None),
+                (&quot;xerr&quot;, None),
+                (&quot;secondary_y&quot;, False),
+                (&quot;xlabel&quot;, None),
+                (&quot;ylabel&quot;, None),
+            ]
+        else:
+            raise TypeError(
+                f&quot;Called plot accessor for type {type(data).__name__}, &quot;
+                &quot;expected Series or DataFrame&quot;
+            )
+
+        if args and isinstance(data, ABCSeries):
+            positional_args = str(args)[1:-1]
+            keyword_args = &quot;, &quot;.join(
+                [f&quot;{name}={repr(value)}&quot; for (name, _), value in zip(arg_def, args)]
+            )
+            msg = (
+                &quot;`Series.plot()` should not be called with positional &quot;
+                &quot;arguments, only keyword arguments. The order of &quot;
+                &quot;positional arguments will change in the future. &quot;
+                f&quot;Use `Series.plot({keyword_args})` instead of &quot;
+                f&quot;`Series.plot({positional_args})`.&quot;
+            )
+            raise TypeError(msg)
+
+        pos_args = {name: value for (name, _), value in zip(arg_def, args)}
+        if backend_name == &quot;pandas.plotting._matplotlib&quot;:
+            kwargs = dict(arg_def, **pos_args, **kwargs)
+        else:
+            kwargs = dict(pos_args, **kwargs)
+
+        x = kwargs.pop(&quot;x&quot;, None)
+        y = kwargs.pop(&quot;y&quot;, None)
+        kind = kwargs.pop(&quot;kind&quot;, &quot;line&quot;)
+        return x, y, kind, kwargs
+
+    def __call__(self, *args, **kwargs):
+        plot_backend = _get_plot_backend(kwargs.pop(&quot;backend&quot;, None))
+
+        x, y, kind, kwargs = self._get_call_args(
+            plot_backend.__name__, self._parent, args, kwargs
+        )
+
+        kind = self._kind_aliases.get(kind, kind)
+
+        # when using another backend, get out of the way
+        if plot_backend.__name__ != &quot;pandas.plotting._matplotlib&quot;:
+            return plot_backend.plot(self._parent, x=x, y=y, kind=kind, **kwargs)
+
+        if kind not in self._all_kinds:
+            raise ValueError(f&quot;{kind} is not a valid plot kind&quot;)
+
+        # The original data structured can be transformed before passed to the
+        # backend. For example, for DataFrame is common to set the index as the
+        # `x` parameter, and return a Series with the parameter `y` as values.
+        data = self._parent.copy()
+
+        if isinstance(data, ABCSeries):
+            kwargs[&quot;reuse_plot&quot;] = True
+
+        if kind in self._dataframe_kinds:
+            if isinstance(data, ABCDataFrame):
+                return plot_backend.plot(data, x=x, y=y, kind=kind, **kwargs)
+            else:
+                raise ValueError(f&quot;plot kind {kind} can only be used for data frames&quot;)
+        elif kind in self._series_kinds:
+            if isinstance(data, ABCDataFrame):
+                if y is None and kwargs.get(&quot;subplots&quot;) is False:
+                    raise ValueError(
+                        f&quot;{kind} requires either y column or &#39;subplots=True&#39;&quot;
+                    )
+                if y is not None:
+                    if is_integer(y) and not data.columns._holds_integer():
+                        y = data.columns[y]
+                    # converted to series actually. copy to not modify
+                    data = data[y].copy()
+                    data.index.name = y
+        elif isinstance(data, ABCDataFrame):
+            data_cols = data.columns
+            if x is not None:
+                if is_integer(x) and not data.columns._holds_integer():
+                    x = data_cols[x]
+                elif not isinstance(data[x], ABCSeries):
+                    raise ValueError(&quot;x must be a label or position&quot;)
+                data = data.set_index(x)
+            if y is not None:
+                # check if we have y as int or list of ints
+                int_ylist = is_list_like(y) and all(is_integer(c) for c in y)
+                int_y_arg = is_integer(y) or int_ylist
+                if int_y_arg and not data.columns._holds_integer():
+                    y = data_cols[y]
+
+                label_kw = kwargs[&quot;label&quot;] if &quot;label&quot; in kwargs else False
+                for kw in [&quot;xerr&quot;, &quot;yerr&quot;]:
+                    if kw in kwargs and (
+                        isinstance(kwargs[kw], str) or is_integer(kwargs[kw])
+                    ):
+                        try:
+                            kwargs[kw] = data[kwargs[kw]]
+                        except (IndexError, KeyError, TypeError):
+                            pass
+
+                # don&#39;t overwrite
+                data = data[y].copy()
+
+                if isinstance(data, ABCSeries):
+                    label_name = label_kw or y
+                    data.name = label_name
+                else:
+                    match = is_list_like(label_kw) and len(label_kw) == len(y)
+                    if label_kw and not match:
+                        raise ValueError(
+                            &quot;label should be list-like and same length as y&quot;
+                        )
+                    label_name = label_kw or data.columns
+                    data.columns = label_name
+
+        return plot_backend.plot(data, kind=kind, **kwargs)
+
+    __call__.__doc__ = __doc__
+
+    @Appender(
+        &quot;&quot;&quot;
+        See Also
+        --------
+        matplotlib.pyplot.plot : Plot y versus x as lines and/or markers.
+
+        Examples
+        --------
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; s = pd.Series([1, 3, 2])
+            &gt;&gt;&gt; s.plot.line()  # doctest: +SKIP
+
+        .. plot::
+            :context: close-figs
+
+            The following example shows the populations for some animals
+            over the years.
+
+            &gt;&gt;&gt; df = pd.DataFrame({
+            ...    &#39;pig&#39;: [20, 18, 489, 675, 1776],
+            ...    &#39;horse&#39;: [4, 25, 281, 600, 1900]
+            ...    }, index=[1990, 1997, 2003, 2009, 2014])
+            &gt;&gt;&gt; lines = df.plot.line()
+
+        .. plot::
+           :context: close-figs
+
+           An example with subplots, so an array of axes is returned.
+
+           &gt;&gt;&gt; axes = df.plot.line(subplots=True)
+           &gt;&gt;&gt; type(axes)
+           &lt;class &#39;numpy.ndarray&#39;&gt;
+
+        .. plot::
+           :context: close-figs
+
+           Let&#39;s repeat the same example, but specifying colors for
+           each column (in this case, for each animal).
+
+           &gt;&gt;&gt; axes = df.plot.line(
+           ...     subplots=True, color={&quot;pig&quot;: &quot;pink&quot;, &quot;horse&quot;: &quot;#742802&quot;}
+           ... )
+
+        .. plot::
+            :context: close-figs
+
+            The following example shows the relationship between both
+            populations.
+
+            &gt;&gt;&gt; lines = df.plot.line(x=&#39;pig&#39;, y=&#39;horse&#39;)
+        &quot;&quot;&quot;
+    )
+    @Substitution(kind=&quot;line&quot;)
+    @Appender(_bar_or_line_doc)
+    def line(
+        self, x: Hashable | None = None, y: Hashable | None = None, **kwargs
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Plot Series or DataFrame as lines.
+
+        This function is useful to plot lines using DataFrame&#39;s values
+        as coordinates.
+        &quot;&quot;&quot;
+        return self(kind=&quot;line&quot;, x=x, y=y, **kwargs)
+
+    @Appender(
+        &quot;&quot;&quot;
+        See Also
+        --------
+        DataFrame.plot.barh : Horizontal bar plot.
+        DataFrame.plot : Make plots of a DataFrame.
+        matplotlib.pyplot.bar : Make a bar plot with matplotlib.
+
+        Examples
+        --------
+        Basic plot.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;lab&#39;:[&#39;A&#39;, &#39;B&#39;, &#39;C&#39;], &#39;val&#39;:[10, 30, 20]})
+            &gt;&gt;&gt; ax = df.plot.bar(x=&#39;lab&#39;, y=&#39;val&#39;, rot=0)
+
+        Plot a whole dataframe to a bar plot. Each column is assigned a
+        distinct color, and each row is nested in a group along the
+        horizontal axis.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; speed = [0.1, 17.5, 40, 48, 52, 69, 88]
+            &gt;&gt;&gt; lifespan = [2, 8, 70, 1.5, 25, 12, 28]
+            &gt;&gt;&gt; index = [&#39;snail&#39;, &#39;pig&#39;, &#39;elephant&#39;,
+            ...          &#39;rabbit&#39;, &#39;giraffe&#39;, &#39;coyote&#39;, &#39;horse&#39;]
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;speed&#39;: speed,
+            ...                    &#39;lifespan&#39;: lifespan}, index=index)
+            &gt;&gt;&gt; ax = df.plot.bar(rot=0)
+
+        Plot stacked bar charts for the DataFrame
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.bar(stacked=True)
+
+        Instead of nesting, the figure can be split by column with
+        ``subplots=True``. In this case, a :class:`numpy.ndarray` of
+        :class:`matplotlib.axes.Axes` are returned.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; axes = df.plot.bar(rot=0, subplots=True)
+            &gt;&gt;&gt; axes[1].legend(loc=2)  # doctest: +SKIP
+
+        If you don&#39;t like the default colours, you can specify how you&#39;d
+        like each column to be colored.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; axes = df.plot.bar(
+            ...     rot=0, subplots=True, color={&quot;speed&quot;: &quot;red&quot;, &quot;lifespan&quot;: &quot;green&quot;}
+            ... )
+            &gt;&gt;&gt; axes[1].legend(loc=2)  # doctest: +SKIP
+
+        Plot a single column.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.bar(y=&#39;speed&#39;, rot=0)
+
+        Plot only selected categories for the DataFrame.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.bar(x=&#39;lifespan&#39;, rot=0)
+    &quot;&quot;&quot;
+    )
+    @Substitution(kind=&quot;bar&quot;)
+    @Appender(_bar_or_line_doc)
+    def bar(  # pylint: disable=disallowed-name
+        self, x: Hashable | None = None, y: Hashable | None = None, **kwargs
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Vertical bar plot.
+
+        A bar plot is a plot that presents categorical data with
+        rectangular bars with lengths proportional to the values that they
+        represent. A bar plot shows comparisons among discrete categories. One
+        axis of the plot shows the specific categories being compared, and the
+        other axis represents a measured value.
+        &quot;&quot;&quot;
+        return self(kind=&quot;bar&quot;, x=x, y=y, **kwargs)
+
+    @Appender(
+        &quot;&quot;&quot;
+        See Also
+        --------
+        DataFrame.plot.bar: Vertical bar plot.
+        DataFrame.plot : Make plots of DataFrame using matplotlib.
+        matplotlib.axes.Axes.bar : Plot a vertical bar plot using matplotlib.
+
+        Examples
+        --------
+        Basic example
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;lab&#39;: [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;], &#39;val&#39;: [10, 30, 20]})
+            &gt;&gt;&gt; ax = df.plot.barh(x=&#39;lab&#39;, y=&#39;val&#39;)
+
+        Plot a whole DataFrame to a horizontal bar plot
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; speed = [0.1, 17.5, 40, 48, 52, 69, 88]
+            &gt;&gt;&gt; lifespan = [2, 8, 70, 1.5, 25, 12, 28]
+            &gt;&gt;&gt; index = [&#39;snail&#39;, &#39;pig&#39;, &#39;elephant&#39;,
+            ...          &#39;rabbit&#39;, &#39;giraffe&#39;, &#39;coyote&#39;, &#39;horse&#39;]
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;speed&#39;: speed,
+            ...                    &#39;lifespan&#39;: lifespan}, index=index)
+            &gt;&gt;&gt; ax = df.plot.barh()
+
+        Plot stacked barh charts for the DataFrame
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.barh(stacked=True)
+
+        We can specify colors for each column
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.barh(color={&quot;speed&quot;: &quot;red&quot;, &quot;lifespan&quot;: &quot;green&quot;})
+
+        Plot a column of the DataFrame to a horizontal bar plot
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; speed = [0.1, 17.5, 40, 48, 52, 69, 88]
+            &gt;&gt;&gt; lifespan = [2, 8, 70, 1.5, 25, 12, 28]
+            &gt;&gt;&gt; index = [&#39;snail&#39;, &#39;pig&#39;, &#39;elephant&#39;,
+            ...          &#39;rabbit&#39;, &#39;giraffe&#39;, &#39;coyote&#39;, &#39;horse&#39;]
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;speed&#39;: speed,
+            ...                    &#39;lifespan&#39;: lifespan}, index=index)
+            &gt;&gt;&gt; ax = df.plot.barh(y=&#39;speed&#39;)
+
+        Plot DataFrame versus the desired column
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; speed = [0.1, 17.5, 40, 48, 52, 69, 88]
+            &gt;&gt;&gt; lifespan = [2, 8, 70, 1.5, 25, 12, 28]
+            &gt;&gt;&gt; index = [&#39;snail&#39;, &#39;pig&#39;, &#39;elephant&#39;,
+            ...          &#39;rabbit&#39;, &#39;giraffe&#39;, &#39;coyote&#39;, &#39;horse&#39;]
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;speed&#39;: speed,
+            ...                    &#39;lifespan&#39;: lifespan}, index=index)
+            &gt;&gt;&gt; ax = df.plot.barh(x=&#39;lifespan&#39;)
+    &quot;&quot;&quot;
+    )
+    @Substitution(kind=&quot;bar&quot;)
+    @Appender(_bar_or_line_doc)
+    def barh(
+        self, x: Hashable | None = None, y: Hashable | None = None, **kwargs
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Make a horizontal bar plot.
+
+        A horizontal bar plot is a plot that presents quantitative data with
+        rectangular bars with lengths proportional to the values that they
+        represent. A bar plot shows comparisons among discrete categories. One
+        axis of the plot shows the specific categories being compared, and the
+        other axis represents a measured value.
+        &quot;&quot;&quot;
+        return self(kind=&quot;barh&quot;, x=x, y=y, **kwargs)
+
+    def box(self, by: IndexLabel | None = None, **kwargs) -&gt; PlotAccessor:
+        r&quot;&quot;&quot;
+        Make a box plot of the DataFrame columns.
+
+        A box plot is a method for graphically depicting groups of numerical
+        data through their quartiles.
+        The box extends from the Q1 to Q3 quartile values of the data,
+        with a line at the median (Q2). The whiskers extend from the edges
+        of box to show the range of the data. The position of the whiskers
+        is set by default to 1.5*IQR (IQR = Q3 - Q1) from the edges of the
+        box. Outlier points are those past the end of the whiskers.
+
+        For further details see Wikipedia&#39;s
+        entry for `boxplot &lt;https://en.wikipedia.org/wiki/Box_plot&gt;`__.
+
+        A consideration when using this chart is that the box and the whiskers
+        can overlap, which is very common when plotting small sets of data.
+
+        Parameters
+        ----------
+        by : str or sequence
+            Column in the DataFrame to group by.
+
+            .. versionchanged:: 1.4.0
+
+               Previously, `by` is silently ignore and makes no groupings
+
+        **kwargs
+            Additional keywords are documented in
+            :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes` or numpy.ndarray of them
+
+        See Also
+        --------
+        DataFrame.boxplot: Another method to draw a box plot.
+        Series.plot.box: Draw a box plot from a Series object.
+        matplotlib.pyplot.boxplot: Draw a box plot in matplotlib.
+
+        Examples
+        --------
+        Draw a box plot from a DataFrame with four columns of randomly
+        generated data.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; data = np.random.randn(25, 4)
+            &gt;&gt;&gt; df = pd.DataFrame(data, columns=list(&#39;ABCD&#39;))
+            &gt;&gt;&gt; ax = df.plot.box()
+
+        You can also generate groupings if you specify the `by` parameter (which
+        can take a column name, or a list or tuple of column names):
+
+        .. versionchanged:: 1.4.0
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; age_list = [8, 10, 12, 14, 72, 74, 76, 78, 20, 25, 30, 35, 60, 85]
+            &gt;&gt;&gt; df = pd.DataFrame({&quot;gender&quot;: list(&quot;MMMMMMMMFFFFFF&quot;), &quot;age&quot;: age_list})
+            &gt;&gt;&gt; ax = df.plot.box(column=&quot;age&quot;, by=&quot;gender&quot;, figsize=(10, 8))
+        &quot;&quot;&quot;
+        return self(kind=&quot;box&quot;, by=by, **kwargs)
+
+    def hist(
+        self, by: IndexLabel | None = None, bins: int = 10, **kwargs
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Draw one histogram of the DataFrame&#39;s columns.
+
+        A histogram is a representation of the distribution of data.
+        This function groups the values of all given Series in the DataFrame
+        into bins and draws all bins in one :class:`matplotlib.axes.Axes`.
+        This is useful when the DataFrame&#39;s Series are in a similar scale.
+
+        Parameters
+        ----------
+        by : str or sequence, optional
+            Column in the DataFrame to group by.
+
+            .. versionchanged:: 1.4.0
+
+               Previously, `by` is silently ignore and makes no groupings
+
+        bins : int, default 10
+            Number of histogram bins to be used.
+        **kwargs
+            Additional keyword arguments are documented in
+            :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        class:`matplotlib.AxesSubplot`
+            Return a histogram plot.
+
+        See Also
+        --------
+        DataFrame.hist : Draw histograms per DataFrame&#39;s Series.
+        Series.hist : Draw a histogram with Series&#39; data.
+
+        Examples
+        --------
+        When we roll a die 6000 times, we expect to get each value around 1000
+        times. But when we roll two dice and sum the result, the distribution
+        is going to be quite different. A histogram illustrates those
+        distributions.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame(
+            ...     np.random.randint(1, 7, 6000),
+            ...     columns = [&#39;one&#39;])
+            &gt;&gt;&gt; df[&#39;two&#39;] = df[&#39;one&#39;] + np.random.randint(1, 7, 6000)
+            &gt;&gt;&gt; ax = df.plot.hist(bins=12, alpha=0.5)
+
+        A grouped histogram can be generated by providing the parameter `by` (which
+        can be a column name, or a list of column names):
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; age_list = [8, 10, 12, 14, 72, 74, 76, 78, 20, 25, 30, 35, 60, 85]
+            &gt;&gt;&gt; df = pd.DataFrame({&quot;gender&quot;: list(&quot;MMMMMMMMFFFFFF&quot;), &quot;age&quot;: age_list})
+            &gt;&gt;&gt; ax = df.plot.hist(column=[&quot;age&quot;], by=&quot;gender&quot;, figsize=(10, 8))
+        &quot;&quot;&quot;
+        return self(kind=&quot;hist&quot;, by=by, bins=bins, **kwargs)
+
+    def kde(
+        self,
+        bw_method: Literal[&quot;scott&quot;, &quot;silverman&quot;] | float | Callable | None = None,
+        ind: np.ndarray | int | None = None,
+        **kwargs,
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Generate Kernel Density Estimate plot using Gaussian kernels.
+
+        In statistics, `kernel density estimation`_ (KDE) is a non-parametric
+        way to estimate the probability density function (PDF) of a random
+        variable. This function uses Gaussian kernels and includes automatic
+        bandwidth determination.
+
+        .. _kernel density estimation:
+            https://en.wikipedia.org/wiki/Kernel_density_estimation
+
+        Parameters
+        ----------
+        bw_method : str, scalar or callable, optional
+            The method used to calculate the estimator bandwidth. This can be
+            &#39;scott&#39;, &#39;silverman&#39;, a scalar constant or a callable.
+            If None (default), &#39;scott&#39; is used.
+            See :class:`scipy.stats.gaussian_kde` for more information.
+        ind : NumPy array or int, optional
+            Evaluation points for the estimated PDF. If None (default),
+            1000 equally spaced points are used. If `ind` is a NumPy array, the
+            KDE is evaluated at the points passed. If `ind` is an integer,
+            `ind` number of equally spaced points are used.
+        **kwargs
+            Additional keyword arguments are documented in
+            :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        matplotlib.axes.Axes or numpy.ndarray of them
+
+        See Also
+        --------
+        scipy.stats.gaussian_kde : Representation of a kernel-density
+            estimate using Gaussian kernels. This is the function used
+            internally to estimate the PDF.
+
+        Examples
+        --------
+        Given a Series of points randomly sampled from an unknown
+        distribution, estimate its PDF using KDE with automatic
+        bandwidth determination and plot the results, evaluating them at
+        1000 equally spaced points (default):
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; s = pd.Series([1, 2, 2.5, 3, 3.5, 4, 5])
+            &gt;&gt;&gt; ax = s.plot.kde()
+
+        A scalar bandwidth can be specified. Using a small bandwidth value can
+        lead to over-fitting, while using a large bandwidth value may result
+        in under-fitting:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = s.plot.kde(bw_method=0.3)
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = s.plot.kde(bw_method=3)
+
+        Finally, the `ind` parameter determines the evaluation points for the
+        plot of the estimated PDF:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = s.plot.kde(ind=[1, 2, 3, 4, 5])
+
+        For DataFrame, it works in the same way:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame({
+            ...     &#39;x&#39;: [1, 2, 2.5, 3, 3.5, 4, 5],
+            ...     &#39;y&#39;: [4, 4, 4.5, 5, 5.5, 6, 6],
+            ... })
+            &gt;&gt;&gt; ax = df.plot.kde()
+
+        A scalar bandwidth can be specified. Using a small bandwidth value can
+        lead to over-fitting, while using a large bandwidth value may result
+        in under-fitting:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.kde(bw_method=0.3)
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.kde(bw_method=3)
+
+        Finally, the `ind` parameter determines the evaluation points for the
+        plot of the estimated PDF:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.kde(ind=[1, 2, 3, 4, 5, 6])
+        &quot;&quot;&quot;
+        return self(kind=&quot;kde&quot;, bw_method=bw_method, ind=ind, **kwargs)
+
+    density = kde
+
+    def area(
+        self,
+        x: Hashable | None = None,
+        y: Hashable | None = None,
+        stacked: bool = True,
+        **kwargs,
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Draw a stacked area plot.
+
+        An area plot displays quantitative data visually.
+        This function wraps the matplotlib area function.
+
+        Parameters
+        ----------
+        x : label or position, optional
+            Coordinates for the X axis. By default uses the index.
+        y : label or position, optional
+            Column to plot. By default uses all columns.
+        stacked : bool, default True
+            Area plots are stacked by default. Set to False to create a
+            unstacked plot.
+        **kwargs
+            Additional keyword arguments are documented in
+            :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        matplotlib.axes.Axes or numpy.ndarray
+            Area plot, or array of area plots if subplots is True.
+
+        See Also
+        --------
+        DataFrame.plot : Make plots of DataFrame using matplotlib / pylab.
+
+        Examples
+        --------
+        Draw an area plot based on basic business metrics:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame({
+            ...     &#39;sales&#39;: [3, 2, 3, 9, 10, 6],
+            ...     &#39;signups&#39;: [5, 5, 6, 12, 14, 13],
+            ...     &#39;visits&#39;: [20, 42, 28, 62, 81, 50],
+            ... }, index=pd.date_range(start=&#39;2018/01/01&#39;, end=&#39;2018/07/01&#39;,
+            ...                        freq=&#39;M&#39;))
+            &gt;&gt;&gt; ax = df.plot.area()
+
+        Area plots are stacked by default. To produce an unstacked plot,
+        pass ``stacked=False``:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.area(stacked=False)
+
+        Draw an area plot for a single column:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax = df.plot.area(y=&#39;sales&#39;)
+
+        Draw with a different `x`:
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame({
+            ...     &#39;sales&#39;: [3, 2, 3],
+            ...     &#39;visits&#39;: [20, 42, 28],
+            ...     &#39;day&#39;: [1, 2, 3],
+            ... })
+            &gt;&gt;&gt; ax = df.plot.area(x=&#39;day&#39;)
+        &quot;&quot;&quot;
+        return self(kind=&quot;area&quot;, x=x, y=y, stacked=stacked, **kwargs)
+
+    def pie(self, **kwargs) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Generate a pie plot.
+
+        A pie plot is a proportional representation of the numerical data in a
+        column. This function wraps :meth:`matplotlib.pyplot.pie` for the
+        specified column. If no column reference is passed and
+        ``subplots=True`` a pie plot is drawn for each numerical column
+        independently.
+
+        Parameters
+        ----------
+        y : int or label, optional
+            Label or position of the column to plot.
+            If not provided, ``subplots=True`` argument must be passed.
+        **kwargs
+            Keyword arguments to pass on to :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        matplotlib.axes.Axes or np.ndarray of them
+            A NumPy array is returned when `subplots` is True.
+
+        See Also
+        --------
+        Series.plot.pie : Generate a pie plot for a Series.
+        DataFrame.plot : Make plots of a DataFrame.
+
+        Examples
+        --------
+        In the example below we have a DataFrame with the information about
+        planet&#39;s mass and radius. We pass the &#39;mass&#39; column to the
+        pie function to get a pie plot.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;mass&#39;: [0.330, 4.87 , 5.97],
+            ...                    &#39;radius&#39;: [2439.7, 6051.8, 6378.1]},
+            ...                   index=[&#39;Mercury&#39;, &#39;Venus&#39;, &#39;Earth&#39;])
+            &gt;&gt;&gt; plot = df.plot.pie(y=&#39;mass&#39;, figsize=(5, 5))
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; plot = df.plot.pie(subplots=True, figsize=(11, 6))
+        &quot;&quot;&quot;
+        if (
+            isinstance(self._parent, ABCDataFrame)
+            and kwargs.get(&quot;y&quot;, None) is None
+            and not kwargs.get(&quot;subplots&quot;, False)
+        ):
+            raise ValueError(&quot;pie requires either y column or &#39;subplots=True&#39;&quot;)
+        return self(kind=&quot;pie&quot;, **kwargs)
+
+    def scatter(
+        self,
+        x: Hashable,
+        y: Hashable,
+        s: Hashable | Sequence[Hashable] | None = None,
+        c: Hashable | Sequence[Hashable] | None = None,
+        **kwargs,
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Create a scatter plot with varying marker point size and color.
+
+        The coordinates of each point are defined by two dataframe columns and
+        filled circles are used to represent each point. This kind of plot is
+        useful to see complex correlations between two variables. Points could
+        be for instance natural 2D coordinates like longitude and latitude in
+        a map or, in general, any pair of metrics that can be plotted against
+        each other.
+
+        Parameters
+        ----------
+        x : int or str
+            The column name or column position to be used as horizontal
+            coordinates for each point.
+        y : int or str
+            The column name or column position to be used as vertical
+            coordinates for each point.
+        s : str, scalar or array-like, optional
+            The size of each point. Possible values are:
+
+            - A string with the name of the column to be used for marker&#39;s size.
+
+            - A single scalar so all points have the same size.
+
+            - A sequence of scalars, which will be used for each point&#39;s size
+              recursively. For instance, when passing [2,14] all points size
+              will be either 2 or 14, alternatively.
+
+        c : str, int or array-like, optional
+            The color of each point. Possible values are:
+
+            - A single color string referred to by name, RGB or RGBA code,
+              for instance &#39;red&#39; or &#39;#a98d19&#39;.
+
+            - A sequence of color strings referred to by name, RGB or RGBA
+              code, which will be used for each point&#39;s color recursively. For
+              instance [&#39;green&#39;,&#39;yellow&#39;] all points will be filled in green or
+              yellow, alternatively.
+
+            - A column name or position whose values will be used to color the
+              marker points according to a colormap.
+
+        **kwargs
+            Keyword arguments to pass on to :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes` or numpy.ndarray of them
+
+        See Also
+        --------
+        matplotlib.pyplot.scatter : Scatter plot using multiple input data
+            formats.
+
+        Examples
+        --------
+        Let&#39;s see how to draw a scatter plot using coordinates from the values
+        in a DataFrame&#39;s columns.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; df = pd.DataFrame([[5.1, 3.5, 0], [4.9, 3.0, 0], [7.0, 3.2, 1],
+            ...                    [6.4, 3.2, 1], [5.9, 3.0, 2]],
+            ...                   columns=[&#39;length&#39;, &#39;width&#39;, &#39;species&#39;])
+            &gt;&gt;&gt; ax1 = df.plot.scatter(x=&#39;length&#39;,
+            ...                       y=&#39;width&#39;,
+            ...                       c=&#39;DarkBlue&#39;)
+
+        And now with the color determined by a column as well.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; ax2 = df.plot.scatter(x=&#39;length&#39;,
+            ...                       y=&#39;width&#39;,
+            ...                       c=&#39;species&#39;,
+            ...                       colormap=&#39;viridis&#39;)
+        &quot;&quot;&quot;
+        return self(kind=&quot;scatter&quot;, x=x, y=y, s=s, c=c, **kwargs)
+
+    def hexbin(
+        self,
+        x: Hashable,
+        y: Hashable,
+        C: Hashable | None = None,
+        reduce_C_function: Callable | None = None,
+        gridsize: int | tuple[int, int] | None = None,
+        **kwargs,
+    ) -&gt; PlotAccessor:
+        &quot;&quot;&quot;
+        Generate a hexagonal binning plot.
+
+        Generate a hexagonal binning plot of `x` versus `y`. If `C` is `None`
+        (the default), this is a histogram of the number of occurrences
+        of the observations at ``(x[i], y[i])``.
+
+        If `C` is specified, specifies values at given coordinates
+        ``(x[i], y[i])``. These values are accumulated for each hexagonal
+        bin and then reduced according to `reduce_C_function`,
+        having as default the NumPy&#39;s mean function (:meth:`numpy.mean`).
+        (If `C` is specified, it must also be a 1-D sequence
+        of the same length as `x` and `y`, or a column label.)
+
+        Parameters
+        ----------
+        x : int or str
+            The column label or position for x points.
+        y : int or str
+            The column label or position for y points.
+        C : int or str, optional
+            The column label or position for the value of `(x, y)` point.
+        reduce_C_function : callable, default `np.mean`
+            Function of one argument that reduces all the values in a bin to
+            a single number (e.g. `np.mean`, `np.max`, `np.sum`, `np.std`).
+        gridsize : int or tuple of (int, int), default 100
+            The number of hexagons in the x-direction.
+            The corresponding number of hexagons in the y-direction is
+            chosen in a way that the hexagons are approximately regular.
+            Alternatively, gridsize can be a tuple with two elements
+            specifying the number of hexagons in the x-direction and the
+            y-direction.
+        **kwargs
+            Additional keyword arguments are documented in
+            :meth:`DataFrame.plot`.
+
+        Returns
+        -------
+        matplotlib.AxesSubplot
+            The matplotlib ``Axes`` on which the hexbin is plotted.
+
+        See Also
+        --------
+        DataFrame.plot : Make plots of a DataFrame.
+        matplotlib.pyplot.hexbin : Hexagonal binning plot using matplotlib,
+            the matplotlib function that is used under the hood.
+
+        Examples
+        --------
+        The following examples are generated with random data from
+        a normal distribution.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; n = 10000
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;x&#39;: np.random.randn(n),
+            ...                    &#39;y&#39;: np.random.randn(n)})
+            &gt;&gt;&gt; ax = df.plot.hexbin(x=&#39;x&#39;, y=&#39;y&#39;, gridsize=20)
+
+        The next example uses `C` and `np.sum` as `reduce_C_function`.
+        Note that `&#39;observations&#39;` values ranges from 1 to 5 but the result
+        plot shows values up to more than 25. This is because of the
+        `reduce_C_function`.
+
+        .. plot::
+            :context: close-figs
+
+            &gt;&gt;&gt; n = 500
+            &gt;&gt;&gt; df = pd.DataFrame({
+            ...     &#39;coord_x&#39;: np.random.uniform(-3, 3, size=n),
+            ...     &#39;coord_y&#39;: np.random.uniform(30, 50, size=n),
+            ...     &#39;observations&#39;: np.random.randint(1,5, size=n)
+            ...     })
+            &gt;&gt;&gt; ax = df.plot.hexbin(x=&#39;coord_x&#39;,
+            ...                     y=&#39;coord_y&#39;,
+            ...                     C=&#39;observations&#39;,
+            ...                     reduce_C_function=np.sum,
+            ...                     gridsize=10,
+            ...                     cmap=&quot;viridis&quot;)
+        &quot;&quot;&quot;
+        if reduce_C_function is not None:
+            kwargs[&quot;reduce_C_function&quot;] = reduce_C_function
+        if gridsize is not None:
+            kwargs[&quot;gridsize&quot;] = gridsize
+
+        return self(kind=&quot;hexbin&quot;, x=x, y=y, C=C, **kwargs)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">decorate_dice</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Labels the axes.</span>
+<span class="sd">    </span>
+<span class="sd">    title: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Outcome&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;CDF&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">decorate_dice</span><span class="p">(</span><span class="s1">&#39;One die&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/902042f123cbcff5a599a52e4ad12cce681771ae6912f57edee3979b8aa4a3a1.png" src="_images/902042f123cbcff5a599a52e4ad12cce681771ae6912f57edee3979b8aa4a3a1.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> also provides <code class="docutils literal notranslate"><span class="pre">step</span></code>, which plots the Cdf as a step function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def step(self, **options):
+        &quot;&quot;&quot;Plot the Cdf as a step function.
+
+        Args:
+        options: passed to pd.Series.plot
+        &quot;&quot;&quot;
+        underride(options, drawstyle=&quot;steps-post&quot;)
+        self.plot(**options)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">decorate_dice</span><span class="p">(</span><span class="s1">&#39;One die&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/5a20d538f758dfaea11d40426b8c9855171a8bc9c61e9573c04348bc5f300e42.png" src="_images/5a20d538f758dfaea11d40426b8c9855171a8bc9c61e9573c04348bc5f300e42.png" />
+</div>
+</div>
+</section>
+<section id="make-cdf-from-sequence">
+<h2>Make Cdf from sequence<a class="headerlink" href="#make-cdf-from-sequence" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/14">this issue</a>.</p>
+<p>The following function makes a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> object from a sequence of values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    @staticmethod
+    def from_seq(seq, normalize=True, sort=True, **options):
+        &quot;&quot;&quot;Make a CDF from a sequence of values.
+
+        Args:
+        seq: iterable
+        normalize: whether to normalize the Cdf, default True
+        sort: whether to sort the Cdf by values, default True
+        options: passed to the pd.Series constructor
+
+        Returns: CDF object
+        &quot;&quot;&quot;
+        # if normalize==True, normalize AFTER making the Cdf
+        # so the last element is exactly 1.0
+        pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
+        return pmf.make_cdf(normalize=normalize)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="s1">&#39;allen&#39;</span><span class="p">))</span>
+<span class="n">cdf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>a</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>e</th>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>l</th>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]))</span>
+<span class="n">cdf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="selection">
+<h2>Selection<a class="headerlink" href="#selection" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/15">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> inherits [] from Series, so you can look up a quantile and get its cumulative probability.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.25
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> objects are mutable, but in general the result is not a valid Cdf.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.25</span>
+<span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+<span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="evaluating-cdfs">
+<h2>Evaluating CDFs<a class="headerlink" href="#evaluating-cdfs" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/16">this issue</a>.</p>
+<p>Evaluating a <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> forward maps from a quantity to its cumulative probability.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(0.5)
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> interpolates, so it works for quantities that are not in the distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mf">3.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(0.5)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(0.)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(1.)
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">__call__</span></code> is a synonym for <code class="docutils literal notranslate"><span class="pre">forward</span></code>, so you can call the <code class="docutils literal notranslate"><span class="pre">Cdf</span></code> like a function (which it is).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(0.16666667)
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> can take an array of quantities, too.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">decorate_cdf</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Labels the axes.</span>
+<span class="sd">    </span>
+<span class="sd">    title: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Quantity&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;CDF&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">d6</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+<span class="n">decorate_cdf</span><span class="p">(</span><span class="s1">&#39;Forward evaluation&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/6e53db21789ec80f502bfe3ebd029f21c23d16b1c4107b84444aa261f76567e6.png" src="_images/6e53db21789ec80f502bfe3ebd029f21c23d16b1c4107b84444aa261f76567e6.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> also provides <code class="docutils literal notranslate"><span class="pre">inverse</span></code>, which computes the inverse <code class="docutils literal notranslate"><span class="pre">Cdf</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(3.)
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">quantile</span></code> is a synonym for <code class="docutils literal notranslate"><span class="pre">inverse</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array(3.)
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">inverse</span></code> and <code class="docutils literal notranslate"><span class="pre">quantile</span></code> work with arrays</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">qs</span> <span class="o">=</span> <span class="n">d6</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+<span class="n">decorate_cdf</span><span class="p">(</span><span class="s1">&#39;Inverse evaluation&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/126ff61c8d1b9e98b52ba75b379fbef43201f89ac9129ea7c3244f305c19c1fa.png" src="_images/126ff61c8d1b9e98b52ba75b379fbef43201f89ac9129ea7c3244f305c19c1fa.png" />
+</div>
+</div>
+<p>These functions provide a simple way to make a Q-Q plot.</p>
+<p>Here are two samples from the same distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf1</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+<span class="n">cdf2</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+
+<span class="n">cdf1</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">cdf2</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">decorate_cdf</span><span class="p">(</span><span class="s1">&#39;Two random samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/a0bb2b12aa1b6143e71a1471256ac50df202051acde807acf4c81c95a74d0d9f.png" src="_images/a0bb2b12aa1b6143e71a1471256ac50df202051acde807acf4c81c95a74d0d9f.png" />
+</div>
+</div>
+<p>Here’s how we compute the Q-Q plot.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">qq_plot</span><span class="p">(</span><span class="n">cdf1</span><span class="p">,</span> <span class="n">cdf2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute results for a Q-Q plot.</span>
+<span class="sd">    </span>
+<span class="sd">    Evaluates the inverse Cdfs for a </span>
+<span class="sd">    range of cumulative probabilities.</span>
+<span class="sd">    </span>
+<span class="sd">    cdf1: Cdf</span>
+<span class="sd">    cdf2: Cdf</span>
+<span class="sd">    </span>
+<span class="sd">    Returns: tuple of arrays</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">q1</span> <span class="o">=</span> <span class="n">cdf1</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+    <span class="n">q2</span> <span class="o">=</span> <span class="n">cdf2</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The result is near the identity line, which suggests that the samples are from the same distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span> <span class="o">=</span> <span class="n">qq_plot</span><span class="p">(</span><span class="n">cdf1</span><span class="p">,</span> <span class="n">cdf2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Quantity 1&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Quantity 2&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Q-Q plot&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/da9e3907c14919495fadff61045818e69e8c09f48ff04ccd9ade38a92092bb7e.png" src="_images/da9e3907c14919495fadff61045818e69e8c09f48ff04ccd9ade38a92092bb7e.png" />
+</div>
+</div>
+<p>Here’s how we compute a P-P plot</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pp_plot</span><span class="p">(</span><span class="n">cdf1</span><span class="p">,</span> <span class="n">cdf2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute results for a P-P plot.</span>
+<span class="sd">    </span>
+<span class="sd">    Evaluates the Cdfs for all quantities in either Cdf.</span>
+<span class="sd">    </span>
+<span class="sd">    cdf1: Cdf</span>
+<span class="sd">    cdf2: Cdf</span>
+<span class="sd">    </span>
+<span class="sd">    Returns: tuple of arrays</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">cdf1</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">cdf2</span><span class="p">)</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">cdf1</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">cdf2</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>And here’s what it looks like.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">pp_plot</span><span class="p">(</span><span class="n">cdf1</span><span class="p">,</span> <span class="n">cdf2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Cdf 1&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cdf 2&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;P-P plot&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/894463a81ec65800d2a5f2d9cddcbd111bbfb386e244e609035eb7e908d78938.png" src="_images/894463a81ec65800d2a5f2d9cddcbd111bbfb386e244e609035eb7e908d78938.png" />
+</div>
+</div>
+</section>
+<section id="statistics">
+<h2>Statistics<a class="headerlink" href="#statistics" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/17">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> overrides the statistics methods to compute <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">median</span></code>, etc.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def mean(self):
+        &quot;&quot;&quot;Expected value.
+
+        Returns: float
+        &quot;&quot;&quot;
+        return self.make_pmf().mean()
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>3.5
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def var(self):
+        &quot;&quot;&quot;Variance.
+
+        Returns: float
+        &quot;&quot;&quot;
+        return self.make_pmf().var()
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.916666666666667
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">std</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def std(self):
+        &quot;&quot;&quot;Standard deviation.
+
+        Returns: float
+        &quot;&quot;&quot;
+        return self.make_pmf().std()
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.7078251276599332
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sampling">
+<h2>Sampling<a class="headerlink" href="#sampling" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/18">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">choice</span></code> chooses a random values from the Cdf, following the API of <code class="docutils literal notranslate"><span class="pre">np.random.choice</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">choice</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def choice(self, *args, **kwargs):
+        &quot;&quot;&quot;Makes a random sample.
+
+        Uses the probabilities as weights unless `p` is provided.
+
+        Args:
+        args: same as np.random.choice
+        options: same as np.random.choice
+
+        Returns: NumPy array
+        &quot;&quot;&quot;
+        pmf = self.make_pmf()
+        return pmf.choice(*args, **kwargs)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([6, 4, 4, 2, 5, 1, 5, 2, 6, 2])
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">sample</span></code> chooses a random values from the <code class="docutils literal notranslate"><span class="pre">Cdf</span></code>, following the API of <code class="docutils literal notranslate"><span class="pre">pd.Series.sample</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">sample</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def sample(self, n=1):
+        &quot;&quot;&quot;Samples with replacement using probabilities as weights.
+
+        Args:
+        n: number of values
+
+        Returns: NumPy array
+        &quot;&quot;&quot;
+        ps = np.random.random(n)
+        return self.inverse(ps)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([5., 3., 4., 5., 4., 6., 5., 3., 2., 5.])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="arithmetic">
+<h2>Arithmetic<a class="headerlink" href="#arithmetic" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/9">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Cdf</span></code> provides <code class="docutils literal notranslate"><span class="pre">add_dist</span></code>, which computes the distribution of the sum.</p>
+<p>The implementation uses outer products to compute the convolution of the two distributions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">add_dist</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def add_dist(self, x):
+        &quot;&quot;&quot;Distribution of the sum of values drawn from self and x.
+
+        Args:
+        x: Distribution, scalar, or sequence
+
+        Returns: new Distribution, same subtype as self
+        &quot;&quot;&quot;
+        pmf = self.make_pmf()
+        res = pmf.add_dist(x)
+        return self.make_same(res)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Cdf</span><span class="o">.</span><span class="n">make_same</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def make_same(self, dist):
+        &quot;&quot;&quot;Convert the given dist to Cdf.
+
+        Args:
+        dist: Distribution
+
+        Returns: Cdf
+        &quot;&quot;&quot;
+        return dist.make_cdf()
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here’s the distribution of the sum of two dice.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+
+<span class="n">twice</span> <span class="o">=</span> <span class="n">d6</span><span class="o">.</span><span class="n">add_dist</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+<span class="n">twice</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.027778</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.083333</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.277778</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.416667</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.583333</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.722222</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.833333</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.916667</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.972222</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">twice</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">decorate_dice</span><span class="p">(</span><span class="s1">&#39;Two dice&#39;</span><span class="p">)</span>
+<span class="n">twice</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>7.000000000000002
+</pre></div>
+</div>
+<img alt="_images/28c902a2cf38d44db4418e839155f6f75270bb183eb51f90c92347bc7e95c569.png" src="_images/28c902a2cf38d44db4418e839155f6f75270bb183eb51f90c92347bc7e95c569.png" />
+</div>
+</div>
+<p>To add a constant to a distribution, you could construct a deterministic <code class="docutils literal notranslate"><span class="pre">Pmf</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">d6</span><span class="o">.</span><span class="n">add_dist</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.333333</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.500000</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.666667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.833333</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>But <code class="docutils literal notranslate"><span class="pre">add_dist</span></code> also handles constants as a special case:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">add_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.333333</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.500000</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.666667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.833333</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Other arithmetic operations are also implemented</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">d6</span><span class="o">.</span><span class="n">sub_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>-2</th>
+      <td>0.125000</td>
+    </tr>
+    <tr>
+      <th>-1</th>
+      <td>0.250000</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>0.416667</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.583333</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.750000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.875000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.958333</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">mul_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.1875</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.3125</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.5000</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.6250</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.7500</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.8125</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.9375</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>1.0000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">div_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.250000</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>0.333333</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>0.500000</th>
+      <td>0.2500</td>
+    </tr>
+    <tr>
+      <th>0.666667</th>
+      <td>0.3125</td>
+    </tr>
+    <tr>
+      <th>0.750000</th>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <th>1.000000</th>
+      <td>0.6250</td>
+    </tr>
+    <tr>
+      <th>1.333333</th>
+      <td>0.6875</td>
+    </tr>
+    <tr>
+      <th>1.500000</th>
+      <td>0.7500</td>
+    </tr>
+    <tr>
+      <th>2.000000</th>
+      <td>0.8750</td>
+    </tr>
+    <tr>
+      <th>3.000000</th>
+      <td>0.9375</td>
+    </tr>
+    <tr>
+      <th>4.000000</th>
+      <td>1.0000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<section id="comparison-operators">
+<h3>Comparison operators<a class="headerlink" href="#comparison-operators" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> implements comparison operators that return probabilities.</p>
+<p>You can compare a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> to a scalar:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">lt_dist</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.3333333333333333
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ge_dist</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.75
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or compare <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.25
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">le_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.41666666666666663
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">eq_dist</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.16666666666666666
+</pre></div>
+</div>
+</div>
+</div>
+<p>Interestingly, this way of comparing distributions is <a class="reference internal" href="#"><span class="xref myst">nontransitive</span></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">Cdf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5555555555555556
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">B</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5555555555555556
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5555555555555556
+</pre></div>
+</div>
+</div>
+</div>
+<p>Copyright 2019 Allen Downey</p>
+<p>BSD 3-clause license: <a class="reference external" href="https://opensource.org/licenses/BSD-3-Clause">https://opensource.org/licenses/BSD-3-Clause</a></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constructor">Constructor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#properties">Properties</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sharing">Sharing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying-cdfs">Displaying CDFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-cdf-from-sequence">Make Cdf from sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selection">Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-cdfs">Evaluating CDFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#statistics">Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arithmetic">Arithmetic</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-operators">Comparison operators</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Allen B. Downey
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

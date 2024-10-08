@@ -1,0 +1,3129 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Implementing PMFs &#8212; empiricaldist</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pmf_demo';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">empiricaldist</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    empiricaldist
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dist_demo.html">The empiricaldist API</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/AllenDowney/empiricaldist/tree/master" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/pmf_demo.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Implementing PMFs</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constructor">Constructor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sharing">Sharing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying-pmfs">Displaying PMFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-pmf-from-sequence">Make Pmf from sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selection">Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#statistics">Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arithmetic">Arithmetic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-operators">Comparison operators</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#joint-distributions">Joint distributions</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="implementing-pmfs">
+<h1>Implementing PMFs<a class="headerlink" href="#implementing-pmfs" title="Link to this heading">#</a></h1>
+<p>This notebook outlines the API for <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects in the <code class="docutils literal notranslate"><span class="pre">empiricaldist</span></code> library, showing the implementations of many methods.</p>
+<p><a class="reference external" href="https://colab.research.google.com/github/AllenDowney/empiricaldist/blob/master/empiricaldist/pmf_demo.ipynb">Click here to run this notebook on Colab</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">empiricaldist</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>empiricaldist
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="k">def</span> <span class="nf">psource</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prints the source code for a given object.</span>
+
+<span class="sd">    obj: function or method object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="constructor">
+<h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/1">this issue</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> class inherits its constructor from <code class="docutils literal notranslate"><span class="pre">pd.Series</span></code>.</p>
+<p>You can create an empty <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> and then add elements.</p>
+<p>Here’s a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> that represents a six-sided die.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">empiricaldist</span> <span class="kn">import</span> <span class="n">Pmf</span>
+
+<span class="n">d6</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]:</span>
+    <span class="n">d6</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Initially the probabilities don’t add up to 1.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">normalize</span></code> adds up the probabilities and divides through.  The return value is the total probability before normalizing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def normalize(self):
+        &quot;&quot;&quot;Make the probabilities add up to 1 (modifies self).
+
+        Returns: normalizing constant
+        &quot;&quot;&quot;
+        total = self.sum()
+        self /= total
+        return total
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>6
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now the Pmf is normalized.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>###Properties</p>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/2">this issue</a>.</p>
+<p>In a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> the index contains the quantities (<code class="docutils literal notranslate"><span class="pre">qs</span></code>) and the values contain the probabilities (<code class="docutils literal notranslate"><span class="pre">ps</span></code>).</p>
+<p>These attributes are available as properties that return arrays (same semantics as the Pandas <code class="docutils literal notranslate"><span class="pre">values</span></code> property)</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">qs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([1, 2, 3, 4, 5, 6])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.16666667, 0.16666667, 0.16666667, 0.16666667, 0.16666667,
+       0.16666667])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sharing">
+<h2>Sharing<a class="headerlink" href="#sharing" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/3">this issue</a>.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> is a <code class="docutils literal notranslate"><span class="pre">Series</span></code> you can initialize it with any type <code class="docutils literal notranslate"><span class="pre">Series.__init__</span></code> can handle.</p>
+<p>Here’s an example with a dictionary.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="n">pmf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>a</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>b</th>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>c</th>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Here’s an example with two lists.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">]</span>
+<span class="n">d4</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span>
+<span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>You can copy a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> like this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6_copy</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+<span class="n">d6_copy</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>However, you have to be careful about sharing.  In this example, the copies share the arrays:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="n">d6_copy</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">ps</span> <span class="ow">is</span> <span class="n">d6_copy</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can avoid sharing with <code class="docutils literal notranslate"><span class="pre">copy=True</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6_copy</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">d6</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">d6_copy</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="n">d6_copy</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">ps</span> <span class="ow">is</span> <span class="n">d6_copy</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or by calling <code class="docutils literal notranslate"><span class="pre">copy</span></code> explicitly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4_copy</span> <span class="o">=</span> <span class="n">d4</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">d4_copy</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ps</span> <span class="ow">is</span> <span class="n">d4_copy</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="displaying-pmfs">
+<h2>Displaying PMFs<a class="headerlink" href="#displaying-pmfs" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/4">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> provides <code class="docutils literal notranslate"><span class="pre">_repr_html_</span></code>, so it looks good when displayed in a notebook.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">_repr_html_</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def _repr_html_(self):
+        &quot;&quot;&quot;Returns an HTML representation of the series.
+
+        Mostly used for Jupyter notebooks.
+        &quot;&quot;&quot;
+        df = pd.DataFrame(dict(probs=self))
+        return df._repr_html_()
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> provides <code class="docutils literal notranslate"><span class="pre">bar</span></code>, which plots the Pmf as a bar chart.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">bar</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def bar(self, **options):
+        &quot;&quot;&quot;Make a bar plot.
+
+        Note: A previous version of this function used pd.Series.plot.bar,
+        but that was a mistake, because that function treats the quantities
+        as categorical, even if they are numerical, leading to hilariously
+        unexpected results!
+
+        Args:
+        options: passed to plt.bar
+        &quot;&quot;&quot;
+        underride(options, label=self.name)
+        plt.bar(self.qs, self.ps, **options)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">decorate_dice</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Labels the axes.</span>
+<span class="sd">    </span>
+<span class="sd">    title: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Outcome&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;PMF&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>
+<span class="n">decorate_dice</span><span class="p">(</span><span class="s1">&#39;One die&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/f79acfe2788a50bf93cc7ccfd04ab7c91a7439b34e8a2e77939f93f18a2f52f8.png" src="_images/f79acfe2788a50bf93cc7ccfd04ab7c91a7439b34e8a2e77939f93f18a2f52f8.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> inherits <code class="docutils literal notranslate"><span class="pre">plot</span></code> from <code class="docutils literal notranslate"><span class="pre">Series</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">decorate_dice</span><span class="p">(</span><span class="s1">&#39;One die&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/861fe5d417414f70d2c8cb6fb2cc6838a4bff8f0eb0c0e787717852edccbc519.png" src="_images/861fe5d417414f70d2c8cb6fb2cc6838a4bff8f0eb0c0e787717852edccbc519.png" />
+</div>
+</div>
+</section>
+<section id="make-pmf-from-sequence">
+<h2>Make Pmf from sequence<a class="headerlink" href="#make-pmf-from-sequence" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/5">this issue</a>.</p>
+<p>The following function makes a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object from a sequence of values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    @staticmethod
+    def from_seq(
+        seq,
+        normalize=True,
+        sort=True,
+        ascending=True,
+        dropna=True,
+        na_position=&quot;last&quot;,
+        **options,
+    ):
+        &quot;&quot;&quot;Make a PMF from a sequence of values.
+
+        Args:
+        seq: iterable
+        normalize: whether to normalize the Pmf, default True
+        sort: whether to sort the Pmf by values, default True
+        ascending: whether to sort in ascending order, default True
+        dropna: whether to drop NaN values, default True
+        na_position: If ‘first’ puts NaNs at the beginning,
+                        ‘last’ puts NaNs at the end.
+        options: passed to the pd.Series constructor
+
+        Returns: Pmf object
+        &quot;&quot;&quot;
+        # compute the value counts
+        series = pd.Series(seq).value_counts(
+            normalize=normalize, sort=False, dropna=dropna
+        )
+        # make the result a Pmf
+        # (since we just made a fresh Series, there is no reason to copy it)
+        options[&quot;copy&quot;] = False
+        underride(options, name=&quot;&quot;)
+        pmf = Pmf(series, **options)
+
+        # sort in place, if desired
+        if sort:
+            pmf.sort_index(
+                inplace=True, ascending=ascending, na_position=na_position
+            )
+
+        return pmf
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="s1">&#39;allen&#39;</span><span class="p">))</span>
+<span class="n">pmf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>a</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>e</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>l</th>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]))</span>
+<span class="n">pmf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="selection">
+<h2>Selection<a class="headerlink" href="#selection" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/6">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> overrides <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> to return 0 for values that are not in the distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def __getitem__(self, key):
+        check_dict_or_set_indexers(key)
+        key = com.apply_if_callable(key, self)
+
+        if key is Ellipsis:
+            return self
+
+        key_is_scalar = is_scalar(key)
+        if isinstance(key, (list, tuple)):
+            key = unpack_1tuple(key)
+
+        if is_integer(key) and self.index._should_fallback_to_positional:
+            warnings.warn(
+                # GH#50617
+                &quot;Series.__getitem__ treating keys as positions is deprecated. &quot;
+                &quot;In a future version, integer keys will always be treated &quot;
+                &quot;as labels (consistent with DataFrame behavior). To access &quot;
+                &quot;a value by position, use `ser.iloc[pos]`&quot;,
+                FutureWarning,
+                stacklevel=find_stack_level(),
+            )
+            return self._values[key]
+
+        elif key_is_scalar:
+            return self._get_value(key)
+
+        # Convert generator to list before going through hashable part
+        # (We will iterate through the generator there to check for slices)
+        if is_iterator(key):
+            key = list(key)
+
+        if is_hashable(key) and not isinstance(key, slice):
+            # Otherwise index.get_value will raise InvalidIndexError
+            try:
+                # For labels that don&#39;t resolve as scalars like tuples and frozensets
+                result = self._get_value(key)
+
+                return result
+
+            except (KeyError, TypeError, InvalidIndexError):
+                # InvalidIndexError for e.g. generator
+                #  see test_series_getitem_corner_generator
+                if isinstance(key, tuple) and isinstance(self.index, MultiIndex):
+                    # We still have the corner case where a tuple is a key
+                    # in the first level of our MultiIndex
+                    return self._get_values_tuple(key)
+
+        if isinstance(key, slice):
+            # Do slice check before somewhat-costly is_bool_indexer
+            return self._getitem_slice(key)
+
+        if com.is_bool_indexer(key):
+            key = check_bool_indexer(self.index, key)
+            key = np.asarray(key, dtype=bool)
+            return self._get_rows_with_mask(key)
+
+        return self._get_with(key)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.16666666666666666
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.16666666666666666
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you use square brackets to look up a quantity that’s not in the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, you get a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># d6[7]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects are mutable, but in general the result is not normalized.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d7</span> <span class="o">=</span> <span class="n">d6</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d7</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">6</span>
+<span class="n">d7</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d7</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.1666666666666665
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d7</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.1666666666666665
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d7</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0000000000000002
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="statistics">
+<h2>Statistics<a class="headerlink" href="#statistics" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/7">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> overrides the statistics methods to compute <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">median</span></code>, etc.</p>
+<p>These functions only work correctly if the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> is normalized.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def mean(self):
+        &quot;&quot;&quot;Computes expected value.
+
+        Returns: float
+        &quot;&quot;&quot;
+        if not np.allclose(1, self.sum()):
+            raise ValueError(&quot;Pmf must be normalized before computing mean&quot;)
+
+        if not pd.api.types.is_numeric_dtype(self.dtype):
+            raise ValueError(&quot;mean is only defined for numeric data&quot;)
+
+        return np.sum(self.ps * self.qs)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>3.5
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def var(self):
+        &quot;&quot;&quot;Variance of a PMF.
+
+        Returns: float
+        &quot;&quot;&quot;
+        m = self.mean()
+        d = self.qs - m
+        return np.sum(d**2 * self.ps)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.9166666666666665
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">std</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def std(self):
+        &quot;&quot;&quot;Standard deviation of a PMF.
+
+        Returns: float
+        &quot;&quot;&quot;
+        return np.sqrt(self.var())
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.707825127659933
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sampling">
+<h2>Sampling<a class="headerlink" href="#sampling" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/8">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">choice</span></code> chooses a random values from the Pmf, following the API of <code class="docutils literal notranslate"><span class="pre">np.random.choice</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">choice</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def choice(self, *args, **kwargs):
+        &quot;&quot;&quot;Makes a random sample.
+
+        Uses the probabilities as weights unless `p` is provided.
+
+        Args:
+        args: same as np.random.choice
+        kwargs: same as np.random.choice
+
+        Returns: NumPy array
+        &quot;&quot;&quot;
+        underride(kwargs, p=self.ps)
+        return np.random.choice(self.qs, *args, **kwargs)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([3, 3, 5, 6, 1, 5, 3, 6, 6, 1])
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">sample</span></code> chooses a random values from the <code class="docutils literal notranslate"><span class="pre">Pmf</span></code>, following the API of <code class="docutils literal notranslate"><span class="pre">pd.Series.sample</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">sample</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def sample(self, *args, **kwargs):
+        &quot;&quot;&quot;Samples with replacement using probabilities as weights.
+
+        Uses the inverse CDF.
+
+        Args:
+        n: number of values
+
+        Returns: NumPy array
+        &quot;&quot;&quot;
+        cdf = self.make_cdf()
+        return cdf.sample(*args, **kwargs)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([3., 3., 5., 1., 1., 1., 3., 5., 3., 6.])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="arithmetic">
+<h2>Arithmetic<a class="headerlink" href="#arithmetic" title="Link to this heading">#</a></h2>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/9">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> provides <code class="docutils literal notranslate"><span class="pre">add_dist</span></code>, which computes the distribution of the sum.</p>
+<p>The implementation uses outer products to compute the convolution of the two distributions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">add_dist</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def add_dist(self, x):
+        &quot;&quot;&quot;Computes the Pmf of the sum of values drawn from self and x.
+
+        Args:
+        x: Distribution, scalar, or sequence
+
+        Returns: new Pmf
+        &quot;&quot;&quot;
+        if isinstance(x, Distribution):
+            return self.convolve_dist(x, np.add.outer)
+        else:
+            return Pmf(self.ps.copy(), index=self.qs + x)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">convolve_dist</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def convolve_dist(self, dist, ufunc):
+        &quot;&quot;&quot;Convolve two distributions.
+
+        Args:
+        dist: Distribution
+        ufunc: elementwise function for arrays
+
+        Returns: new Pmf
+        &quot;&quot;&quot;
+        dist = dist.make_pmf()
+        qs = ufunc(self.qs, dist.qs).flatten()
+        ps = np.multiply.outer(self.ps, dist.ps).flatten()
+        series = pd.Series(ps).groupby(qs).sum()
+
+        return Pmf(series)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here’s the distribution of the sum of two dice.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+
+<span class="n">twice</span> <span class="o">=</span> <span class="n">d6</span><span class="o">.</span><span class="n">add_dist</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+<span class="n">twice</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.027778</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.055556</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.083333</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.111111</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.138889</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.138889</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.111111</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.083333</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.055556</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.027778</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">twice</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>
+<span class="n">decorate_dice</span><span class="p">(</span><span class="s1">&#39;Two dice&#39;</span><span class="p">)</span>
+<span class="n">twice</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>6.999999999999998
+</pre></div>
+</div>
+<img alt="_images/3e2c5d4ffcbb6f31565d32f4a2647ae9d21333d42f5567fa9b343a6f98bc6a7e.png" src="_images/3e2c5d4ffcbb6f31565d32f4a2647ae9d21333d42f5567fa9b343a6f98bc6a7e.png" />
+</div>
+</div>
+<p>To add a constant to a distribution, you could construct a deterministic <code class="docutils literal notranslate"><span class="pre">Pmf</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">d4</span><span class="o">.</span><span class="n">add_dist</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>But <code class="docutils literal notranslate"><span class="pre">add_dist</span></code> also handles constants as a special case:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">add_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Other arithmetic operations are also implemented</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">sub_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>-2</th>
+      <td>0.083333</td>
+    </tr>
+    <tr>
+      <th>-1</th>
+      <td>0.125000</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.125000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.083333</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.041667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">mul_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.1875</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>0.0625</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">div_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.250000</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>0.333333</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>0.500000</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>0.666667</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>0.750000</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>1.000000</th>
+      <td>0.2500</td>
+    </tr>
+    <tr>
+      <th>1.333333</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>1.500000</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>2.000000</th>
+      <td>0.1250</td>
+    </tr>
+    <tr>
+      <th>3.000000</th>
+      <td>0.0625</td>
+    </tr>
+    <tr>
+      <th>4.000000</th>
+      <td>0.0625</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="comparison-operators">
+<h2>Comparison operators<a class="headerlink" href="#comparison-operators" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf</span></code> implements comparison operators that return probabilities.</p>
+<p>You can compare a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> to a scalar:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">lt_dist</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.3333333333333333
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">ge_dist</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.75
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or compare <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.25
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span><span class="o">.</span><span class="n">le_dist</span><span class="p">(</span><span class="n">d4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.41666666666666663
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span><span class="o">.</span><span class="n">eq_dist</span><span class="p">(</span><span class="n">d6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.16666666666666666
+</pre></div>
+</div>
+</div>
+</div>
+<p>Interestingly, this way of comparing distributions is <a class="reference internal" href="#"><span class="xref myst">nontransitive</span></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5555555555555556
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">B</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5555555555555556
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="o">.</span><span class="n">gt_dist</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5555555555555556
+</pre></div>
+</div>
+</div>
+</div>
+<section id="joint-distributions">
+<h3>Joint distributions<a class="headerlink" href="#joint-distributions" title="Link to this heading">#</a></h3>
+<p>For comments or questions about this section, see <a class="reference external" href="https://github.com/AllenDowney/EmpyricalDistributions/issues/10">this issue</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pmf.make_joint</span></code> takes two <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> objects and makes their joint distribution, assuming independence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">make_joint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def make_joint(self, other, **options):
+        &quot;&quot;&quot;Make joint distribution (assuming independence).
+
+        Args:
+        other: Pmf
+        options: passed to Pmf constructor
+
+        Returns: new Pmf
+        &quot;&quot;&quot;
+        qs = pd.MultiIndex.from_product([self.qs, other.qs])
+        ps = np.multiply.outer(self.ps, other.ps).flatten()
+        return Pmf(ps, index=qs, **options)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d4</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">d4</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d6</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">d6</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">make_joint</span><span class="p">(</span><span class="n">d4</span><span class="p">,</span> <span class="n">d6</span><span class="p">)</span>
+<span class="n">joint</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="6" valign="top">1</th>
+      <th>1</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th rowspan="6" valign="top">2</th>
+      <th>1</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th rowspan="6" valign="top">3</th>
+      <th>1</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th rowspan="6" valign="top">4</th>
+      <th>1</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.041667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The result is a <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> object that uses a MultiIndex to represent the values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>MultiIndex([(1, 1),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5),
+            (1, 6),
+            (2, 1),
+            (2, 2),
+            (2, 3),
+            (2, 4),
+            (2, 5),
+            (2, 6),
+            (3, 1),
+            (3, 2),
+            (3, 3),
+            (3, 4),
+            (3, 5),
+            (3, 6),
+            (4, 1),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+            (4, 5),
+            (4, 6)],
+           )
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you ask for the <code class="docutils literal notranslate"><span class="pre">qs</span></code>, you get an array of pairs:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="o">.</span><span class="n">qs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (2, 1), (2, 2),
+       (2, 3), (2, 4), (2, 5), (2, 6), (3, 1), (3, 2), (3, 3), (3, 4),
+       (3, 5), (3, 6), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6)],
+      dtype=object)
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can select elements using tuples:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.041666666666666664
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can get unnnormalized conditional distributions by selecting on different axes:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Pmf</span><span class="p">(</span><span class="n">joint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.041667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Pmf</span><span class="p">(</span><span class="n">joint</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.041667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>But <code class="docutils literal notranslate"><span class="pre">Pmf</span></code> also provides <code class="docutils literal notranslate"><span class="pre">conditional(i,</span> <span class="pre">val)</span></code> which returns the conditional distribution where the value on level <code class="docutils literal notranslate"><span class="pre">i</span></code> is <code class="docutils literal notranslate"><span class="pre">val</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">joint</span><span class="o">.</span><span class="n">conditional</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def conditional(self, i, val, name=None):
+        &quot;&quot;&quot;Gets the conditional distribution of the indicated variable.
+
+        Args:
+        i: index of the variable we&#39;re conditioning on
+        val: the value the ith variable has to have
+        name: string
+
+        Returns: Pmf
+        &quot;&quot;&quot;
+        pmf = Pmf(self.xs(key=val, level=i), copy=True, name=name)
+        pmf.normalize()
+        return pmf
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>It also provides <code class="docutils literal notranslate"><span class="pre">marginal(i)</span></code>, which returns the marginal distribution along axis <code class="docutils literal notranslate"><span class="pre">i</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psource</span><span class="p">(</span><span class="n">Pmf</span><span class="o">.</span><span class="n">marginal</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    def marginal(self, i, name=None):
+        &quot;&quot;&quot;Gets the marginal distribution of the indicated variable.
+
+        Args:
+        i: index of the variable we want
+        name: string
+
+        Returns: Pmf
+        &quot;&quot;&quot;
+        # The following is deprecated now
+        # return Pmf(self.sum(level=i))
+
+        # here&#39;s the new version
+        return Pmf(self.groupby(level=i).sum(), name=name)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="o">.</span><span class="n">marginal</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span><span class="o">.</span><span class="n">marginal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>probs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.166667</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Here are some ways of iterating through a joint distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">joint</span><span class="o">.</span><span class="n">qs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(1, 1)
+(1, 2)
+(1, 3)
+(1, 4)
+(1, 5)
+(1, 6)
+(2, 1)
+(2, 2)
+(2, 3)
+(2, 4)
+(2, 5)
+(2, 6)
+(3, 1)
+(3, 2)
+(3, 3)
+(3, 4)
+(3, 5)
+(3, 6)
+(4, 1)
+(4, 2)
+(4, 3)
+(4, 4)
+(4, 5)
+(4, 6)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">joint</span><span class="o">.</span><span class="n">ps</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+0.041666666666666664
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">joint</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(1, 1) 0.041666666666666664
+(1, 2) 0.041666666666666664
+(1, 3) 0.041666666666666664
+(1, 4) 0.041666666666666664
+(1, 5) 0.041666666666666664
+(1, 6) 0.041666666666666664
+(2, 1) 0.041666666666666664
+(2, 2) 0.041666666666666664
+(2, 3) 0.041666666666666664
+(2, 4) 0.041666666666666664
+(2, 5) 0.041666666666666664
+(2, 6) 0.041666666666666664
+(3, 1) 0.041666666666666664
+(3, 2) 0.041666666666666664
+(3, 3) 0.041666666666666664
+(3, 4) 0.041666666666666664
+(3, 5) 0.041666666666666664
+(3, 6) 0.041666666666666664
+(4, 1) 0.041666666666666664
+(4, 2) 0.041666666666666664
+(4, 3) 0.041666666666666664
+(4, 4) 0.041666666666666664
+(4, 5) 0.041666666666666664
+(4, 6) 0.041666666666666664
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">),</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">joint</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1 1 0.041666666666666664
+1 2 0.041666666666666664
+1 3 0.041666666666666664
+1 4 0.041666666666666664
+1 5 0.041666666666666664
+1 6 0.041666666666666664
+2 1 0.041666666666666664
+2 2 0.041666666666666664
+2 3 0.041666666666666664
+2 4 0.041666666666666664
+2 5 0.041666666666666664
+2 6 0.041666666666666664
+3 1 0.041666666666666664
+3 2 0.041666666666666664
+3 3 0.041666666666666664
+3 4 0.041666666666666664
+3 5 0.041666666666666664
+3 6 0.041666666666666664
+4 1 0.041666666666666664
+4 2 0.041666666666666664
+4 3 0.041666666666666664
+4 4 0.041666666666666664
+4 5 0.041666666666666664
+4 6 0.041666666666666664
+</pre></div>
+</div>
+</div>
+</div>
+<p>Copyright 2019 Allen Downey</p>
+<p>BSD 3-clause license: <a class="reference external" href="https://opensource.org/licenses/BSD-3-Clause">https://opensource.org/licenses/BSD-3-Clause</a></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constructor">Constructor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sharing">Sharing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying-pmfs">Displaying PMFs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-pmf-from-sequence">Make Pmf from sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selection">Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#statistics">Statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling">Sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arithmetic">Arithmetic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-operators">Comparison operators</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#joint-distributions">Joint distributions</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Allen B. Downey
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
