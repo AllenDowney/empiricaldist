@@ -6,7 +6,7 @@ It provides methods to convert from one representation to the others, and method
 
 This library is used extensively in [Think Stats](https://greenteapress.com/wp/think-stats-3e/), [Think Bayes](https://greenteapress.com/wp/think-bayes/), [Elements of Data Science](https://greenteapress.com/wp/elements-of-data-science/), and [Think Complexity](https://greenteapress.com/wp/think-complexity-2e/) -- but it is intended to be a stand-alone library for general use, not just for my books.
 
-For an introduction to the API, For an introduction to the API, you can [read this notebook](https://allendowney.github.io/empiricaldist/dist_demo.html) or [run it on Colab](https://colab.research.google.com/github/AllenDowney/empiricaldist/blob/master/empiricaldist/dist_demo.ipynb).
+For an introduction to the API, you can [read this notebook](https://allendowney.github.io/empiricaldist/dist_demo.html) or [run it on Colab](https://colab.research.google.com/github/AllenDowney/empiricaldist/blob/master/empiricaldist/dist_demo.ipynb).
 
 
 ## Installation
