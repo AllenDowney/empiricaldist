@@ -25,17 +25,17 @@ import pandas as pd
 from scipy.interpolate import interp1d
 
 
-def underride(d, **options):
+def underride(d, **kwargs):
     """Add key-value pairs to d only if key is not in d.
 
     Args:
         d (dict): The dictionary to update with new key-value pairs.
-        **options: Additional keyword arguments to add to `d` if absent.
+        **kwargs: Additional keyword arguments to add to `d` if absent.
 
     Returns:
         The modified dictionary `d`.
     """
-    for key, val in options.items():
+    for key, val in kwargs.items():
         d.setdefault(key, val)
 
     return d
@@ -90,7 +90,7 @@ class Distribution(pd.Series):
         s = super().tail(n)
         return self.__class__(s)
 
-    def bar(self, **options):
+    def bar(self, **kwargs):
         """Make a bar plot.
 
         Note: A previous version of this function used pd.Series.plot.bar,
@@ -99,10 +99,10 @@ class Distribution(pd.Series):
         unexpected results!
 
         Args:
-            options: passed to plt.bar
+            kwargs: passed to plt.bar
         """
-        underride(options, label=self.name)
-        plt.bar(self.qs, self.ps, **options)
+        underride(kwargs, label=self.name)
+        plt.bar(self.qs, self.ps, **kwargs)
 
     def transform(self, *args, **kwargs):
         """Override to transform the quantities, not the probabilities.
@@ -738,18 +738,18 @@ class Pmf(Distribution):
         ps = np.multiply.outer(self.ps, dist.ps)
         return qs * ps
 
-    def make_joint(self, other, **options):
+    def make_joint(self, other, **kwargs):
         """Make joint distribution (assuming independence).
 
         Args:
             other: Pmf
-            options: passed to Pmf constructor
+            kwargs: passed to Pmf constructor
 
         Returns: new Pmf
         """
         qs = pd.MultiIndex.from_product([self.qs, other.qs])
         ps = np.multiply.outer(self.ps, other.ps).flatten()
-        return Pmf(ps, index=qs, **options)
+        return Pmf(ps, index=qs, **kwargs)
 
     def marginal(self, i, name=None):
         """Gets the marginal distribution of the indicated variable.
@@ -858,7 +858,7 @@ class Pmf(Distribution):
         ascending=True,
         dropna=True,
         na_position="last",
-        **options,
+        **kwargs,
     ):
         """Make a PMF from a sequence of values.
 
@@ -870,7 +870,7 @@ class Pmf(Distribution):
             dropna: whether to drop NaN values, default True
             na_position: If 'first' puts NaNs at the beginning,
                         'last' puts NaNs at the end.
-        options: passed to the pd.Series constructor
+        kwargs: passed to the pd.Series constructor
 
         Returns: Pmf object
         """
@@ -880,9 +880,9 @@ class Pmf(Distribution):
         )
         # make the result a Pmf
         # (since we just made a fresh Series, there is no reason to copy it)
-        options["copy"] = False
-        underride(options, name="")
-        pmf = Pmf(series, **options)
+        kwargs["copy"] = False
+        underride(kwargs, name="")
+        pmf = Pmf(series, **kwargs)
 
         # sort in place, if desired
         if sort:
@@ -897,17 +897,17 @@ class Hist(Pmf):
     """Represents a Pmf that maps from values to frequencies/counts."""
 
     @staticmethod
-    def from_seq(seq, normalize=False, **options):
+    def from_seq(seq, normalize=False, **kwargs):
         """Make a distribution from a sequence of values.
 
         Args:
             seq: sequence of anything
             normalize: whether to normalize the probabilities
-            options: passed along to Pmf
+            kwargs: passed to Pmf.from_seq
 
         Returns:  Counter object
         """
-        pmf = Pmf.from_seq(seq, normalize=normalize, **options)
+        pmf = Pmf.from_seq(seq, normalize=normalize, **kwargs)
         return Hist(pmf, copy=False)
 
     def _repr_html_(self):
@@ -933,30 +933,30 @@ class Cdf(Distribution):
         return Cdf(self, copy=deep)
 
     @staticmethod
-    def from_seq(seq, normalize=True, sort=True, **options):
+    def from_seq(seq, normalize=True, sort=True, **kwargs):
         """Make a CDF from a sequence of values.
 
         Args:
             seq: iterable
             normalize: whether to normalize the Cdf, default True
             sort: whether to sort the Cdf by values, default True
-            options: passed to the pd.Series constructor
+            kwargs: passed to Pmf.from_seq
 
         Returns: CDF object
         """
         # if normalize==True, normalize AFTER making the Cdf
         # so the last element is exactly 1.0
-        pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **options)
+        pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **kwargs)
         return pmf.make_cdf(normalize=normalize)
 
-    def step(self, **options):
+    def step(self, **kwargs):
         """Plot the Cdf as a step function.
 
         Args:
-            options: passed to pd.Series.plot
+            kwargs: passed to pd.Series.plot
         """
-        underride(options, drawstyle="steps-post")
-        self.plot(**options)
+        underride(kwargs, drawstyle="steps-post")
+        self.plot(**kwargs)
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
@@ -1027,7 +1027,6 @@ class Cdf(Distribution):
         """Make a Pmf from the Cdf.
 
         Args:
-            normalize: Boolean, whether to normalize the Pmf
             kwargs: passed to the Pmf constructor
 
         Returns: Pmf
@@ -1131,28 +1130,28 @@ class Surv(Distribution):
         return Surv(self, copy=deep)
 
     @staticmethod
-    def from_seq(seq, normalize=True, sort=True, **options):
+    def from_seq(seq, normalize=True, sort=True, **kwargs):
         """Make a Surv from a sequence of values.
 
         Args:
             seq: iterable
             normalize: whether to normalize the Surv, default True
             sort: whether to sort the Surv by values, default True
-            options: passed to the pd.Series constructor
+            kwargs: passed to Pmf.from_seq
 
         Returns: Surv object
         """
-        cdf = Cdf.from_seq(seq, normalize=normalize, sort=sort, **options)
+        cdf = Cdf.from_seq(seq, normalize=normalize, sort=sort, **kwargs)
         return cdf.make_surv()
 
-    def step(self, **options):
+    def step(self, **kwargs):
         """Plot the Surv as a step function.
 
         Args:
-            options: passed to pd.Series.plot
+            kwargs: passed to pd.Series.plot
         """
-        underride(options, drawstyle="steps-post")
-        self.plot(**options)
+        underride(kwargs, drawstyle="steps-post")
+        self.plot(**kwargs)
 
     def normalize(self):
         """Normalize the survival function (modifies self).
@@ -1349,8 +1348,6 @@ class Hazard(Distribution):
 
         Args:
             seq: iterable
-            normalize: whether to normalize the Pmf, default True
-            sort: whether to sort the Pmf by values, default True
             kwargs: passed to Pmf.from_seq
 
         Returns: Hazard object
