@@ -298,7 +298,7 @@ class Distribution(pd.Series):
         Returns: NumPy array
         """
         pmf = self.make_pmf()
-        return pmf.pmf_outer(other, ufunc)
+        return pmf.pmf_outer(dist, ufunc)
 
     def gt_dist(self, x):
         """Probability that a value from self is greater than a value from x.
