@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 
 def readme():
@@ -11,11 +11,12 @@ def readme():
 
 setup(
     name="empiricaldist",
-    version="0.7.5",
+    version="0.7.7",
     author="Allen B. Downey",
     author_email="downey@allendowney.com",
     packages=["empiricaldist"],
-    requires=["matplotlib", "numpy", "pandas", "scipy"],
+    install_requires=["matplotlib", "numpy", "pandas", "scipy"],
+    python_requires=">=3.7",
     url="https://github.com/AllenDowney/empiricaldist",
     license="BSD-3-Clause",
     description="Python library that represents empirical distributions.",
