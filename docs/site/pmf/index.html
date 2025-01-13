@@ -1010,18 +1010,18 @@
         <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">ps</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">qs</span> <span class="o">*</span> <span class="n">ps</span>
 
-    <span class="k">def</span> <span class="nf">make_joint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">make_joint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make joint distribution (assuming independence).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other: Pmf</span>
-<span class="sd">            options: passed to Pmf constructor</span>
+<span class="sd">            kwargs: passed to Pmf constructor</span>
 
 <span class="sd">        Returns: new Pmf</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">qs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">qs</span><span class="p">])</span>
         <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">ps</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">marginal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the marginal distribution of the indicated variable.</span>
@@ -1130,7 +1130,7 @@
         <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">na_position</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a PMF from a sequence of values.</span>
 
@@ -1142,7 +1142,7 @@
 <span class="sd">            dropna: whether to drop NaN values, default True</span>
 <span class="sd">            na_position: If &#39;first&#39; puts NaNs at the beginning,</span>
 <span class="sd">                        &#39;last&#39; puts NaNs at the end.</span>
-<span class="sd">        options: passed to the pd.Series constructor</span>
+<span class="sd">        kwargs: passed to the pd.Series constructor</span>
 
 <span class="sd">        Returns: Pmf object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1152,9 +1152,9 @@
         <span class="p">)</span>
         <span class="c1"># make the result a Pmf</span>
         <span class="c1"># (since we just made a fresh Series, there is no reason to copy it)</span>
-        <span class="n">options</span><span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">underride</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">underride</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># sort in place, if desired</span>
         <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
@@ -1983,7 +1983,7 @@
 
 
 <h2 id="empiricaldist.Pmf.from_seq" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">na_position</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">na_position</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -2054,7 +2054,7 @@
       </td>
     </tr>
   </tbody>
-</table>        <p>options: passed to the pd.Series constructor</p>
+</table>        <p>kwargs: passed to the pd.Series constructor</p>
 <p>Returns: Pmf object</p>
 
             <details class="quote">
@@ -2107,7 +2107,7 @@
     <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">na_position</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a PMF from a sequence of values.</span>
 
@@ -2119,7 +2119,7 @@
 <span class="sd">        dropna: whether to drop NaN values, default True</span>
 <span class="sd">        na_position: If &#39;first&#39; puts NaNs at the beginning,</span>
 <span class="sd">                    &#39;last&#39; puts NaNs at the end.</span>
-<span class="sd">    options: passed to the pd.Series constructor</span>
+<span class="sd">    kwargs: passed to the pd.Series constructor</span>
 
 <span class="sd">    Returns: Pmf object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2129,9 +2129,9 @@
     <span class="p">)</span>
     <span class="c1"># make the result a Pmf</span>
     <span class="c1"># (since we just made a fresh Series, there is no reason to copy it)</span>
-    <span class="n">options</span><span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">underride</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">underride</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># sort in place, if desired</span>
     <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
@@ -2574,7 +2574,7 @@
 
 
 <h2 id="empiricaldist.Pmf.make_joint" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">make_joint</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">make_joint</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#empiricaldist.Pmf.make_joint" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2602,7 +2602,7 @@
               </div>
             </li>
             <li>
-              <b><code>options</code></b>
+              <b><code>kwargs</code></b>
               –
               <div class="doc-md-description">
                 <p>passed to Pmf constructor</p>
@@ -2627,18 +2627,18 @@
 <span class="normal">749</span>
 <span class="normal">750</span>
 <span class="normal">751</span>
-<span class="normal">752</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">make_joint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="normal">752</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">make_joint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make joint distribution (assuming independence).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        other: Pmf</span>
-<span class="sd">        options: passed to Pmf constructor</span>
+<span class="sd">        kwargs: passed to Pmf constructor</span>
 
 <span class="sd">    Returns: new Pmf</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">qs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">qs</span><span class="p">])</span>
     <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">ps</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Pmf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
