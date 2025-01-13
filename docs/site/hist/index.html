@@ -133,17 +133,17 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a Pmf that maps from values to frequencies/counts.&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a distribution from a sequence of values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            seq: sequence of anything</span>
 <span class="sd">            normalize: whether to normalize the probabilities</span>
-<span class="sd">            options: passed along to Pmf</span>
+<span class="sd">            kwargs: passed to Pmf.from_seq</span>
 
 <span class="sd">        Returns:  Counter object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Hist</span><span class="p">(</span><span class="n">pmf</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -172,7 +172,7 @@
 
 
 <h2 id="empiricaldist.Hist.from_seq" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -211,10 +211,10 @@
               </div>
             </li>
             <li>
-              <b><code>options</code></b>
+              <b><code>kwargs</code></b>
               –
               <div class="doc-md-description">
-                <p>passed along to Pmf</p>
+                <p>passed to Pmf.from_seq</p>
               </div>
             </li>
         </ul>
@@ -238,17 +238,17 @@
 <span class="normal">909</span>
 <span class="normal">910</span>
 <span class="normal">911</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a distribution from a sequence of values.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        seq: sequence of anything</span>
 <span class="sd">        normalize: whether to normalize the probabilities</span>
-<span class="sd">        options: passed along to Pmf</span>
+<span class="sd">        kwargs: passed to Pmf.from_seq</span>
 
 <span class="sd">    Returns:  Counter object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">pmf</span> <span class="o">=</span> <span class="n">Pmf</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Hist</span><span class="p">(</span><span class="n">pmf</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

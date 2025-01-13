@@ -201,9 +201,7 @@
 <span class="normal">1354</span>
 <span class="normal">1355</span>
 <span class="normal">1356</span>
-<span class="normal">1357</span>
-<span class="normal">1358</span>
-<span class="normal">1359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Hazard</span><span class="p">(</span><span class="n">Distribution</span><span class="p">):</span>
+<span class="normal">1357</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Hazard</span><span class="p">(</span><span class="n">Distribution</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a Hazard function.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -281,8 +279,6 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            seq: iterable</span>
-<span class="sd">            normalize: whether to normalize the Pmf, default True</span>
-<span class="sd">            sort: whether to sort the Pmf by values, default True</span>
 <span class="sd">            kwargs: passed to Pmf.from_seq</span>
 
 <span class="sd">        Returns: Hazard object</span>
@@ -402,20 +398,6 @@
               </div>
             </li>
             <li>
-              <b><code>normalize</code></b>
-              –
-              <div class="doc-md-description">
-                <p>whether to normalize the Pmf, default True</p>
-              </div>
-            </li>
-            <li>
-              <b><code>sort</code></b>
-              –
-              <div class="doc-md-description">
-                <p>whether to sort the Pmf by values, default True</p>
-              </div>
-            </li>
-            <li>
               <b><code>kwargs</code></b>
               –
               <div class="doc-md-description">
@@ -441,16 +423,12 @@
 <span class="normal">1354</span>
 <span class="normal">1355</span>
 <span class="normal">1356</span>
-<span class="normal">1357</span>
-<span class="normal">1358</span>
-<span class="normal">1359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">1357</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">from_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a Hazard from a sequence of values.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        seq: iterable</span>
-<span class="sd">        normalize: whether to normalize the Pmf, default True</span>
-<span class="sd">        sort: whether to sort the Pmf by values, default True</span>
 <span class="sd">        kwargs: passed to Pmf.from_seq</span>
 
 <span class="sd">    Returns: Hazard object</span>
