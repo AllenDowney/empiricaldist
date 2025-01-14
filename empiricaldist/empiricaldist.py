@@ -48,10 +48,6 @@ class Distribution(pd.Series):
     methods common to all distribution types.
     """
 
-    # total is defined here as a class level variable so it
-    # is always available, even if it is not set in an instance
-    total = None
-
     @property
     def qs(self):
         """Get the quantities.
