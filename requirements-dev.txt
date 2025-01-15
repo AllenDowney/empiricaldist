@@ -3,6 +3,7 @@ black
 flake8
 jupyter
 mkdocs
+nbmake
 pip
 pytest
 pytest-cov

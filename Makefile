@@ -36,17 +36,19 @@ lint:
 
 tests:
 	pytest --no-cov empiricaldist
+	cd empiricaldist; pytest --nbmake *.ipynb
 
 
 release:
-	# Make sure you have the latest version of setuptools and wheel installed
-	# pip install --upgrade setuptools wheel
-	# Make sure you have the latest version of twine installed
-	# pip install --upgrade twine
+	# Make sure you have the latest version setuptool installed
+	# pip install --upgrade setuptools wheel twine
 
 	# First edit setup.py and increment version number
 	# Get pypi API token from LastPass
 	# login with username __token__ and the token as password
+	#
+	# Push setup.py to GitHub
+	# Run tests, black, and push source to GitHub
 	rm dist/*
 	$(PYTHON_INTERPRETER) setup.py sdist
 	twine upload dist/*
