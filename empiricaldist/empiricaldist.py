@@ -889,9 +889,17 @@ class Pmf(Distribution):
         return pmf
 
 
-class Hist(Pmf):
-    """Represents a Pmf that maps from values to frequencies/counts."""
+class FreqTab(Pmf):
+    """Represents a mapping from values to frequencies/counts."""
 
+    @property
+    def fs(self):
+        """Get the frequencies.
+
+        Returns: NumPy array
+        """
+        return self.values
+    
     @staticmethod
     def from_seq(seq, normalize=False, **kwargs):
         """Make a distribution from a sequence of values.
@@ -904,7 +912,7 @@ class Hist(Pmf):
         Returns:  Counter object
         """
         pmf = Pmf.from_seq(seq, normalize=normalize, **kwargs)
-        return Hist(pmf, copy=False)
+        return FreqTab(pmf, copy=False)
 
     def _repr_html_(self):
         """Returns an HTML representation of the series.
@@ -913,6 +921,12 @@ class Hist(Pmf):
         """
         df = pd.DataFrame(dict(freqs=self))
         return df._repr_html_()
+
+
+# In previous versions, FreqTab was called Hist, but reviewers have
+# convinced me that the name was misleading, so I have changed it.
+# But we'll keep the name Hist for backward compatibility
+Hist = FreqTab
 
 
 class Cdf(Distribution):
