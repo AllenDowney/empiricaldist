@@ -352,7 +352,7 @@ class Distribution(pd.Series):
         return pmf.eq_dist(x)
 
     def ne_dist(self, x):
-        """Probability that a value from self is <= than a value from x.
+        """Probability that a value from self is not equal to x.
 
         Args:
             x: Distribution, scalar, or sequence
@@ -411,100 +411,114 @@ class Pmf(Distribution):
             return Pmf(self, **kwargs)
         return self
 
-    # Pmf overrides the arithmetic operations in order
-    # to provide fill_value=0 and return a Pmf.
-
     def add(self, x, **kwargs):
-        """Override add to default fill_value to 0.
+        """Add probabilities from another distribution, sequence, or scalar.
 
         Args:
-            x: Distribution, sequence, array, or scalar
-            kwargs: passed to Series.add
+            x: Distribution, scalar, or sequence to add
+            **kwargs: Additional arguments passed to pandas Series.add
 
-        Returns: Pmf
+        Returns:
+            new Pmf with the sum of probabilities
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series(self, copy=False).add(x, **kwargs)
-        return Pmf(s)
+        result = pd.Series(self, copy=False).add(x, **kwargs)
+        return Pmf(result)
 
     __add__ = add
     __radd__ = add
 
     def sub(self, x, **kwargs):
-        """Override the - operator to default fill_value to 0.
+        """Subtract probabilities from another distribution, sequence, or scalar.
+
+        This operation subtracts probabilities element-wise.
 
         Args:
-            x: Distribution, sequence, array, or scalar
-            kwargs: passed to Series.sub
+            x: Distribution, scalar, or sequence to subtract
+            **kwargs: Additional arguments passed to pandas Series.sub
 
-        Returns:  Pmf
+        Returns:
+            new Pmf with the difference of probabilities
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series.sub(self, x, **kwargs)
-        # s = pd.Series(self, copy=False).sub(self, x, **kwargs)
-        return Pmf(s)
+        result = pd.Series(self, copy=False).sub(x, **kwargs)
+        return Pmf(result)
 
-    subtract = sub
     __sub__ = sub
 
-    def __rsub__(self, x, **kwargs):
-        """Handle reverse subtraction operation.
+    def __rsub__(self, x):
+        """Reverse subtraction (x - self).
+
+        This operation subtracts probabilities from a scalar or sequence.
+        This method is called when the left operand is not a Pmf.
 
         Args:
-            x: Distribution, sequence, array, or scalar
-            kwargs: passed to Series.sub
+            x: scalar or sequence to subtract from
 
-        Returns: Pmf
+        Returns:
+            new Pmf with the difference of probabilities
         """
-        # Reverse the subtraction: x - self
-        return Pmf(x).sub(self, **kwargs)
-
+        if np.isscalar(x):
+            ps = x - self.ps
+            qs = self.qs
+            return Pmf(ps, qs)
+        
+        result = pd.Series(x, copy=False).sub(self)
+        return Pmf(result)
+    
     def mul(self, x, **kwargs):
-        """Override the * operator to default fill_value to 0.
+        """Multiply probabilities by another distribution, sequence, or scalar.
 
         Args:
-            x: Distribution, sequence, array, or scalar
-            kwargs: passed to Series.mul
+            x: Distribution, scalar, or sequence to multiply by
+            **kwargs: Additional arguments passed to pandas Series.mul
 
-        Returns:  Pmf
+        Returns:
+            new Pmf with the product of probabilities
         """
         underride(kwargs, fill_value=0)
-        s = pd.Series(self, copy=False).mul(x, **kwargs)
-        return Pmf(s)
+        result = pd.Series(self, copy=False).mul(x, **kwargs)
+        return Pmf(result)
 
-    multiply = mul
     __mul__ = mul
     __rmul__ = mul
 
     def div(self, x, **kwargs):
-        """Override the / operator to default fill_value to 0.
+        """Divide probabilities by another distribution, sequence, or scalar.
 
         Args:
-            x: Distribution, sequence, array, or scalar
-            kwargs: passed to Series.div
-
-        Returns:  Pmf
-        """
-        underride(kwargs, fill_value=0)
-        s = pd.Series(self, copy=False).div(x, **kwargs)
-        return Pmf(s)
-
-    divide = div
-    __truediv__ = div
-
-    def __rtruediv__(self, x, **kwargs):
-        """Handle reverse division operation.
-
-        Args:
-            x: Distribution, sequence, array, or scalar
-            kwargs: passed to Series.div
+            x: Distribution, sequence, or scalar to divide by
+            **kwargs: Additional arguments passed to pandas Series.truediv
 
         Returns:
-            Pmf
+            new Pmf with the quotient of probabilities
         """
-        # Reverse the division: x / self
-        # TODO: Make this work with sequence, array, and scalar
-        return Pmf(x).div(self, **kwargs)
+        underride(kwargs, fill_value=0)
+        result = pd.Series(self, copy=False).truediv(x, **kwargs)
+        return Pmf(result)
+
+    __truediv__ = div
+
+    def __rtruediv__(self, x):
+        """Reverse division (x / self).
+
+        This operation divides a scalar or sequence by the probabilities.
+        Division by zero results in infinity.
+        This method is called when the left operand is not a Pmf.
+
+        Args:
+            x: scalar or sequence to divide
+
+        Returns:
+            new Pmf with the quotient of probabilities
+        """
+        if np.isscalar(x):
+            ps = x / self.ps
+            qs = self.qs
+            return Pmf(ps, qs)
+        
+        result = pd.Series(x, copy=False).truediv(self)
+        return Pmf(result)
 
     def normalize(self):
         """Make the probabilities add up to 1 (modifies self).
@@ -646,79 +660,101 @@ class Pmf(Distribution):
         """Probability that a value from self exceeds a value from x.
 
         Args:
-            x: Distribution object or scalar
+            x: Distribution or scalar
 
         Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.greater).sum()
-        else:
+        elif np.isscalar(x):
             return self[self.qs > x].sum()
+        else:
+            raise TypeError("gt_dist() expects a scalar or Distribution")
 
     def lt_dist(self, x):
         """Probability that a value from self is less than a value from x.
 
+        If x or the qs of self are floats, the results may not be reliable.
+
         Args:
-            x: Distribution object or scalar
+            x: Distribution or scalar
 
         Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.less).sum()
-        else:
+        elif np.isscalar(x):
             return self[self.qs < x].sum()
+        else:
+            raise TypeError("lt_dist() expects a scalar or Distribution")
 
     def ge_dist(self, x):
         """Probability that a value from self is >= than a value from x.
 
+        If x or the qs of self are floats, the results may not be reliable.
+        
         Args:
-            x: Distribution object or scalar
+            x: Distribution or scalar
 
         Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.greater_equal).sum()
-        else:
+        elif np.isscalar(x):
             return self[self.qs >= x].sum()
+        else:
+            raise TypeError("ge_dist() expects a scalar or Distribution")
 
     def le_dist(self, x):
         """Probability that a value from self is <= than a value from x.
 
+        If x or the qs of self are floats, the results may not be reliable.
+
         Args:
-            x: Distribution object or scalar
+            x: Distribution or scalar
 
         Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.less_equal).sum()
-        else:
+        elif np.isscalar(x):
             return self[self.qs <= x].sum()
+        else:
+            raise TypeError("le_dist() expects a scalar or Distribution")
 
     def eq_dist(self, x):
         """Probability that a value from self equals a value from x.
 
+        If x or the qs of self are floats, the results may not be reliable.
+
         Args:
-            x: Distribution object or scalar
+            x: Distribution or scalar
 
         Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.equal).sum()
-        else:
+        elif np.isscalar(x):
             return self[self.qs == x].sum()
+        else:
+            raise TypeError("eq_dist() expects a scalar or Distribution")
 
     def ne_dist(self, x):
-        """Probability that a value from self is <= than a value from x.
+        """Probability that a value from self is not equal to x.
+
+        If x or the qs of self are floats, the results may not be reliable.
 
         Args:
-            x: Distribution object or scalar
+            x: Distribution or scalar
 
         Returns: float probability
         """
         if isinstance(x, Distribution):
             return self.pmf_outer(x, np.not_equal).sum()
-        else:
+        elif np.isscalar(x):
             return self[self.qs != x].sum()
+        else:
+            raise TypeError("ne_dist() expects a scalar or Distribution")
 
     def pmf_outer(self, dist, ufunc):
         """Computes the outer product of two PMFs.

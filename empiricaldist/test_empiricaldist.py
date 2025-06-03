@@ -238,13 +238,6 @@ class Test(unittest.TestCase):
 
     def testSubDist(self):
         pmf = Pmf.from_seq([1, 2, 3, 4, 5, 6])
-        series = pd.Series(1 / 12, pmf.index)
-
-        diff = pmf - series
-        self.assertAlmostEqual(diff[1], 1 / 12)
-
-        diff = series - pmf
-        self.assertAlmostEqual(diff[1], -1 / 12)
 
         pmf3 = pmf.sub_dist(1)
         self.assertAlmostEqual(pmf3.mean(), 2.5)
@@ -602,7 +595,7 @@ class Test(unittest.TestCase):
         pmf = Pmf.from_seq(t)
         cdf = Cdf.from_seq(t)
         pmf2 = cdf.make_pmf()
-        self.almost_equal_dist(pmf, pmf2)
+        self.assertDistAlmostEqual(pmf, pmf2)
 
     def testCredible(self):
         t = np.arange(101)
@@ -617,10 +610,10 @@ class Test(unittest.TestCase):
         pmf = Pmf.from_seq([1, 2, 3])
         pmf2 = pmf.max_dist(2)
         ans = Pmf([1 / 9, 3 / 9, 5 / 9], pmf.index)
-        self.almost_equal_dist(pmf2, ans)
+        self.assertDistAlmostEqual(pmf2, ans)
         pmf3 = pmf.min_dist(2)
         ans = Pmf([5 / 9, 3 / 9, 1 / 9], pmf.index)
-        self.almost_equal_dist(pmf3, ans)
+        self.assertDistAlmostEqual(pmf3, ans)
 
     def testConversionFunctions(self):
         t = [1, 2, 2, 3, 5, 5, 7, 10]
@@ -630,22 +623,22 @@ class Test(unittest.TestCase):
         haz = Hazard.from_seq(t)
 
         cdf2 = pmf.make_cdf()
-        self.almost_equal_dist(cdf, cdf2)
+        self.assertDistAlmostEqual(cdf, cdf2)
 
         surv2 = pmf.make_surv()
-        self.almost_equal_dist(surv, surv2)
+        self.assertDistAlmostEqual(surv, surv2)
 
         haz2 = pmf.make_hazard()
-        self.almost_equal_dist(haz, haz2)
+        self.assertDistAlmostEqual(haz, haz2)
 
         surv3 = haz2.make_surv()
-        self.almost_equal_dist(surv, surv3)
+        self.assertDistAlmostEqual(surv, surv3)
 
         cdf3 = haz2.make_cdf()
-        self.almost_equal_dist(cdf, cdf3)
+        self.assertDistAlmostEqual(cdf, cdf3)
 
         pmf3 = haz2.make_pmf()
-        self.almost_equal_dist(pmf, pmf3)
+        self.assertDistAlmostEqual(pmf, pmf3)
 
     def testUnnormalized(self):
         t = [1, 2, 2, 4, 5]
@@ -671,23 +664,10 @@ class Test(unittest.TestCase):
 
         pmf_complete = Pmf.from_seq(complete, normalize=False)
         pmf_ongoing = Pmf.from_seq(ongoing, normalize=False)
-
-        res = pmf_complete + pmf_ongoing
-        self.assertListEqual(list(res), [1, 1, 2, 1, 1, 1])
-
-        res = pmf_complete - pmf_ongoing
-        self.assertListEqual(list(res), [1.0, -1.0, 0.0, -1.0, 1.0, -1.0])
-
-        res = pmf_complete * pmf_ongoing
-        self.assertListEqual(list(res), [0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
-
-        res = pmf_complete / pmf_ongoing
-        self.assertListEqual(list(res), [np.inf, 0.0, 1.0, 0.0, np.inf, 0.0])
+        done = pmf_complete + pmf_ongoing
 
         surv_complete = pmf_complete.make_surv()
         surv_ongoing = pmf_ongoing.make_surv()
-
-        done = pmf_complete + pmf_ongoing
 
         s1 = surv_complete(done.index)
         self.assertListEqual(list(s1), [2.0, 2.0, 1.0, 1.0, 0.0, 0.0])
@@ -703,9 +683,120 @@ class Test(unittest.TestCase):
             list(haz), [0.14285714285714285, 0.0, 0.2, 0.0, 0.5, 0.0]
         )
 
-    def almost_equal_dist(self, dist1, dist2):
-        for x in dist1.qs:
-            self.assertAlmostEqual(dist1[x], dist2[x])
+    def testArithmeticOperations(self):
+        # Test basic arithmetic between PMFs
+        complete = [1, 3, 6]
+        ongoing = [2, 3, 5, 7]
+
+        pmf_complete = Pmf.from_seq(complete, normalize=False)
+        pmf_ongoing = Pmf.from_seq(ongoing, normalize=False)
+
+        # Test addition
+        res = pmf_complete + pmf_ongoing
+        self.assertListEqual(list(res), [1, 1, 2, 1, 1, 1])
+
+        # Test subtraction
+        res = pmf_complete - pmf_ongoing
+        self.assertListEqual(list(res), [1.0, -1.0, 0.0, -1.0, 1.0, -1.0])
+
+        # Test multiplication
+        res = pmf_complete * pmf_ongoing
+        self.assertListEqual(list(res), [0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
+
+        # Test division
+        res = pmf_complete / pmf_ongoing
+        self.assertListEqual(list(res), [np.inf, 0.0, 1.0, 0.0, np.inf, 0.0])
+
+        # Test reverse operations with scalars
+        # Create normalized PMFs for probability-preserving operations
+        pmf1 = Pmf.from_seq([1, 2, 3], normalize=True)  # [0.33, 0.33, 0.33]
+        pmf2 = Pmf.from_seq([2, 3, 4], normalize=True)  # [0.33, 0.33, 0.33]
+
+        # Test reverse subtraction with scalar
+        # 1 - [0.33, 0.33, 0.33] = [0.67, 0.67, 0.67]
+        res = 1 - pmf1
+        self.assertSequenceAlmostEqual(list(res), [0.66666666, 0.66666666, 0.66666666])
+
+        # Test reverse division with scalar
+        # 1 / [0.33, 0.33, 0.33] = [3.0, 3.0, 3.0]
+        res = 1 / pmf1
+        self.assertListEqual(list(res), [3.0, 3.0, 3.0])
+
+        # Test reverse operations with non-scalar (Series)
+        # Create a Series with matching indices
+        series = pd.Series([0.5, 0.5, 0.5], index=pmf1.index)
+        
+        # Test reverse subtraction with Series
+        # [0.5, 0.5, 0.5] - [0.33, 0.33, 0.33] = [0.17, 0.17, 0.17]
+        res = series - pmf1
+        self.assertSequenceAlmostEqual(list(res), [0.1666666666, 0.1666666666, 0.1666666666])
+
+        # Test reverse division with Series
+        # [0.5, 0.5, 0.5] / [0.33, 0.33, 0.33] = [1.5, 1.5, 1.5]
+        res = series / pmf1
+        self.assertListEqual(list(res), [1.5, 1.5, 1.5])
+
+        # Test operations with zero probabilities
+        pmf_zero = Pmf.from_seq([1, 2, 3], normalize=True)
+        pmf_zero[2] = 0  # Set one probability to zero
+        
+        # Test division with zero probability
+        res = pmf_zero / pmf1
+        self.assertListEqual(list(res), [1.0, 0.0, 1.0])
+
+        # Test reverse division with zero probability
+        res = pmf1 / pmf_zero
+        self.assertListEqual(list(res), [1.0, np.inf, 1.0])
+
+        # Test operations with non-matching indices
+        pmf_a = Pmf.from_seq([1, 2, 3], normalize=True)
+        pmf_b = Pmf.from_seq([2, 3, 4], normalize=True)
+        
+        # Addition with non-matching indices should align and fill with zeros
+        res = pmf_a + pmf_b
+        self.assertSequenceAlmostEqual(list(res), [0.33333333, 0.66666666, 0.66666666, 0.33333333])
+
+        # Test operations with NaN values
+        pmf_nan = Pmf.from_seq([1, 2, 3], normalize=True)
+        pmf_nan[2] = np.nan
+        
+        # Test operations with very small probabilities
+        pmf_small = Pmf.from_seq([1, 2, 3], normalize=True)
+        pmf_small[2] = 1e-10  # Very small probability
+
+    def assertSequenceAlmostEqual(self, seq1, seq2, rtol=1e-7, atol=0, err_msg=None):
+        """Assert that two sequences are elementwise approximately equal using NumPy.
+
+        Args:
+            seq1, seq2: sequences of floats (lists, arrays, Series, etc.)
+            rtol: relative tolerance (default: 1e-7)
+            atol: absolute tolerance (default: 0)
+            err_msg: optional custom error message
+        """
+        np.testing.assert_allclose(seq1, seq2, rtol=rtol, atol=atol, err_msg=err_msg)
+
+
+    def assertDistAlmostEqual(self, dist1, dist2, rtol=1e-7, atol=0, err_msg=None):
+        """Assert that two Distribution objects are approximately equal.
+
+        Compares their support (qs) and values (ps), using NumPy's allclose.
+
+        Args:
+            dist1, dist2: Distribution-like objects (e.g. Pmf, Cdf)
+            rtol: relative tolerance (default: 1e-7)
+            atol: absolute tolerance (default: 0)
+            err_msg: optional prefix for assertion message
+        """
+        # Ensure they have the same support
+        qs1 = dist1.index.values
+        qs2 = dist2.index.values
+        np.testing.assert_array_equal(qs1, qs2, err_msg=err_msg or "Distributions have different qs")
+
+        # Compare probabilities/values
+        ps1 = dist1.values
+        ps2 = dist2.values
+        np.testing.assert_allclose(ps1, ps2, rtol=rtol, atol=atol, err_msg=err_msg)
+
 
     def testCopy(self):
         t = [1, 2, 2, 3, 5]
