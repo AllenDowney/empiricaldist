@@ -913,10 +913,10 @@ class Pmf(Distribution):
 
 class FreqTab(Pmf):
     """Represents a mapping from values to frequencies/counts.
-    
+
     This class is basically an unnormalized Pmf. It has a different name
     partly for teaching purposes, as used in Think Stats.
-    
+
     """
 
     @property
