@@ -811,6 +811,9 @@ class Pmf(Distribution):
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Pmf.
 
+        Sorts the quantities in ascending order, because a CDF is only
+        sensible if the quantities are ordered.
+
         Args:
             kwargs: passed to the pd.Series constructor
 
@@ -909,7 +912,12 @@ class Pmf(Distribution):
 
 
 class FreqTab(Pmf):
-    """Represents a mapping from values to frequencies/counts."""
+    """Represents a mapping from values to frequencies/counts.
+    
+    This class is basically an unnormalized Pmf. It has a different name
+    partly for teaching purposes, as used in Think Stats.
+    
+    """
 
     @property
     def fs(self):
@@ -1005,7 +1013,6 @@ class Cdf(Distribution):
 
         Returns: interpolation function from qs to ps
         """
-
         underride(
             kwargs,
             kind="previous",
@@ -1147,6 +1154,18 @@ class Cdf(Distribution):
         ps = 1 - (1 - self) ** n
         return Cdf(ps, self.index.copy())
 
+    def make_cdf(self, **kwargs):
+        """Make a Cdf from the Cdf.
+
+        Args:
+            kwargs: passed to the Cdf constructor
+
+        Returns: Cdf
+        """
+        if kwargs:
+            return Cdf(self, **kwargs)
+        return self
+
 
 class Surv(Distribution):
     """Represents a survival function (complementary CDF).
@@ -1170,6 +1189,18 @@ class Surv(Distribution):
         Returns: new Surv
         """
         return Surv(self, copy=deep)
+
+    def make_surv(self, **kwargs):
+        """Make a Surv from the Surv.
+
+        Args:
+            kwargs: passed to the Surv constructor
+
+        Returns: Surv
+        """
+        if kwargs:
+            return Surv(self, **kwargs)
+        return self
 
     @staticmethod
     def from_seq(seq, normalize=True, sort=True, **kwargs):
@@ -1235,7 +1266,6 @@ class Surv(Distribution):
 
         Returns: interpolation function from ps to qs
         """
-        total = self.attrs.get("total", 1.0)
         underride(
             kwargs,
             kind="previous",
@@ -1244,16 +1274,16 @@ class Surv(Distribution):
             bounds_error=False,
             fill_value=(np.nan, np.nan),
         )
-        # sort in descending order
-        # I don't remember why
-        rev = self.sort_values()
+        # sort in ascending order by probability/frequency
+        surv = self.sort_values()
 
-        # If the reversed Surv doesn't get all the way to total
+        # If the sorted Surv doesn't get all the way to total
         # add a fake entry at -inf
-        if rev.iloc[-1] != total:
-            rev[-np.inf] = total
+        total = self.attrs.get("total", 1.0)
+        if surv.iloc[-1] != total:
+            surv[-np.inf] = total
 
-        interp = interp1d(rev, rev.index, **kwargs)
+        interp = interp1d(surv, surv.index, **kwargs)
         return interp
 
     # calling a Surv like a function does forward lookup
@@ -1324,6 +1354,18 @@ class Hazard(Distribution):
         Returns: new Pmf
         """
         return Hazard(self, copy=deep)
+
+    def make_hazard(self, **kwargs):
+        """Make a Hazard from the Hazard.
+
+        Args:
+            kwargs: passed to the Hazard constructor
+
+        Returns: Hazard
+        """
+        if kwargs:
+            return Hazard(self, **kwargs)
+        return self
 
     # Hazard inherits __call__ from Distribution
 

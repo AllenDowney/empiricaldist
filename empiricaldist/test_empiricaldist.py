@@ -837,6 +837,66 @@ class Test(unittest.TestCase):
         haz = Hazard.from_seq(t)
         haz.bar()
 
+    def testMakeSame(self):
+        """Test that make_same preserves the type of the distribution."""
+        # Create a simple PMF
+        pmf = Pmf.from_seq([1, 2, 2, 3, 4, 5])
+        
+        # Test converting PMF to each type
+        cdf = pmf.make_cdf()
+        surv = pmf.make_surv()
+        haz = pmf.make_hazard()
+        
+        # Test that make_same preserves type
+        self.assertIsInstance(pmf.make_same(pmf), Pmf)
+        self.assertIsInstance(pmf.make_same(cdf), Pmf)
+        self.assertIsInstance(pmf.make_same(surv), Pmf)
+        self.assertIsInstance(pmf.make_same(haz), Pmf)
+        
+        self.assertIsInstance(cdf.make_same(pmf), Cdf)
+        self.assertIsInstance(cdf.make_same(cdf), Cdf)
+        self.assertIsInstance(cdf.make_same(surv), Cdf)
+        self.assertIsInstance(cdf.make_same(haz), Cdf)
+        
+        self.assertIsInstance(surv.make_same(pmf), Surv)
+        self.assertIsInstance(surv.make_same(cdf), Surv)
+        self.assertIsInstance(surv.make_same(surv), Surv)
+        self.assertIsInstance(surv.make_same(haz), Surv)
+        
+        self.assertIsInstance(haz.make_same(pmf), Hazard)
+        self.assertIsInstance(haz.make_same(cdf), Hazard)
+        self.assertIsInstance(haz.make_same(surv), Hazard)
+        self.assertIsInstance(haz.make_same(haz), Hazard)
+        
+        # Test that the values are preserved
+        self.assertDistAlmostEqual(pmf, pmf.make_same(pmf))
+        self.assertDistAlmostEqual(cdf, cdf.make_same(pmf))
+        self.assertDistAlmostEqual(surv, surv.make_same(pmf))
+        self.assertDistAlmostEqual(haz, haz.make_same(pmf))
+        
+        # Test with unnormalized distributions
+        pmf = Pmf.from_seq([1, 2, 2, 3, 4, 5], normalize=False)
+        cdf = pmf.make_cdf(normalize=False)
+        surv = pmf.make_surv(normalize=False)
+        haz = pmf.make_hazard()
+        
+        # Test that make_same preserves normalization
+        self.assertDistAlmostEqual(pmf, pmf.make_same(pmf))
+        self.assertDistAlmostEqual(cdf, cdf.make_same(cdf))
+        self.assertDistAlmostEqual(surv, surv.make_same(surv))
+        self.assertDistAlmostEqual(haz, haz.make_same(haz))
+        
+        # Test that attrs are preserved
+        pmf.attrs['total'] = 10
+        cdf.attrs['total'] = 10
+        surv.attrs['total'] = 10
+        haz.attrs['total'] = 10
+        
+        self.assertEqual(pmf.make_same(pmf).attrs['total'], 10)
+        self.assertEqual(cdf.make_same(cdf).attrs['total'], 10)
+        self.assertEqual(surv.make_same(surv).attrs['total'], 10)
+        self.assertEqual(haz.make_same(haz).attrs['total'], 10)
+
 
 if __name__ == "__main__":
     unittest.main()
