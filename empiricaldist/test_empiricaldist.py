@@ -329,6 +329,10 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(cond1.mean(), pmf2.mean())
         self.assertAlmostEqual(cond2.mean(), pmf1.mean())
 
+        # test marginal with a non-joint distribution (weird but legal)
+        mar1 = pmf1.marginal(0)
+        self.assertAlmostEqual(mar1.mean(), pmf1.mean())
+
     def testComparison(self):
         pmf1 = Pmf.from_seq([1, 2, 3, 4, 5, 6])
         pmf2 = Pmf.from_seq([1, 2, 3, 4])
@@ -710,12 +714,13 @@ class Test(unittest.TestCase):
         # Test reverse operations with scalars
         # Create normalized PMFs for probability-preserving operations
         pmf1 = Pmf.from_seq([1, 2, 3], normalize=True)  # [0.33, 0.33, 0.33]
-        pmf2 = Pmf.from_seq([2, 3, 4], normalize=True)  # [0.33, 0.33, 0.33]
 
         # Test reverse subtraction with scalar
         # 1 - [0.33, 0.33, 0.33] = [0.67, 0.67, 0.67]
         res = 1 - pmf1
-        self.assertSequenceAlmostEqual(list(res), [0.66666666, 0.66666666, 0.66666666])
+        self.assertSequenceAlmostEqual(
+            list(res), [0.66666666, 0.66666666, 0.66666666]
+        )
 
         # Test reverse division with scalar
         # 1 / [0.33, 0.33, 0.33] = [3.0, 3.0, 3.0]
@@ -725,11 +730,13 @@ class Test(unittest.TestCase):
         # Test reverse operations with non-scalar (Series)
         # Create a Series with matching indices
         series = pd.Series([0.5, 0.5, 0.5], index=pmf1.index)
-        
+
         # Test reverse subtraction with Series
         # [0.5, 0.5, 0.5] - [0.33, 0.33, 0.33] = [0.17, 0.17, 0.17]
         res = series - pmf1
-        self.assertSequenceAlmostEqual(list(res), [0.1666666666, 0.1666666666, 0.1666666666])
+        self.assertSequenceAlmostEqual(
+            list(res), [0.1666666666, 0.1666666666, 0.1666666666]
+        )
 
         # Test reverse division with Series
         # [0.5, 0.5, 0.5] / [0.33, 0.33, 0.33] = [1.5, 1.5, 1.5]
@@ -739,7 +746,7 @@ class Test(unittest.TestCase):
         # Test operations with zero probabilities
         pmf_zero = Pmf.from_seq([1, 2, 3], normalize=True)
         pmf_zero[2] = 0  # Set one probability to zero
-        
+
         # Test division with zero probability
         res = pmf_zero / pmf1
         self.assertListEqual(list(res), [1.0, 0.0, 1.0])
@@ -751,20 +758,24 @@ class Test(unittest.TestCase):
         # Test operations with non-matching indices
         pmf_a = Pmf.from_seq([1, 2, 3], normalize=True)
         pmf_b = Pmf.from_seq([2, 3, 4], normalize=True)
-        
+
         # Addition with non-matching indices should align and fill with zeros
         res = pmf_a + pmf_b
-        self.assertSequenceAlmostEqual(list(res), [0.33333333, 0.66666666, 0.66666666, 0.33333333])
+        self.assertSequenceAlmostEqual(
+            list(res), [0.33333333, 0.66666666, 0.66666666, 0.33333333]
+        )
 
         # Test operations with NaN values
         pmf_nan = Pmf.from_seq([1, 2, 3], normalize=True)
         pmf_nan[2] = np.nan
-        
+
         # Test operations with very small probabilities
         pmf_small = Pmf.from_seq([1, 2, 3], normalize=True)
         pmf_small[2] = 1e-10  # Very small probability
 
-    def assertSequenceAlmostEqual(self, seq1, seq2, rtol=1e-7, atol=0, err_msg=None):
+    def assertSequenceAlmostEqual(
+        self, seq1, seq2, rtol=1e-7, atol=0, err_msg=None
+    ):
         """Assert that two sequences are elementwise approximately equal using NumPy.
 
         Args:
@@ -773,10 +784,13 @@ class Test(unittest.TestCase):
             atol: absolute tolerance (default: 0)
             err_msg: optional custom error message
         """
-        np.testing.assert_allclose(seq1, seq2, rtol=rtol, atol=atol, err_msg=err_msg)
+        np.testing.assert_allclose(
+            seq1, seq2, rtol=rtol, atol=atol, err_msg=err_msg
+        )
 
-
-    def assertDistAlmostEqual(self, dist1, dist2, rtol=1e-7, atol=0, err_msg=None):
+    def assertDistAlmostEqual(
+        self, dist1, dist2, rtol=1e-7, atol=0, err_msg=None
+    ):
         """Assert that two Distribution objects are approximately equal.
 
         Compares their support (qs) and values (ps), using NumPy's allclose.
@@ -790,13 +804,16 @@ class Test(unittest.TestCase):
         # Ensure they have the same support
         qs1 = dist1.index.values
         qs2 = dist2.index.values
-        np.testing.assert_array_equal(qs1, qs2, err_msg=err_msg or "Distributions have different qs")
+        np.testing.assert_array_equal(
+            qs1, qs2, err_msg=err_msg or "Distributions have different qs"
+        )
 
         # Compare probabilities/values
         ps1 = dist1.values
         ps2 = dist2.values
-        np.testing.assert_allclose(ps1, ps2, rtol=rtol, atol=atol, err_msg=err_msg)
-
+        np.testing.assert_allclose(
+            ps1, ps2, rtol=rtol, atol=atol, err_msg=err_msg
+        )
 
     def testCopy(self):
         t = [1, 2, 2, 3, 5]

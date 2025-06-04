@@ -249,7 +249,7 @@ class Distribution(pd.Series):
         return self.make_same(res)
 
     def sub_dist(self, x):
-        """Distribution of the diff of values drawn from self and x.
+        """Distribution of the difference of values drawn from self and x.
 
         Args:
             x: Distribution, scalar, or sequence
@@ -462,10 +462,10 @@ class Pmf(Distribution):
             ps = x - self.ps
             qs = self.qs
             return Pmf(ps, qs)
-        
-        result = pd.Series(x, copy=False).sub(self)
+
+        result = pd.Series(x, copy=False).sub(self, fill_value=0)
         return Pmf(result)
-    
+
     def mul(self, x, **kwargs):
         """Multiply probabilities by another distribution, sequence, or scalar.
 
@@ -516,8 +516,8 @@ class Pmf(Distribution):
             ps = x / self.ps
             qs = self.qs
             return Pmf(ps, qs)
-        
-        result = pd.Series(x, copy=False).truediv(self)
+
+        result = pd.Series(x, copy=False).truediv(self, fill_value=0)
         return Pmf(result)
 
     def normalize(self):
@@ -602,7 +602,7 @@ class Pmf(Distribution):
             return Pmf(self.ps.copy(), index=self.qs + x)
 
     def sub_dist(self, x):
-        """Computes the Pmf of the diff of values drawn from self and other.
+        """Computes the Pmf of the difference of values drawn from self and x.
 
         Args:
             x: Distribution, scalar, or sequence
@@ -692,7 +692,7 @@ class Pmf(Distribution):
         """Probability that a value from self is >= than a value from x.
 
         If x or the qs of self are floats, the results may not be reliable.
-        
+
         Args:
             x: Distribution or scalar
 
@@ -771,7 +771,7 @@ class Pmf(Distribution):
         return qs * ps
 
     def make_joint(self, other, **kwargs):
-        """Make joint distribution (assuming independence).
+        """Make a joint distribution (assuming independence).
 
         Args:
             other: Pmf
@@ -784,48 +784,29 @@ class Pmf(Distribution):
         return Pmf(ps, index=qs, **kwargs)
 
     def marginal(self, i, name=None):
-        """Gets the marginal distribution of the indicated variable.
+        """Gets the marginal distribution of a variable from a joint distribution.
 
         Args:
-            i: index of the variable we want
-            name: string
+            i: index of the variable in the joint distribution (0 for first variable, 1 for second, etc.)
+            name: string name for the resulting Pmf
 
         Returns: Pmf
         """
-        # The following is deprecated now
-        # return Pmf(self.sum(level=i))
-
-        # here's the new version
         return Pmf(self.groupby(level=i).sum(), name=name)
 
     def conditional(self, i, val, name=None):
-        """Gets the conditional distribution of the indicated variable.
+        """Gets the conditional distribution of a variable from a joint distribution.
 
         Args:
-            i: index of the variable we're conditioning on
-            val: the value the ith variable has to have
-            name: string
+            i: index of the variable we're conditioning on (0 for first variable, 1 for second, etc.)
+            val: the value the ith variable must have
+            name: string name for the resulting Pmf
 
         Returns: Pmf
         """
         pmf = Pmf(self.xs(key=val, level=i), copy=True, name=name)
         pmf.normalize()
         return pmf
-
-    def update(self, likelihood, data):
-        """Bayesian update.
-
-        Args:
-            likelihood: function that takes (data, hypo) and returns
-                        likelihood of data under hypo, P(data|hypo)
-            data: in whatever format likelihood understands
-
-        Returns: normalizing constant
-        """
-        for hypo in self.qs:
-            self[hypo] *= likelihood(data, hypo)
-
-        return self.normalize()
 
     def make_cdf(self, **kwargs):
         """Make a Cdf from the Pmf.
@@ -857,8 +838,12 @@ class Pmf(Distribution):
         cdf = self.make_cdf()
         return cdf.make_surv(**kwargs)
 
-    def make_hazard(self, normalize=False, **kwargs):
+    def make_hazard(self, **kwargs):
         """Make a Hazard from the Pmf.
+
+        A previous version of this method had a normalize parameter,
+        but it was removed. hazard is already a ratio, so normalizing it
+        would be meaningless.
 
         Args:
             kwargs: passed to the pd.Series constructor
@@ -867,9 +852,7 @@ class Pmf(Distribution):
         """
         surv = self.make_surv()
         haz = Hazard(self / (self + surv), **kwargs)
-        haz.total = getattr(surv, "total", 1.0)
-        if normalize:
-            self.normalize()
+        haz.attrs["total"] = surv.attrs.get("total", 1.0)
         return haz
 
     def make_same(self, dist):
@@ -935,7 +918,7 @@ class FreqTab(Pmf):
         Returns: NumPy array
         """
         return self.values
-    
+
     @staticmethod
     def from_seq(seq, normalize=False, **kwargs):
         """Make a distribution from a sequence of values.
@@ -1086,7 +1069,7 @@ class Cdf(Distribution):
         return pmf
 
     def make_surv(self, **kwargs):
-        """Make a Surv object from the Cdf.
+        """Make a Surv from the Cdf.
 
         Args:
             kwargs: passed to the Surv constructor
@@ -1096,9 +1079,12 @@ class Cdf(Distribution):
         normalize = kwargs.pop("normalize", False)
         total = self.ps[-1]
         surv = Surv(total - self, **kwargs)
-        surv.total = total
         if normalize:
-            self.normalize()
+            surv.normalize()
+            surv.attrs["total"] = 1.0
+        else:
+            surv.attrs["total"] = total
+
         return surv
 
     def make_hazard(self, **kwargs):
@@ -1112,7 +1098,7 @@ class Cdf(Distribution):
         pmf = self.make_pmf()
         surv = self.make_surv()
         haz = Hazard(pmf / (pmf + surv), **kwargs)
-        haz.total = getattr(surv, "total", 1.0)
+        haz.attrs["total"] = surv.attrs.get("total", 1.0)
         return haz
 
     def make_same(self, dist):
@@ -1163,7 +1149,17 @@ class Cdf(Distribution):
 
 
 class Surv(Distribution):
-    """Represents a survival function (complementary CDF)."""
+    """Represents a survival function (complementary CDF).
+
+    When you convert an unnormalized Cdf to a Surv, the total number of cases
+    is stored in the attrs dictionary. This makes it possible to make a round
+    trip from Cdf to Surv and back.
+
+    However, this implementation is fragile. If you modify the Surv or perform
+    an arithmetic operation, the total might be left in an inconsistent state.
+
+    Generally, working with unnormalized Surv objects is risky.
+    """
 
     def copy(self, deep=True):
         """Make a copy.
@@ -1182,8 +1178,8 @@ class Surv(Distribution):
         Args:
             seq: iterable
             normalize: whether to normalize the Surv, default True
-            sort: whether to sort the Surv by values, default True
-            kwargs: passed to Pmf.from_seq
+            sort: whether to sort the quantities, default True
+            kwargs: passed to Pmf.from_seq (eventually)
 
         Returns: Surv object
         """
@@ -1204,9 +1200,9 @@ class Surv(Distribution):
 
         Returns: normalizing constant
         """
-        old_total = getattr(self, "total", 1.0)
-        self.ps /= old_total
-        self.total = 1.0
+        old_total = self.attrs.get("total", 1.0)
+        self /= old_total
+        self.attrs["total"] = 1.0
         return old_total
 
     @property
@@ -1218,7 +1214,7 @@ class Surv(Distribution):
 
         Returns: array of probabilities
         """
-        total = getattr(self, "total", 1.0)
+        total = self.attrs.get("total", 1.0)
         underride(
             kwargs,
             kind="previous",
@@ -1239,7 +1235,7 @@ class Surv(Distribution):
 
         Returns: interpolation function from ps to qs
         """
-        total = getattr(self, "total", 1.0)
+        total = self.attrs.get("total", 1.0)
         underride(
             kwargs,
             kind="previous",
@@ -1272,7 +1268,7 @@ class Surv(Distribution):
         Returns: Cdf
         """
         normalize = kwargs.pop("normalize", False)
-        total = getattr(self, "total", 1.0)
+        total = self.attrs.get("total", 1.0)
         cdf = Cdf(total - self, **kwargs)
         if normalize:
             cdf.normalize()
@@ -1301,7 +1297,7 @@ class Surv(Distribution):
         pmf = self.make_pmf()
         at_risk = self + pmf
         haz = Hazard(pmf / at_risk, **kwargs)
-        haz.total = getattr(self, "total", 1.0)
+        haz.attrs["total"] = self.attrs.get("total", 1.0)
         haz.name = self.name
         return haz
 
@@ -1336,8 +1332,8 @@ class Hazard(Distribution):
 
         Returns: normalizing constant
         """
-        old_total = getattr(self, "total", 1.0)
-        self.total = 1.0
+        old_total = self.attrs.get("total", 1.0)
+        self.attrs["total"] = 1.0
         return old_total
 
     def make_surv(self, **kwargs):
@@ -1350,10 +1346,9 @@ class Hazard(Distribution):
         """
         normalize = kwargs.pop("normalize", False)
         ps = (1 - self).cumprod()
-        total = getattr(self, "total", 1.0)
+        total = self.attrs.get("total", 1.0)
         surv = Surv(ps * total, **kwargs)
-        surv.total = total
-
+        surv.attrs["total"] = total
         if normalize:
             surv.normalize()
         return surv
