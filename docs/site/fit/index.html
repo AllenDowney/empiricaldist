@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>fit - empiricaldist</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "fit";
+        var mkdocs_page_input_path = "fit.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> empiricaldist
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Classes</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../pmf/">Pmf</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cdf/">Cdf</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../surv/">Surv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../taildist/">TailDist</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../hazard/">Hazard</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../hist/">Hist</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Fitting</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">fit</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit">fit</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--fitting-philosophy">Fitting philosophy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--loss-function-soft_l1">Loss function (soft_l1)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--inputs">Inputs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--bulk-fitting">Bulk fitting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--tail-fitting">Tail fitting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--surv-vs-taildist-developer-note">Surv vs TailDist (developer note)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--error-bounds">Error bounds</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--plotting">Plotting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#empiricaldist.fit--examples">Examples</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.fit_normal">fit_normal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.fit_scipy_dist">fit_scipy_dist</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.average_error">average_error</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.cdf_bounds_to_tail">cdf_bounds_to_tail</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.model_error_bounds">model_error_bounds</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.empirical_error_bounds">empirical_error_bounds</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.plot_model_bounds">plot_model_bounds</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.plot_dist_bounds">plot_dist_bounds</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.plot_fit_with_area">plot_fit_with_area</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.plot_normal_vs_lognormal">plot_normal_vs_lognormal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.fit_tail_normal">fit_tail_normal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.fit_tail_t">fit_tail_t</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.make_normalized_surv">make_normalized_surv</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.fit_truncated_normal">fit_truncated_normal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.fit_truncated_t">fit_truncated_t</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#empiricaldist.fit.minimize_df">minimize_df</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">empiricaldist</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Fitting</li>
+      <li class="breadcrumb-item active">fit</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="fitting-distributions">Fitting distributions<a class="headerlink" href="#fitting-distributions" title="Permanent link">&para;</a></h1>
+<p>The <code>empiricaldist.fit</code> module fits parametric distributions to empirical data and compares them visually. Fitters minimize vertical CDF error on a grid of probabilities (CDF matching), not moment-matching alone.</p>
+<p>See the <a href="https://github.com/AllenDowney/empiricaldist/blob/master/empiricaldist/fit.py">API module docstring</a> for design notes on <code>soft_l1</code> loss and tail vs bulk fitting.</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="empiricaldist.fit"></a>
+    <div class="doc doc-contents first">
+
+        <p>Fit parametric distributions to empirical data and compare them visually.</p>
+<h3 id="empiricaldist.fit--fitting-philosophy">Fitting philosophy<a class="headerlink" href="#empiricaldist.fit--fitting-philosophy" title="Permanent link">&para;</a></h3>
+<p>Fitters choose a grid of <strong>probabilities</strong>, find the corresponding empirical
+<strong>quantiles</strong>, and minimize <strong>vertical error between empirical and model CDF
+values</strong> (CDF matching), not moment-matching or vanilla MLE alone. The primary
+use case is graphical comparison of empirical and fitted distributions.</p>
+<h3 id="empiricaldist.fit--loss-function-soft_l1">Loss function (<code>soft_l1</code>)<a class="headerlink" href="#empiricaldist.fit--loss-function-soft_l1" title="Permanent link">&para;</a></h3>
+<p>The default least-squares loss is <code>soft_l1</code>, not for outlier robustness in the
+usual regression sense, but because the package is primarily trying to minimize
+visual discrepancy between empirical and fitted CDF/tail curves. The visual
+discrepancy is closer to mean absolute vertical error — area between curves —
+than to mean squared error. <code>average_error</code> measures that MAE directly; the
+default <code>loss="soft_l1"</code> makes the optimizer approximate the same criterion
+while staying inside SciPy's differentiable <code>least_squares</code> machinery.</p>
+<p>All public functions are re-exported from <code>empiricaldist</code> (see <code>__all__</code>).</p>
+<h3 id="empiricaldist.fit--inputs">Inputs<a class="headerlink" href="#empiricaldist.fit--inputs" title="Permanent link">&para;</a></h3>
+<p>Bulk helpers accept a sequence, <code>pd.Series</code>, or any <code>Distribution</code>
+(<code>Pmf</code>, <code>Cdf</code>, <code>Surv</code>, <code>TailDist</code>, …) via <code>_as_cdf</code>.</p>
+<p>Tail helpers accept the same types via <code>_as_tail</code> (sequences become
+<code>TailDist</code>).</p>
+<h3 id="empiricaldist.fit--bulk-fitting">Bulk fitting<a class="headerlink" href="#empiricaldist.fit--bulk-fitting" title="Permanent link">&para;</a></h3>
+<p><code>fit_normal(data, ...)</code> → frozen <code>scipy.stats.norm</code></p>
+<p><code>fit_scipy_dist(data, dist, ...)</code> → frozen scipy distribution (generalizes
+<code>fit_normal</code> to Weibull, etc.)</p>
+<p><code>average_error(data, model, qs=None)</code> → mean absolute CDF error on the
+0–1 probability scale.</p>
+<h3 id="empiricaldist.fit--tail-fitting">Tail fitting<a class="headerlink" href="#empiricaldist.fit--tail-fitting" title="Permanent link">&para;</a></h3>
+<p>High-level API (returns frozen scipy distributions):</p>
+<p><code>fit_tail_normal(data, ...)</code> → <code>scipy.stats.norm</code></p>
+<p><code>fit_tail_t(data, df=None, ...)</code> → <code>scipy.stats.t</code>; searches <code>df</code> when
+<code>df</code> is <code>None</code>.</p>
+<p>Lower-level building blocks (return <code>(mu, sigma)</code> or optimized <code>df</code>):</p>
+<p><code>fit_truncated_normal</code>, <code>fit_truncated_t</code>, <code>minimize_df</code> — fit location
+and scale on a <strong>renormalized</strong> tail survival curve (see
+<code>make_normalized_surv</code>). Used internally by the tail fitters and in notebooks
+such as <code>notebooks/chile.md</code>.</p>
+<p><code>make_normalized_surv(dist, qs, q0=None)</code> → <code>Surv</code> with
+<code>dist.sf(q) / dist.sf(q0)</code> on a grid (for discrete model approximation and
+tail-scale plots).</p>
+<h3 id="empiricaldist.fit--surv-vs-taildist-developer-note">Surv vs TailDist (developer note)<a class="headerlink" href="#empiricaldist.fit--surv-vs-taildist-developer-note" title="Permanent link">&para;</a></h3>
+<p>We intentionally keep <code>TailDist</code> for empirical data and <code>Surv</code> for
+continuous model evaluations. This preserves the correct semantics of both
+representations while allowing direct comparison, since the two notions
+coincide for continuous distributions (SciPy exposes only <code>dist.sf</code>).</p>
+<h3 id="empiricaldist.fit--error-bounds">Error bounds<a class="headerlink" href="#empiricaldist.fit--error-bounds" title="Permanent link">&para;</a></h3>
+<p><code>model_error_bounds(dist, n, qs, ...)</code> — if the model were true, where could
+a sample CDF fall? (binomial bands)</p>
+<p><code>empirical_error_bounds(data, n, qs, ...)</code> — given this empirical
+distribution, where could the true CDF fall in another sample?</p>
+<p><code>cdf_bounds_to_tail(low_cdf, high_cdf)</code> — pointwise complement for tail-scale
+plots.</p>
+<h3 id="empiricaldist.fit--plotting">Plotting<a class="headerlink" href="#empiricaldist.fit--plotting" title="Permanent link">&para;</a></h3>
+<p><code>plot_fit_with_area(data, model, kind="cdf"|"tail", ...)</code> — empirical curve
+with shaded vertical gap to the model (CDF or survival scale).</p>
+<p><code>plot_model_bounds(model, n, qs, kind=..., ...)</code> — confidence band only;
+caller draws the model curve.</p>
+<p><code>plot_dist_bounds(dist, n, qs=None, kind=..., ...)</code> — band for empirical or
+discrete model <code>Distribution</code>; caller draws the curve.</p>
+<p><code>plot_normal_vs_lognormal(data, ...)</code> — side-by-side normal vs lognormal
+comparison using area plots.</p>
+<h3 id="empiricaldist.fit--examples">Examples<a class="headerlink" href="#empiricaldist.fit--examples" title="Permanent link">&para;</a></h3>
+<p>See <code>notebooks/test_fit.md</code> (bulk fit, bounds, tail fitting) and
+<code>notebooks/chile.md</code>, <code>notebooks/cricket.md</code>, <code>notebooks/president_normality.md</code>.</p>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.fit_normal" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fit_normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.fit_normal" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fit a normal distribution by minimizing vertical CDF error.</p>
+<p>Chooses a grid of probabilities, finds the corresponding empirical
+quantiles, and minimizes vertical error between empirical and model CDF
+values.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or an empiricaldist <code>Distribution</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>probabilities to use for fitting; default 99 points from 0.01 to 0.99</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>optional initial guess (mu, sigma); defaults to sample mean and std</p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code>; default
+<code>soft_l1</code> approximates absolute vertical CDF error (the visual
+criterion used by <code>average_error</code> and the area plots)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats.norm object</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a normal distribution by minimizing vertical CDF error.</span>
+
+<span class="sd">    Chooses a grid of probabilities, finds the corresponding empirical</span>
+<span class="sd">    quantiles, and minimizes vertical error between empirical and model CDF</span>
+<span class="sd">    values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or an empiricaldist ``Distribution``</span>
+<span class="sd">        ps: probabilities to use for fitting; default 99 points from 0.01 to 0.99</span>
+<span class="sd">        x0: optional initial guess (mu, sigma); defaults to sample mean and std</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares``; default</span>
+<span class="sd">            ``soft_l1`` approximates absolute vertical CDF error (the visual</span>
+<span class="sd">            criterion used by ``average_error`` and the area plots)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        scipy.stats.norm object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">fit_scipy_dist</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.fit_scipy_dist" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fit_scipy_dist</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.fit_scipy_dist" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fit a scipy.stats distribution by minimizing vertical CDF error.</p>
+<p>Chooses a grid of probabilities, finds the corresponding empirical
+quantiles, and minimizes vertical error between empirical and model CDF
+values.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or an empiricaldist <code>Distribution</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>dist</code></b>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats continuous distribution (e.g. <code>norm</code>, <code>weibull_min</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>probabilities to match; default 99 points from 0.01 to 0.99</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>initial parameter guess; default scipy MLE via <code>dist.fit()</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code>; default
+<code>soft_l1</code> approximates absolute vertical CDF error (the visual
+criterion used by <code>average_error</code> and the area plots)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>frozen scipy distribution</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_scipy_dist</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a scipy.stats distribution by minimizing vertical CDF error.</span>
+
+<span class="sd">    Chooses a grid of probabilities, finds the corresponding empirical</span>
+<span class="sd">    quantiles, and minimizes vertical error between empirical and model CDF</span>
+<span class="sd">    values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or an empiricaldist ``Distribution``</span>
+<span class="sd">        dist: scipy.stats continuous distribution (e.g. ``norm``, ``weibull_min``)</span>
+<span class="sd">        ps: probabilities to match; default 99 points from 0.01 to 0.99</span>
+<span class="sd">        x0: initial parameter guess; default scipy MLE via ``dist.fit()``</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares``; default</span>
+<span class="sd">            ``soft_l1`` approximates absolute vertical CDF error (the visual</span>
+<span class="sd">            criterion used by ``average_error`` and the area plots)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        frozen scipy distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">_as_cdf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">cdf</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">error_func</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ps</span> <span class="o">-</span> <span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">x0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">_sample_for_scipy_fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cdf</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">error_func</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit_scipy_dist failed: </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dist</span><span class="p">(</span><span class="o">*</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.average_error" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">average_error</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">qs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.average_error" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Mean absolute vertical CDF error between data and a fitted model.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or an empiricaldist <code>Distribution</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>model</code></b>
+              –
+              <div class="doc-md-description">
+                <p>fitted distribution with a <code>cdf</code> method</p>
+              </div>
+            </li>
+            <li>
+              <b><code>qs</code></b>
+              –
+              <div class="doc-md-description">
+                <p>quantities at which to compare; default grid spans the 1st through
+99th empirical quantiles (probabilities 0.01–0.99)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>Mean of <code>|F_empirical(q) - F_model(q)|</code> over <code>qs</code> (probability</p>
+              </div>
+            </li>
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scale, 0–1).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">average_error</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">qs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mean absolute vertical CDF error between data and a fitted model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or an empiricaldist ``Distribution``</span>
+<span class="sd">        model: fitted distribution with a ``cdf`` method</span>
+<span class="sd">        qs: quantities at which to compare; default grid spans the 1st through</span>
+<span class="sd">            99th empirical quantiles (probabilities 0.01–0.99)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Mean of ``|F_empirical(q) - F_model(q)|`` over ``qs`` (probability</span>
+<span class="sd">        scale, 0–1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">_as_cdf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">qs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">cdf</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">)))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.cdf_bounds_to_tail" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">cdf_bounds_to_tail</span><span class="p">(</span><span class="n">low_cdf</span><span class="p">,</span> <span class="n">high_cdf</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.cdf_bounds_to_tail" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Convert CDF error bounds to tail scale.</p>
+<p>At each quantity <code>q</code>, applies the pointwise complement with swapped
+bounds: <code>tail_low(q) = 1 - high_cdf(q)</code> and
+<code>tail_high(q) = 1 - low_cdf(q)</code>.</p>
+<p>This is not the same as <code>Cdf.make_tail()</code>, which converts an
+empirical CDF to <code>P(X &gt;= x)</code> for the <em>same</em> discrete distribution
+(<code>tail(q_i) = 1 - cdf(q_{i-1})</code>, not <code>1 - cdf(q_i)</code>). Binomial
+error bounds are pointwise limits on <code>P(X &lt;= q)</code>; complementing
+them is the right operation for tail-scale plots.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cdf_bounds_to_tail</span><span class="p">(</span><span class="n">low_cdf</span><span class="p">,</span> <span class="n">high_cdf</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert CDF error bounds to tail scale.</span>
+
+<span class="sd">    At each quantity ``q``, applies the pointwise complement with swapped</span>
+<span class="sd">    bounds: ``tail_low(q) = 1 - high_cdf(q)`` and</span>
+<span class="sd">    ``tail_high(q) = 1 - low_cdf(q)``.</span>
+
+<span class="sd">    This is not the same as ``Cdf.make_tail()``, which converts an</span>
+<span class="sd">    empirical CDF to ``P(X &gt;= x)`` for the *same* discrete distribution</span>
+<span class="sd">    (``tail(q_i) = 1 - cdf(q_{i-1})``, not ``1 - cdf(q_i)``). Binomial</span>
+<span class="sd">    error bounds are pointwise limits on ``P(X &lt;= q)``; complementing</span>
+<span class="sd">    them is the right operation for tail-scale plots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tail_low</span> <span class="o">=</span> <span class="n">TailDist</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">high_cdf</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">high_cdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">tail_high</span> <span class="o">=</span> <span class="n">TailDist</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">low_cdf</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">low_cdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tail_low</span><span class="p">,</span> <span class="n">tail_high</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.model_error_bounds" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">model_error_bounds</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.model_error_bounds" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Find confidence bounds on a model CDF.</p>
+<p>Uses the binomial sampling distribution: if the true probability at
+each quantity is <code>p</code>, the observed fraction in a sample of size <code>n</code>
+follows Binomial(n, p).</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>dist</code></b>
+              –
+              <div class="doc-md-description">
+                <p>scipy distribution object (or any object with a <code>cdf</code> method)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>n</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sample size</p>
+              </div>
+            </li>
+            <li>
+              <b><code>qs</code></b>
+              –
+              <div class="doc-md-description">
+                <p>quantities at which to evaluate bounds</p>
+              </div>
+            </li>
+            <li>
+              <b><code>con_level</code></b>
+              –
+              <div class="doc-md-description">
+                <p>confidence level</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>tuple of <code>Cdf</code> objects (low, high) with values in [0, 1]</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">model_error_bounds</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find confidence bounds on a model CDF.</span>
+
+<span class="sd">    Uses the binomial sampling distribution: if the true probability at</span>
+<span class="sd">    each quantity is ``p``, the observed fraction in a sample of size ``n``</span>
+<span class="sd">    follows Binomial(n, p).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dist: scipy distribution object (or any object with a ``cdf`` method)</span>
+<span class="sd">        n: sample size</span>
+<span class="sd">        qs: quantities at which to evaluate bounds</span>
+<span class="sd">        con_level: confidence level</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple of ``Cdf`` objects (low, high) with values in [0, 1]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_binom_cdf_bounds</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">),</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.empirical_error_bounds" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">empirical_error_bounds</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.empirical_error_bounds" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Binomial confidence bounds on an empirical CDF.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or <code>Distribution</code> (converted to <code>Cdf</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>n</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sample size</p>
+              </div>
+            </li>
+            <li>
+              <b><code>qs</code></b>
+              –
+              <div class="doc-md-description">
+                <p>quantities at which to evaluate bounds</p>
+              </div>
+            </li>
+            <li>
+              <b><code>con_level</code></b>
+              –
+              <div class="doc-md-description">
+                <p>confidence level</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>tuple of <code>Cdf</code> objects (low, high) with values in [0, 1]</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">empirical_error_bounds</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Binomial confidence bounds on an empirical CDF.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or ``Distribution`` (converted to ``Cdf``)</span>
+<span class="sd">        n: sample size</span>
+<span class="sd">        qs: quantities at which to evaluate bounds</span>
+<span class="sd">        con_level: confidence level</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple of ``Cdf`` objects (low, high) with values in [0, 1]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">_as_cdf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># Interpolated CDF lookup can overshoot [0, 1] slightly at grid endpoints;</span>
+    <span class="c1"># clip so binom.ppf gets valid probabilities. Warn if clipping is non-trivial.</span>
+    <span class="n">cdf_raw</span> <span class="o">=</span> <span class="n">cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">cdf_ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">cdf_raw</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">clip_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cdf_raw</span> <span class="o">-</span> <span class="n">cdf_ps</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">clip_err</span> <span class="o">&gt;</span> <span class="mf">1e-9</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;CDF probabilities out of [0, 1] by up to </span><span class="si">{</span><span class="n">clip_err</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="s2">&quot;check data or evaluation grid&quot;</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_binom_cdf_bounds</span><span class="p">(</span><span class="n">cdf_ps</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.plot_model_bounds" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">plot_model_bounds</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cdf&#39;</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.plot_model_bounds" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Plot binomial confidence bounds for a fitted model.</p>
+<p>Uses <code>model_error_bounds</code>: if the model were true, where could a
+sample CDF fall? Bounds are computed on the CDF scale; when
+<code>kind="tail"</code> they are converted with <code>cdf_bounds_to_tail</code>.</p>
+<p>Draws the band only — caller plots the model curve separately.
+For truncated models, evaluate and normalize the model at the desired
+<code>qs</code>, build a discrete <code>Distribution</code>, and use <code>plot_dist_bounds</code>
+instead (see <code>notebooks/test_fit.md</code>).</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>model</code></b>
+              –
+              <div class="doc-md-description">
+                <p>fitted scipy distribution with <code>cdf</code> and <code>sf</code> methods</p>
+              </div>
+            </li>
+            <li>
+              <b><code>n</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sample size for binomial error bounds</p>
+              </div>
+            </li>
+            <li>
+              <b><code>qs</code></b>
+              –
+              <div class="doc-md-description">
+                <p>quantities at which to evaluate</p>
+              </div>
+            </li>
+            <li>
+              <b><code>kind</code></b>
+              –
+              <div class="doc-md-description">
+                <p><code>"cdf"</code> or <code>"tail"</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>con_level</code></b>
+              –
+              <div class="doc-md-description">
+                <p>confidence level passed to <code>model_error_bounds</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>**options</code></b>
+              –
+              <div class="doc-md-description">
+                <p>keyword arguments passed to <code>plt.fill_between</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_model_bounds</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cdf&quot;</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot binomial confidence bounds for a fitted model.</span>
+
+<span class="sd">    Uses ``model_error_bounds``: if the model were true, where could a</span>
+<span class="sd">    sample CDF fall? Bounds are computed on the CDF scale; when</span>
+<span class="sd">    ``kind=&quot;tail&quot;`` they are converted with ``cdf_bounds_to_tail``.</span>
+
+<span class="sd">    Draws the band only — caller plots the model curve separately.</span>
+<span class="sd">    For truncated models, evaluate and normalize the model at the desired</span>
+<span class="sd">    ``qs``, build a discrete ``Distribution``, and use ``plot_dist_bounds``</span>
+<span class="sd">    instead (see ``notebooks/test_fit.md``).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: fitted scipy distribution with ``cdf`` and ``sf`` methods</span>
+<span class="sd">        n: sample size for binomial error bounds</span>
+<span class="sd">        qs: quantities at which to evaluate</span>
+<span class="sd">        kind: ``&quot;cdf&quot;`` or ``&quot;tail&quot;``</span>
+<span class="sd">        con_level: confidence level passed to ``model_error_bounds``</span>
+<span class="sd">        **options: keyword arguments passed to ``plt.fill_between``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">model_error_bounds</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="n">con_level</span><span class="p">)</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">_bounds_for_kind</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+    <span class="n">underride</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">low</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">low</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">high</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.plot_dist_bounds" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">plot_dist_bounds</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cdf&#39;</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.plot_dist_bounds" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Plot binomial confidence bounds for a <code>Distribution</code>.</p>
+<p>Uses <code>empirical_error_bounds</code>: given this distribution, where could
+the true CDF fall in another sample of size <code>n</code>? Works for empirical
+data (<code>Cdf</code>, <code>TailDist</code>, etc.) and for discrete approximations of
+a mathematical model evaluated on a grid (see <code>notebooks/test_fit.md</code>,
+"Tail fitting").</p>
+<p>Draws the band only — caller plots the distribution curve separately.</p>
+<p>Bounds are computed on the CDF scale; when <code>kind="tail"</code> they are
+converted with <code>cdf_bounds_to_tail</code>.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>dist</code></b>
+              –
+              <div class="doc-md-description">
+                <p><code>Distribution</code> (empirical or discrete model approximation)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>n</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sample size for binomial error bounds</p>
+              </div>
+            </li>
+            <li>
+              <b><code>qs</code></b>
+              –
+              <div class="doc-md-description">
+                <p>quantities at which to evaluate; defaults to <code>dist.qs</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>kind</code></b>
+              –
+              <div class="doc-md-description">
+                <p><code>"cdf"</code> or <code>"tail"</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>con_level</code></b>
+              –
+              <div class="doc-md-description">
+                <p>confidence level passed to <code>empirical_error_bounds</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>**options</code></b>
+              –
+              <div class="doc-md-description">
+                <p>keyword arguments passed to <code>plt.fill_between</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_dist_bounds</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cdf&quot;</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot binomial confidence bounds for a ``Distribution``.</span>
+
+<span class="sd">    Uses ``empirical_error_bounds``: given this distribution, where could</span>
+<span class="sd">    the true CDF fall in another sample of size ``n``? Works for empirical</span>
+<span class="sd">    data (``Cdf``, ``TailDist``, etc.) and for discrete approximations of</span>
+<span class="sd">    a mathematical model evaluated on a grid (see ``notebooks/test_fit.md``,</span>
+<span class="sd">    &quot;Tail fitting&quot;).</span>
+
+<span class="sd">    Draws the band only — caller plots the distribution curve separately.</span>
+
+<span class="sd">    Bounds are computed on the CDF scale; when ``kind=&quot;tail&quot;`` they are</span>
+<span class="sd">    converted with ``cdf_bounds_to_tail``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dist: ``Distribution`` (empirical or discrete model approximation)</span>
+<span class="sd">        n: sample size for binomial error bounds</span>
+<span class="sd">        qs: quantities at which to evaluate; defaults to ``dist.qs``</span>
+<span class="sd">        kind: ``&quot;cdf&quot;`` or ``&quot;tail&quot;``</span>
+<span class="sd">        con_level: confidence level passed to ``empirical_error_bounds``</span>
+<span class="sd">        **options: keyword arguments passed to ``plt.fill_between``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">qs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">qs</span><span class="p">)</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">empirical_error_bounds</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">con_level</span><span class="o">=</span><span class="n">con_level</span><span class="p">)</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">_bounds_for_kind</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+    <span class="n">underride</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">low</span><span class="o">.</span><span class="n">qs</span><span class="p">,</span> <span class="n">low</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="n">high</span><span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.plot_fit_with_area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">plot_fit_with_area</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cdf&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.plot_fit_with_area" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Plot empirical distribution with shaded area between data and model.</p>
+<p>The gray band shows the vertical gap between the model and the empirical
+curve at each quantity in the data.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or an empiricaldist <code>Distribution</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>model</code></b>
+              –
+              <div class="doc-md-description">
+                <p>fitted distribution with <code>cdf</code> / <code>sf</code> methods, or a
+<code>Distribution</code> on the same grid (e.g. from <code>make_normalized_surv</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>kind</code></b>
+              –
+              <div class="doc-md-description">
+                <p><code>"cdf"</code> for bulk CDF comparison, <code>"tail"</code> for survival /
+<code>P(X &gt;= x)</code> comparison</p>
+              </div>
+            </li>
+            <li>
+              <b><code>**options</code></b>
+              –
+              <div class="doc-md-description">
+                <p>keyword arguments passed to the empirical <code>Distribution.plot</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_fit_with_area</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;cdf&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot empirical distribution with shaded area between data and model.</span>
+
+<span class="sd">    The gray band shows the vertical gap between the model and the empirical</span>
+<span class="sd">    curve at each quantity in the data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or an empiricaldist ``Distribution``</span>
+<span class="sd">        model: fitted distribution with ``cdf`` / ``sf`` methods, or a</span>
+<span class="sd">            ``Distribution`` on the same grid (e.g. from ``make_normalized_surv``)</span>
+<span class="sd">        kind: ``&quot;cdf&quot;`` for bulk CDF comparison, ``&quot;tail&quot;`` for survival /</span>
+<span class="sd">            ``P(X &gt;= x)`` comparison</span>
+<span class="sd">        **options: keyword arguments passed to the empirical ``Distribution.plot``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_check_kind</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;cdf&quot;</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">_as_cdf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">qs</span>
+        <span class="n">model_ps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">_as_tail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">qs</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;sf&quot;</span><span class="p">):</span>
+            <span class="n">model_ps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">Distribution</span><span class="p">):</span>
+            <span class="n">model_ps</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;model must have an sf method or be a Distribution when kind=&#39;tail&#39;&quot;</span>
+            <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">model_ps</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">underride</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dist</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.plot_normal_vs_lognormal" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">plot_normal_vs_lognormal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.plot_normal_vs_lognormal" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Side-by-side normal and lognormal model fits using area plots.</p>
+<p>Left panel: fit a normal to the data. Right panel: fit a normal to
+log10(data), which corresponds to a lognormal model on the original scale.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence of positive values, <code>pd.Series</code>, or <code>Distribution</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>xlabel</code></b>
+              –
+              <div class="doc-md-description">
+                <p>label for the original-scale x axis; log panel uses log10(xlabel)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>figsize</code></b>
+              –
+              <div class="doc-md-description">
+                <p>figure size passed to <code>plt.figure</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>**options</code></b>
+              –
+              <div class="doc-md-description">
+                <p>keyword arguments passed to <code>plot_fit_with_area</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_normal_vs_lognormal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Side-by-side normal and lognormal model fits using area plots.</span>
+
+<span class="sd">    Left panel: fit a normal to the data. Right panel: fit a normal to</span>
+<span class="sd">    log10(data), which corresponds to a lognormal model on the original scale.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence of positive values, ``pd.Series``, or ``Distribution``</span>
+<span class="sd">        xlabel: label for the original-scale x axis; log panel uses log10(xlabel)</span>
+<span class="sd">        figsize: figure size passed to ``plt.figure``</span>
+<span class="sd">        **options: keyword arguments passed to ``plot_fit_with_area``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">_as_cdf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">log_cdf</span> <span class="o">=</span> <span class="n">cdf</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">normal_model</span> <span class="o">=</span> <span class="n">fit_normal</span><span class="p">(</span><span class="n">cdf</span><span class="p">)</span>
+    <span class="n">plot_fit_with_area</span><span class="p">(</span><span class="n">cdf</span><span class="p">,</span> <span class="n">normal_model</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;CDF&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Normal model&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">lognormal_model</span> <span class="o">=</span> <span class="n">fit_normal</span><span class="p">(</span><span class="n">log_cdf</span><span class="p">)</span>
+    <span class="n">plot_fit_with_area</span><span class="p">(</span><span class="n">log_cdf</span><span class="p">,</span> <span class="n">lognormal_model</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">log_xlabel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;log10(</span><span class="si">{</span><span class="n">xlabel</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">xlabel</span> <span class="k">else</span> <span class="s2">&quot;log10(x)&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">log_xlabel</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;CDF&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Lognormal model&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.fit_tail_normal" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fit_tail_normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.fit_tail_normal" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fit a normal distribution to tail data by minimizing survival error.</p>
+<p>Chooses a grid of tail probabilities, finds the corresponding empirical
+quantiles, and minimizes vertical error between empirical and model
+survival values.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or <code>Distribution</code> (converted to <code>TailDist</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>tail probabilities to match; default 20 points from 0.10 to 0.99</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>optional initial guess (mu, sigma); defaults to PMF mean and std</p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code>; default
+<code>soft_l1</code> approximates absolute vertical CDF/tail error (the visual
+criterion used by the plotting utilities)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats.norm object</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_tail_normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a normal distribution to tail data by minimizing survival error.</span>
+
+<span class="sd">    Chooses a grid of tail probabilities, finds the corresponding empirical</span>
+<span class="sd">    quantiles, and minimizes vertical error between empirical and model</span>
+<span class="sd">    survival values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or ``Distribution`` (converted to ``TailDist``)</span>
+<span class="sd">        ps: tail probabilities to match; default 20 points from 0.10 to 0.99</span>
+<span class="sd">        x0: optional initial guess (mu, sigma); defaults to PMF mean and std</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares``; default</span>
+<span class="sd">            ``soft_l1`` approximates absolute vertical CDF/tail error (the visual</span>
+<span class="sd">            criterion used by the plotting utilities)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        scipy.stats.norm object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">_as_tail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">q0</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">fit_truncated_normal</span><span class="p">(</span><span class="n">tail</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="n">q0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.fit_tail_t" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fit_tail_t</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df0</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.fit_tail_t" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fit a t distribution to tail data by minimizing survival error.</p>
+<p>Chooses a grid of tail probabilities, finds the corresponding empirical
+quantiles, and minimizes vertical error between empirical and model
+survival values.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or <code>Distribution</code> (converted to <code>TailDist</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>df</code></b>
+              –
+              <div class="doc-md-description">
+                <p>degrees of freedom; if None, search over <code>bounds</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>tail probabilities to match when fitting loc and scale</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>optional initial guess (mu, sigma)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>df0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>initial guess for df when <code>df</code> is None</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bounds</code></b>
+              –
+              <div class="doc-md-description">
+                <p>(low, high) bounds on df when searching</p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code>; default
+<code>soft_l1</code> approximates absolute vertical CDF/tail error (the visual
+criterion used by the plotting utilities)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats.t object</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_tail_t</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">df0</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a t distribution to tail data by minimizing survival error.</span>
+
+<span class="sd">    Chooses a grid of tail probabilities, finds the corresponding empirical</span>
+<span class="sd">    quantiles, and minimizes vertical error between empirical and model</span>
+<span class="sd">    survival values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or ``Distribution`` (converted to ``TailDist``)</span>
+<span class="sd">        df: degrees of freedom; if None, search over ``bounds``</span>
+<span class="sd">        ps: tail probabilities to match when fitting loc and scale</span>
+<span class="sd">        x0: optional initial guess (mu, sigma)</span>
+<span class="sd">        df0: initial guess for df when ``df`` is None</span>
+<span class="sd">        bounds: (low, high) bounds on df when searching</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares``; default</span>
+<span class="sd">            ``soft_l1`` approximates absolute vertical CDF/tail error (the visual</span>
+<span class="sd">            criterion used by the plotting utilities)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        scipy.stats.t object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">_as_tail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">q0</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">minimize_df</span><span class="p">(</span><span class="n">df0</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="n">q0</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">[</span><span class="n">bounds</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">fit_truncated_t</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="n">q0</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">t_dist</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.make_normalized_surv" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">make_normalized_surv</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.make_normalized_surv" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Normalized survival function for a scipy distribution on a grid.</p>
+<p>Evaluates the SciPy survival function <code>dist.sf(q)</code> and renormalizes by
+<code>dist.sf(q0)</code>. Returns <code>Surv(ps / ps0, qs)</code> where <code>ps = dist.sf(qs)</code>
+and <code>ps0 = dist.sf(q0)</code>.</p>
+<p>The result is returned as a <code>Surv</code> because it is derived from a
+continuous survival function. Although this curve is compared directly with
+empirical <code>TailDist</code> objects during tail fitting and plotting, the
+distinction between <code>P(X &gt; x)</code> and <code>P(X &gt;= x)</code> vanishes for continuous
+distributions.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>dist</code></b>
+              –
+              <div class="doc-md-description">
+                <p>scipy frozen distribution with an <code>sf</code> method</p>
+              </div>
+            </li>
+            <li>
+              <b><code>qs</code></b>
+              –
+              <div class="doc-md-description">
+                <p>quantities at which to evaluate</p>
+              </div>
+            </li>
+            <li>
+              <b><code>q0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>renormalization point; default is <code>qs[0]</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p><code>Surv</code> with normalized tail probabilities on <code>qs</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">make_normalized_surv</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalized survival function for a scipy distribution on a grid.</span>
+
+<span class="sd">    Evaluates the SciPy survival function ``dist.sf(q)`` and renormalizes by</span>
+<span class="sd">    ``dist.sf(q0)``. Returns ``Surv(ps / ps0, qs)`` where ``ps = dist.sf(qs)``</span>
+<span class="sd">    and ``ps0 = dist.sf(q0)``.</span>
+
+<span class="sd">    The result is returned as a ``Surv`` because it is derived from a</span>
+<span class="sd">    continuous survival function. Although this curve is compared directly with</span>
+<span class="sd">    empirical ``TailDist`` objects during tail fitting and plotting, the</span>
+<span class="sd">    distinction between ``P(X &gt; x)`` and ``P(X &gt;= x)`` vanishes for continuous</span>
+<span class="sd">    distributions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dist: scipy frozen distribution with an ``sf`` method</span>
+<span class="sd">        qs: quantities at which to evaluate</span>
+<span class="sd">        q0: renormalization point; default is ``qs[0]``</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``Surv`` with normalized tail probabilities on ``qs``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">q0</span> <span class="o">=</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span> <span class="o">/</span> <span class="n">dist</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">q0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Surv</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.fit_truncated_normal" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fit_truncated_normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.fit_truncated_normal" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fit mu and sigma for a truncated normal tail distribution.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or <code>Distribution</code> (converted to <code>TailDist</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>tail probabilities to match; default 20 points from 0.10 to 0.99</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>optional initial guess (mu, sigma)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>q0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>renormalization point; default is the minimum quantity in <code>data</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>tuple (mu, sigma)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_truncated_normal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit mu and sigma for a truncated normal tail distribution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: sequence, ``pd.Series``, or ``Distribution`` (converted to ``TailDist``)</span>
+<span class="sd">        ps: tail probabilities to match; default 20 points from 0.10 to 0.99</span>
+<span class="sd">        x0: optional initial guess (mu, sigma)</span>
+<span class="sd">        q0: renormalization point; default is the minimum quantity in ``data``</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares``</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple (mu, sigma)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">_as_tail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">q0</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">error_func</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="n">surv</span> <span class="o">=</span> <span class="n">make_normalized_surv</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">q0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ps</span> <span class="o">-</span> <span class="n">surv</span><span class="o">.</span><span class="n">ps</span>
+
+    <span class="k">if</span> <span class="n">x0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pmf</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">make_pmf</span><span class="p">()</span>
+        <span class="n">pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">pmf</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">error_func</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit_truncated_normal failed: </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">x</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.fit_truncated_t" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fit_truncated_t</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.fit_truncated_t" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fit mu and sigma for a truncated t tail with fixed df.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>df</code></b>
+              –
+              <div class="doc-md-description">
+                <p>degrees of freedom</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or <code>Distribution</code> (converted to <code>TailDist</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>q0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>renormalization point; default is the minimum quantity in <code>data</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>tail probabilities to match; default 30 points from 0.10 to 0.90</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>optional initial guess (mu, sigma)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>tuple (mu, sigma)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_truncated_t</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit mu and sigma for a truncated t tail with fixed df.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: degrees of freedom</span>
+<span class="sd">        data: sequence, ``pd.Series``, or ``Distribution`` (converted to ``TailDist``)</span>
+<span class="sd">        q0: renormalization point; default is the minimum quantity in ``data``</span>
+<span class="sd">        ps: tail probabilities to match; default 30 points from 0.10 to 0.90</span>
+<span class="sd">        x0: optional initial guess (mu, sigma)</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares``</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple (mu, sigma)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">_as_tail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">q0</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">error_func</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">t_dist</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="n">surv</span> <span class="o">=</span> <span class="n">make_normalized_surv</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">q0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ps</span> <span class="o">-</span> <span class="n">surv</span><span class="o">.</span><span class="n">ps</span>
+
+    <span class="k">if</span> <span class="n">x0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pmf</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">make_pmf</span><span class="p">()</span>
+        <span class="n">pmf</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">pmf</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">pmf</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">error_func</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit_truncated_t failed: </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">x</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="empiricaldist.fit.minimize_df" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">minimize_df</span><span class="p">(</span><span class="n">df0</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;soft_l1&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">min_options</span><span class="p">)</span></code>
+
+<a href="#empiricaldist.fit.minimize_df" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Choose df to minimize log-scale tail error for a truncated t model.</p>
+<p>For each candidate df, <code>fit_truncated_t</code> is run to find mu and sigma.
+Default probability grid follows <code>examples/chile.md</code>.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>df0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>initial guess for df</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data</code></b>
+              –
+              <div class="doc-md-description">
+                <p>sequence, <code>pd.Series</code>, or <code>Distribution</code> (converted to <code>TailDist</code>)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>q0</code></b>
+              –
+              <div class="doc-md-description">
+                <p>renormalization point; default is the minimum quantity in <code>data</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>ps</code></b>
+              –
+              <div class="doc-md-description">
+                <p>tail probabilities for the log-scale error criterion; default
+log-spaced grid. Not passed to <code>fit_truncated_t</code> — the inner
+fitter uses its own probability grid.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>loss</code></b>
+              –
+              <div class="doc-md-description">
+                <p>loss function passed to <code>scipy.optimize.least_squares</code> in
+<code>fit_truncated_t</code></p>
+              </div>
+            </li>
+            <li>
+              <b><code>min_options</code></b>
+              –
+              <div class="doc-md-description">
+                <p>keyword arguments passed to <code>scipy.optimize.minimize</code>;
+default <code>method="Powell"</code>, <code>bounds=[(1, 1e6)]</code>, <code>options={"xtol": 1e-6}</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>array with optimized df</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>empiricaldist/fit.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">minimize_df</span><span class="p">(</span><span class="n">df0</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;soft_l1&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">min_options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Choose df to minimize log-scale tail error for a truncated t model.</span>
+
+<span class="sd">    For each candidate df, ``fit_truncated_t`` is run to find mu and sigma.</span>
+<span class="sd">    Default probability grid follows ``examples/chile.md``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df0: initial guess for df</span>
+<span class="sd">        data: sequence, ``pd.Series``, or ``Distribution`` (converted to ``TailDist``)</span>
+<span class="sd">        q0: renormalization point; default is the minimum quantity in ``data``</span>
+<span class="sd">        ps: tail probabilities for the log-scale error criterion; default</span>
+<span class="sd">            log-spaced grid. Not passed to ``fit_truncated_t`` — the inner</span>
+<span class="sd">            fitter uses its own probability grid.</span>
+<span class="sd">        loss: loss function passed to ``scipy.optimize.least_squares`` in</span>
+<span class="sd">            ``fit_truncated_t``</span>
+<span class="sd">        min_options: keyword arguments passed to ``scipy.optimize.minimize``;</span>
+<span class="sd">            default ``method=&quot;Powell&quot;``, ``bounds=[(1, 1e6)]``, ``options={&quot;xtol&quot;: 1e-6}``</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        array with optimized df</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">_as_tail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">q0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">q0</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">ps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">tail</span><span class="o">.</span><span class="n">ps</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">log_low</span><span class="p">,</span> <span class="n">log_high</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">log_low</span><span class="p">,</span> <span class="n">log_high</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Empirical quantiles at the probability grid, and tail probabilities there</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">error_func_tail</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">,)</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">fit_truncated_t</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">q0</span><span class="o">=</span><span class="n">q0</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">t_dist</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="n">surv</span> <span class="o">=</span> <span class="n">make_normalized_surv</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">q0</span><span class="p">)</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">surv</span><span class="o">.</span><span class="n">ps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">errors</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">underride</span><span class="p">(</span>
+        <span class="n">min_options</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Powell&quot;</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)],</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;xtol&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">error_func_tail</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="p">(</span><span class="n">df0</span><span class="p">,),</span> <span class="o">**</span><span class="n">min_options</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;minimize_df failed: </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">x</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../hist/" class="btn btn-neutral float-left" title="Hist"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../hist/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -178,6 +178,7 @@
 <li class="toctree-l1"><a class="reference internal" href="dist_demo.html">The empiricaldist API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pmf_demo.html">Implementing PMFs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cdf_demo.html">Implementing CDFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tail_demo.html">Implementing tail distributions</a></li>
 </ul>
 
     </div>
@@ -357,8 +358,9 @@ document.write(`
   <section id="empiricaldist">
 <h1>empiricaldist<a class="headerlink" href="#empiricaldist" title="Link to this heading">#</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">empiricaldist</span></code> is a Python library that provides classes to represent empirical distributions – that is, distributions based on data rather than mathematical functions.
-It includes four equivalent ways to represent a distribution: PMF (Probability Mass Function), CDF (Cumulative Distribution Function), Survival function and Hazard Function.
+It includes several equivalent ways to represent a distribution: PMF (Probability Mass Function), CDF (Cumulative Distribution Function), survival function, hazard function, and tail distribution (<code class="docutils literal notranslate"><span class="pre">TailDist</span></code>, for <strong>P(X ≥ x)</strong> when point masses matter).
 It provides methods to convert from one representation to the others, and methods to perform a variety of operations.</p>
+<p>Version 0.10 adds a <code class="docutils literal notranslate"><span class="pre">fit</span></code> module for fitting parametric distributions to empirical data and plotting fitted curves with error bands. See the <a class="reference external" href="https://allendowney.github.io/empiricaldist/docs">API reference</a> for <code class="docutils literal notranslate"><span class="pre">TailDist</span></code> and <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
 <p>This library is used extensively in <a class="reference external" href="https://greenteapress.com/wp/think-stats-3e/"><em>Think Stats</em></a>, <a class="reference external" href="https://greenteapress.com/wp/think-bayes/"><em>Think Bayes</em></a>, <a class="reference external" href="https://greenteapress.com/wp/elements-of-data-science/"><em>Elements of Data Science</em></a>, and <a class="reference external" href="https://greenteapress.com/wp/think-complexity-2e/"><em>Think Complexity</em></a> – but it is intended to be a stand-alone library for general use, not just for my books.</p>
 <p>For an introduction to the API, you can <a class="reference external" href="https://allendowney.github.io/empiricaldist/dist_demo.html">read this notebook</a> or <a class="reference external" href="https://colab.research.google.com/github/AllenDowney/empiricaldist/blob/master/empiricaldist/dist_demo.ipynb">run it on Colab</a>.</p>
 <p><a class="reference external" href="https://allendowney.github.io/empiricaldist/docs">API Reference documentation is here</a>.</p>

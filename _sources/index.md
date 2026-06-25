@@ -1,8 +1,10 @@
 # empiricaldist
 
 `empiricaldist` is a Python library that provides classes to represent empirical distributions -- that is, distributions based on data rather than mathematical functions.
-It includes four equivalent ways to represent a distribution: PMF (Probability Mass Function), CDF (Cumulative Distribution Function), Survival function and Hazard Function.
+It includes several equivalent ways to represent a distribution: PMF (Probability Mass Function), CDF (Cumulative Distribution Function), survival function, hazard function, and tail distribution (`TailDist`, for **P(X ≥ x)** when point masses matter).
 It provides methods to convert from one representation to the others, and methods to perform a variety of operations.
+
+Version 0.10 adds a `fit` module for fitting parametric distributions to empirical data and plotting fitted curves with error bands. See the [API reference](https://allendowney.github.io/empiricaldist/docs) for `TailDist` and `fit`.
 
 This library is used extensively in [*Think Stats*](https://greenteapress.com/wp/think-stats-3e/), [*Think Bayes*](https://greenteapress.com/wp/think-bayes/), [*Elements of Data Science*](https://greenteapress.com/wp/elements-of-data-science/), and [*Think Complexity*](https://greenteapress.com/wp/think-complexity-2e/) -- but it is intended to be a stand-alone library for general use, not just for my books.
 
