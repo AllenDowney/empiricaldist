@@ -1,5 +1,6 @@
 -r requirements.txt
 black
+build
 flake8
 jupyter
 jupytext

@@ -1,4 +1,4 @@
-.PHONY: clean data lint format requirements
+.PHONY: clean data lint format requirements build upload release
 
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
@@ -43,19 +43,19 @@ test_notebooks:
 	cd notebooks && pytest --nbmake test_fit.ipynb cricket.ipynb chile.ipynb president_normality.ipynb
 
 
-release:
-	# Make sure you have the latest version setuptool installed
-	# pip install --upgrade setuptools wheel twine
+## Build sdist and wheel (required for Pyodide / JupyterLite)
+build:
+	rm -rf dist/*
+	$(PYTHON_INTERPRETER) -m pip install -U build
+	$(PYTHON_INTERPRETER) -m build
 
-	# First edit setup.py and increment version number
-	# Get pypi API token from LastPass
-	# login with username __token__ and the token as password
-	#
-	# Push setup.py to GitHub
-	# Run tests, black, and push source to GitHub
-	rm dist/*
-	$(PYTHON_INTERPRETER) setup.py sdist
+## Upload dist/* to PyPI (uses ~/.pypirc)
+upload:
+	$(PYTHON_INTERPRETER) -m pip install -U twine
 	twine upload dist/*
+
+## Build and upload. Prerequisite: bump version in setup.py; run make lint && make tests
+release: build upload
 
 
 docs:

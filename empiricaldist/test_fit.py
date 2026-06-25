@@ -446,9 +446,10 @@ class TestEmpiricalErrorBounds(unittest.TestCase):
 
 class TestFitTruncatedT(unittest.TestCase):
     def test_fit_truncated_t_recovers_parameters(self):
-
         true_df = 5
-        sample = t_dist.rvs(true_df, loc=100, scale=10, size=1000, random_state=42)
+        sample = t_dist.rvs(
+            true_df, loc=100, scale=10, size=1000, random_state=42
+        )
         mu, sigma = fit_truncated_t(true_df, sample)
         self.assertAlmostEqual(mu, 99.95036009447568, places=10)
         self.assertAlmostEqual(sigma, 9.789873922524434, places=10)
@@ -466,12 +467,16 @@ class TestFitTailNormal(unittest.TestCase):
 
         dist = fit_tail_normal(sample)
         self.assertAlmostEqual(dist.kwds["loc"], 100.12981528009907, places=10)
-        self.assertAlmostEqual(dist.kwds["scale"], 14.599338603416408, places=10)
+        self.assertAlmostEqual(
+            dist.kwds["scale"], 14.599338603416408, places=10
+        )
 
         tail = TailDist.from_seq(sample)
         dist2 = fit_tail_normal(tail)
         self.assertAlmostEqual(dist2.kwds["loc"], 100.12981528009907, places=10)
-        self.assertAlmostEqual(dist2.kwds["scale"], 14.599338603416408, places=10)
+        self.assertAlmostEqual(
+            dist2.kwds["scale"], 14.599338603416408, places=10
+        )
 
     def test_fit_tail_normal_returns_scipy_dist(self):
         np.random.seed(42)
@@ -485,7 +490,9 @@ class TestFitTailNormal(unittest.TestCase):
 class TestFitTailT(unittest.TestCase):
     def test_fit_tail_t_fixed_df_recovers_parameters(self):
         true_df = 5
-        sample = t_dist.rvs(true_df, loc=100, scale=10, size=1000, random_state=42)
+        sample = t_dist.rvs(
+            true_df, loc=100, scale=10, size=1000, random_state=42
+        )
 
         dist = fit_tail_t(sample, df=true_df)
         self.assertEqual(dist.args[0], true_df)
@@ -496,11 +503,15 @@ class TestFitTailT(unittest.TestCase):
         dist2 = fit_tail_t(tail, df=true_df)
         self.assertEqual(dist2.args[0], true_df)
         self.assertAlmostEqual(dist2.kwds["loc"], 99.95036009447568, places=10)
-        self.assertAlmostEqual(dist2.kwds["scale"], 9.789873922524434, places=10)
+        self.assertAlmostEqual(
+            dist2.kwds["scale"], 9.789873922524434, places=10
+        )
 
     def test_fit_tail_t_searches_df(self):
         true_df = 5
-        sample = t_dist.rvs(true_df, loc=100, scale=10, size=10000, random_state=42)
+        sample = t_dist.rvs(
+            true_df, loc=100, scale=10, size=10000, random_state=42
+        )
 
         dist = fit_tail_t(sample, df=None, bounds=(1, 1000))
         self.assertAlmostEqual(dist.args[0], 4.694855680218307, places=10)
@@ -511,7 +522,9 @@ class TestFitTailT(unittest.TestCase):
         dist2 = fit_tail_t(tail, df=None, bounds=(1, 1000))
         self.assertAlmostEqual(dist2.args[0], 4.694855680218307, places=10)
         self.assertAlmostEqual(dist2.kwds["loc"], 99.85713668957527, places=10)
-        self.assertAlmostEqual(dist2.kwds["scale"], 9.968598331772622, places=10)
+        self.assertAlmostEqual(
+            dist2.kwds["scale"], 9.968598331772622, places=10
+        )
 
     def test_fit_tail_t_returns_scipy_dist(self):
         sample = t_dist.rvs(5, loc=100, scale=10, size=100, random_state=42)
@@ -523,9 +536,10 @@ class TestFitTailT(unittest.TestCase):
 
 class TestMinimizeDf(unittest.TestCase):
     def test_minimize_df_recovers_df(self):
-
         true_df = 5
-        sample = t_dist.rvs(true_df, loc=100, scale=10, size=10000, random_state=42)
+        sample = t_dist.rvs(
+            true_df, loc=100, scale=10, size=10000, random_state=42
+        )
         bounds = [(1, 1000)]
 
         df = minimize_df(10, sample, bounds=bounds)

@@ -102,7 +102,7 @@ import numpy as np
 from scipy.optimize import least_squares, minimize
 from scipy.stats import binom, norm, t as t_dist
 
-from .empiricaldist import Cdf, Distribution, Pmf, Surv, TailDist, underride
+from .empiricaldist import Cdf, Distribution, Surv, TailDist, underride
 
 
 def _as_cdf(data):
@@ -491,7 +491,9 @@ def fit_tail_t(
     tail = _as_tail(data)
     q0 = tail.qs.min()
     if df is None:
-        df = float(minimize_df(df0, tail, q0=q0, ps=ps, loss=loss, bounds=[bounds])[0])
+        df = float(
+            minimize_df(df0, tail, q0=q0, ps=ps, loss=loss, bounds=[bounds])[0]
+        )
     mu, sigma = fit_truncated_t(df, tail, q0=q0, ps=ps, x0=x0, loss=loss)
     return t_dist(df, loc=mu, scale=sigma)
 
@@ -634,7 +636,6 @@ def minimize_df(df0, data, q0=None, ps=None, loss="soft_l1", **min_options):
 
     # Empirical quantiles at the probability grid, and tail probabilities there
     qs = tail.inverse(ps)
-    tail_ps = tail(qs)
 
     def error_func_tail(params):
         (df,) = params
@@ -644,7 +645,9 @@ def minimize_df(df0, data, q0=None, ps=None, loss="soft_l1", **min_options):
         errors = np.log10(ps) - np.log10(surv.ps)
         return np.sum(errors**2)
 
-    underride(min_options, method="Powell", bounds=[(1, 1e6)], options={"xtol": 1e-6})
+    underride(
+        min_options, method="Powell", bounds=[(1, 1e6)], options={"xtol": 1e-6}
+    )
 
     res = minimize(error_func_tail, x0=(df0,), **min_options)
     if not res.success:
