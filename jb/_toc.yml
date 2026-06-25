@@ -1,0 +1,7 @@
+format: jb-book
+root: index
+chapters:
+  - file: dist_demo
+  - file: pmf_demo
+  - file: cdf_demo
+  - file: tail_demo

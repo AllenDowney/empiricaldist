@@ -1,4 +1,4 @@
-.PHONY: clean data lint format requirements build upload release
+.PHONY: clean data lint format requirements build upload release docs docs-site docs-publish
 
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
@@ -58,5 +58,14 @@ upload:
 release: build upload
 
 
+## Build MkDocs API reference only (output in site/)
 docs:
-	cd docs && mkdocs build
+	mkdocs build
+
+## Build Jupyter Book + MkDocs (output in jb/_build/html/; no gh-pages push)
+docs-site:
+	./jb/build.sh --no-push
+
+## Build and publish combined site to gh-pages branch
+docs-publish:
+	./jb/build.sh

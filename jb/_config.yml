@@ -1,0 +1,36 @@
+title: empiricaldist
+author: Allen B. Downey
+
+execute:
+  execute_notebooks: 'off'
+
+repository:
+  url: https://github.com/AllenDowney/empiricaldist/tree/master
+html:
+  use_repository_button: true
+
+parse:
+  # myst_extended_syntax: true  # instead enable individual features below
+  myst_enable_extensions:  # https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html
+    - amsmath
+    # - attrs_inline  # causing the conflict with dollarmath
+    - colon_fence
+    - deflist
+    - dollarmath
+    - fieldlist
+    - html_admonition
+    - html_image
+    - linkify
+    - replacements
+    - smartquotes
+    - strikethrough
+    - substitution
+    - tasklist
+
+sphinx:
+  config:
+    mathjax_path: https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+    mathjax_config:
+      tex2jax:
+        inlineMath: [["$","$"], ["\\(", "\\)"]]
+    myst_update_mathjax: false

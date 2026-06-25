@@ -5,6 +5,9 @@ flake8
 jupyter
 jupytext
 mkdocs
+mkdocstrings[python]
+jupyter-book
+ghp-import
 nbmake
 pip
 pytest

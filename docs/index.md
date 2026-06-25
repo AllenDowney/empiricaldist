@@ -8,6 +8,8 @@ EmpiricalDist is a Python library for working with probability distributions, in
 - [Histogram (Hist)](hist.md)
 - [Cumulative Distribution Function (Cdf)](cdf.md)
 - [Survival Function (Surv)](surv.md)
+- [Tail Distribution (TailDist)](taildist.md)
 - [Hazard Function (Hazard)](hazard.md)
+- [Fitting distributions (fit)](fit.md)
 
 Use the navigation on the left to explore the available classes and functions in more detail.

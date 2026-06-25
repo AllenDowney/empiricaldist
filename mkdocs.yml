@@ -1,0 +1,35 @@
+site_name: empiricaldist
+nav:
+  - Home: index.md
+  - Classes:
+      - Pmf: pmf.md
+      - Cdf: cdf.md
+      - Surv: surv.md
+      - TailDist: taildist.md
+      - Hazard: hazard.md
+      - Hist: hist.md
+  - Fitting:
+      - fit: fit.md
+
+
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          selection:
+            docstring_style: google
+          rendering_options:
+            show_source: true
+          options:
+            warn_on_missing: false
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - tables
+  - admonition
+  - fenced_code

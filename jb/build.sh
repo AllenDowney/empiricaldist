@@ -1,16 +1,19 @@
-# pip install jupyter-book ghp-import
+#!/bin/bash
+# Build Jupyter Book + MkDocs API reference. Run from repo root.
+# Pass --no-push to skip ghp-import (local preview only).
 
-# Build the Jupyter book version
+set -e
 
-# copy the notebooks
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT/jb"
+
 cp ../empiricaldist/*.ipynb .
-
-# build the HTML version
 jb build .
 
-# copy the API docs
-cd ..; mkdocs build; cd jb
-cp -r ../site/ _build/html/docs
+cd "$ROOT"
+mkdocs build
+cp -r site/ jb/_build/html/docs
 
-# push it to GitHub
-ghp-import -n -p -f _build/html
+if [ "${1:-}" != "--no-push" ]; then
+  ghp-import -n -p -f jb/_build/html
+fi
