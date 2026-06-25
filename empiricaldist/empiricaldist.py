@@ -2,17 +2,24 @@
 
 https://en.wikipedia.org/wiki/Empirical_distribution_function
 
-Distribution: Parent class of all distribution representations
+Distribution: Parent class of all distribution representations.
 
 Pmf: Represents a Probability Mass Function (PMF).
 
-Hist: Represents a Pmf that maps from values to frequencies.
+Hist: Represents a Pmf that maps values to frequencies.
 
 Cdf: Represents a Cumulative Distribution Function (CDF).
 
-Surv: Represents a Survival Function
+Surv: Represents a Survival Function, P(X > x).
 
-Hazard: Represents a Hazard Function
+TailDist: Represents a Tail Distribution, P(X >= x).
+
+Hazard: Represents a Hazard Function.
+
+``Surv`` and ``TailDist`` differ only for empirical discrete distributions.
+``Surv`` represents ``P(X > x)``, while ``TailDist`` represents ``P(X >= x)``.
+For continuous distributions these quantities are identical because
+``P(X = x) = 0``.
 
 Copyright 2019 Allen B. Downey
 
@@ -841,6 +848,23 @@ class Pmf(Distribution):
         cdf = self.make_cdf()
         return cdf.make_surv(**kwargs)
 
+    def make_tail(self, **kwargs):
+        """Make a TailDist from the Pmf.
+
+        Args:
+            kwargs: passed to the TailDist constructor
+
+        Returns: TailDist
+        """
+        normalize = kwargs.pop("normalize", False)
+        ps = self.make_surv() + self
+        tail = TailDist(ps, **kwargs)
+        tail.attrs["total"] = ps.iloc[0]
+        if normalize:
+            tail.normalize()
+            tail.iloc[0] = 1.0
+        return tail
+
     def make_hazard(self, **kwargs):
         """Make a Hazard from the Pmf.
 
@@ -1094,6 +1118,16 @@ class Cdf(Distribution):
 
         return surv
 
+    def make_tail(self, **kwargs):
+        """Make a TailDist from the Cdf.
+
+        Args:
+            kwargs: passed to the TailDist constructor
+
+        Returns: TailDist
+        """
+        return self.make_pmf().make_tail(**kwargs)
+
     def make_hazard(self, **kwargs):
         """Make a Hazard from the Cdf.
 
@@ -1316,6 +1350,16 @@ class Surv(Distribution):
         pmf = cdf.make_pmf(**kwargs)
         return pmf
 
+    def make_tail(self, **kwargs):
+        """Make a TailDist from the Surv.
+
+        Args:
+            kwargs: passed to the TailDist constructor
+
+        Returns: TailDist
+        """
+        return self.make_pmf().make_tail(**kwargs)
+
     def make_hazard(self, **kwargs):
         """Make a Hazard from the Surv.
 
@@ -1340,6 +1384,167 @@ class Surv(Distribution):
         Returns: Surv
         """
         return dist.make_surv()
+
+
+class TailDist(Distribution):
+    """Represents a tail distribution, P(X >= x).
+
+    ``TailDist`` represents the empirical tail probability ``P(X >= x)``. This
+    differs from ``Surv``, which represents ``P(X > x)``. For empirical discrete
+    distributions these are different quantities. For continuous distributions
+    they are identical because ``P(X = x) = 0``.
+    """
+
+    def copy(self, deep=True):
+        """Make a copy.
+
+        Args:
+            deep: whether to make a deep copy
+
+        Returns: new TailDist
+        """
+        return TailDist(self, copy=deep)
+
+    @staticmethod
+    def from_seq(seq, normalize=True, sort=True, **kwargs):
+        """Make a TailDist from a sequence of values.
+
+        Args:
+            seq: iterable
+            normalize: whether to normalize the TailDist, default True
+            sort: whether to sort quantities, default True
+            kwargs: passed to the TailDist constructor
+
+        Returns: TailDist
+        """
+        pmf = Pmf.from_seq(seq, normalize=False, sort=sort, **kwargs)
+        if len(pmf) == 0:
+            raise ValueError("cannot construct TailDist from an empty sequence")
+        return pmf.make_tail(normalize=normalize)
+
+    def step(self, **kwargs):
+        """Plot the TailDist as a step function."""
+        underride(kwargs, drawstyle="steps-post")
+        self.plot(**kwargs)
+
+    def normalize(self):
+        """Normalize the tail distribution (modifies self).
+
+        Returns: normalizing constant
+        """
+        old_total = self.attrs.get("total", self.ps[0])
+        self /= old_total
+        self.attrs["total"] = 1.0
+        return old_total
+
+    @property
+    def forward(self, **kwargs):
+        """Make a function that computes forward tail lookup."""
+        total = self.attrs.get("total", 1.0)
+        underride(
+            kwargs,
+            kind="previous",
+            copy=False,
+            assume_sorted=True,
+            bounds_error=False,
+            fill_value=(total, 0),
+        )
+        interp = interp1d(self.qs, self.ps, **kwargs)
+        return interp
+
+    @property
+    def inverse(self, **kwargs):
+        """Make a function that computes the inverse tail function."""
+        underride(
+            kwargs,
+            kind="previous",
+            copy=False,
+            assume_sorted=True,
+            bounds_error=False,
+            fill_value=(np.nan, np.nan),
+        )
+        tail = self.sort_values()
+        total = self.attrs.get("total", 1.0)
+        if tail.iloc[-1] != total:
+            tail[-np.inf] = total
+        interp = interp1d(tail, tail.index, **kwargs)
+        return interp
+
+    __call__ = forward
+    quantile = inverse
+
+    def make_tail(self, **kwargs):
+        """Make a TailDist from the TailDist."""
+        if kwargs:
+            return TailDist(self, **kwargs)
+        return self
+
+    def make_pmf(self, **kwargs):
+        """Make a Pmf from the TailDist.
+
+        If
+
+            tail[i] = P(X >= q_i),
+
+        then
+
+            pmf[i] = P(X = q_i)
+                   = tail[i] - tail[i+1],
+
+        with tail[n] defined to be zero.
+        """
+        normalize = kwargs.pop("normalize", False)
+        tail = self.sort_index()
+
+        next_ps = np.append(tail.ps[1:], 0)
+        ps = tail.ps - next_ps
+
+        pmf = Pmf(ps, index=tail.index.copy(), **kwargs)
+        if normalize:
+            pmf.normalize()
+        return pmf
+
+    def make_cdf(self, **kwargs):
+        """Make a Cdf from the TailDist."""
+        normalize = kwargs.pop("normalize", False)
+        cdf = self.make_pmf().make_cdf(**kwargs)
+        if normalize:
+            cdf.normalize()
+        return cdf
+
+    def make_surv(self, **kwargs):
+        """Make a Surv from the TailDist.
+
+        If tail[i] = P(X >= q_i), then
+
+            surv[i] = P(X > q_i) = P(X >= q_{i+1})
+
+        with surv[-1] = 0.
+        """
+        normalize = kwargs.pop("normalize", False)
+
+        tail = self.sort_index()
+        ps = np.append(tail.ps[1:], 0)
+
+        surv = Surv(ps, index=tail.index.copy(), **kwargs)
+        surv.attrs["total"] = self.attrs.get("total", tail.ps[0])
+
+        if normalize:
+            surv.normalize()
+
+        return surv
+
+    def make_hazard(self, **kwargs):
+        """Make a Hazard from the TailDist."""
+        pmf = self.make_pmf()
+        surv = self.make_surv()
+        haz = Hazard(pmf / (pmf + surv), **kwargs)
+        haz.attrs["total"] = self.attrs.get("total", 1.0)
+        return haz
+
+    def make_same(self, dist):
+        """Convert the given dist to TailDist."""
+        return dist.make_tail()
 
 
 class Hazard(Distribution):
@@ -1414,6 +1619,16 @@ class Hazard(Distribution):
         Returns: Pmf
         """
         return self.make_surv().make_cdf().make_pmf(**kwargs)
+
+    def make_tail(self, **kwargs):
+        """Make a TailDist from the Hazard.
+
+        Args:
+            kwargs: passed to the TailDist constructor
+
+        Returns: TailDist
+        """
+        return self.make_pmf().make_tail(**kwargs)
 
     def make_same(self, dist):
         """Convert the given dist to Hazard.

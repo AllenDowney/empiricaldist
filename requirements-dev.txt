@@ -2,6 +2,7 @@
 black
 flake8
 jupyter
+jupytext
 mkdocs
 nbmake
 pip

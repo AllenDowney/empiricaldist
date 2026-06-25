@@ -38,6 +38,10 @@ tests:
 	pytest --no-cov empiricaldist
 	cd empiricaldist; pytest --nbmake *.ipynb
 
+test_notebooks:
+	jupytext --to ipynb notebooks/test_fit.md notebooks/cricket.md notebooks/chile.md notebooks/president_normality.md
+	cd notebooks && pytest --nbmake test_fit.ipynb cricket.ipynb chile.ipynb president_normality.ipynb
+
 
 release:
 	# Make sure you have the latest version setuptool installed

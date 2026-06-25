@@ -1,1 +1,48 @@
 from .empiricaldist import *
+from .fit import (
+    average_error,
+    cdf_bounds_to_tail,
+    empirical_error_bounds,
+    fit_normal,
+    fit_scipy_dist,
+    fit_tail_normal,
+    fit_tail_t,
+    fit_truncated_normal,
+    fit_truncated_t,
+    make_normalized_surv,
+    minimize_df,
+    model_error_bounds,
+    plot_dist_bounds,
+    plot_fit_with_area,
+    plot_model_bounds,
+    plot_normal_vs_lognormal,
+)
+
+__all__ = [
+    # empiricaldist core
+    "Distribution",
+    "Pmf",
+    "FreqTab",
+    "Cdf",
+    "Surv",
+    "TailDist",
+    "Hazard",
+    "underride",
+    # fit
+    "average_error",
+    "cdf_bounds_to_tail",
+    "empirical_error_bounds",
+    "fit_normal",
+    "fit_scipy_dist",
+    "fit_tail_normal",
+    "fit_tail_t",
+    "fit_truncated_normal",
+    "fit_truncated_t",
+    "make_normalized_surv",
+    "minimize_df",
+    "model_error_bounds",
+    "plot_dist_bounds",
+    "plot_fit_with_area",
+    "plot_model_bounds",
+    "plot_normal_vs_lognormal",
+]

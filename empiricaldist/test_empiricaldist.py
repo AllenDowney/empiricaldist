@@ -10,7 +10,7 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 
-from empiricaldist import Hist, Cdf, Hazard, Pmf, Surv
+from empiricaldist import FreqTab, Hist, Cdf, Hazard, Pmf, Surv, TailDist
 
 
 class Test(unittest.TestCase):
@@ -552,6 +552,55 @@ class Test(unittest.TestCase):
         surv[-2] = 1
         self.assertEqual(surv.inverse(1), -2)
 
+    def testTailDist(self):
+        t = [1, 2, 2, 3, 5]
+        tail = TailDist.from_seq(t)
+        surv = Surv.from_seq(t)
+
+        self.assertAlmostEqual(tail.iloc[0], 1.0)
+        self.assertAlmostEqual(tail[1], 1.0)
+        self.assertAlmostEqual(tail[2], 0.8)
+        self.assertAlmostEqual(tail[3], 0.4)
+        self.assertAlmostEqual(tail[5], 0.2)
+
+        tail2 = tail.make_surv()
+        self.assertDistAlmostEqual(tail2, surv)
+
+        pmf = Pmf.from_seq(t)
+        pmf2 = tail.make_pmf()
+        self.assertDistAlmostEqual(pmf, pmf2)
+
+        cdf = Cdf.from_seq(t)
+        cdf2 = tail.make_cdf()
+        self.assertDistAlmostEqual(cdf, cdf2)
+
+        self.assertEqual(tail(0), 1)
+        self.assertAlmostEqual(tail(1), 1.0)
+        self.assertAlmostEqual(tail(2), 0.8)
+        self.assertAlmostEqual(tail(3), 0.4)
+        self.assertAlmostEqual(tail(5), 0.2)
+        self.assertAlmostEqual(tail(6), 0)
+
+        xs = range(-1, 7)
+        ps = tail(xs)
+        for p1, p2 in zip(ps, [1, 1, 1.0, 0.8, 0.4, 0.4, 0.2, 0]):
+            self.assertAlmostEqual(p1, p2)
+
+        self.assertEqual(tail.inverse(1), 1)
+        self.assertEqual(tail.inverse(0.8), 2)
+        self.assertEqual(tail.inverse(0.4), 3)
+        self.assertEqual(tail.inverse(0.2), 5)
+
+        tail3 = TailDist.from_seq(t, normalize=False)
+        self.assertListEqual(list(tail3), [5, 4, 2, 1])
+
+        pmf = Pmf.from_seq(t)
+        tail4 = pmf.make_surv() + pmf
+        tail4.iloc[0] = 1
+        tail5 = TailDist(tail4)
+        tail5.normalize()
+        self.assertDistAlmostEqual(tail, tail5)
+
     def testNormalize(self):
         t = [0, 1, 2, 3, 3, 4, 4, 4, 5]
 
@@ -564,6 +613,11 @@ class Test(unittest.TestCase):
         total = cdf.normalize()
         self.assertAlmostEqual(total, 9)
         self.assertAlmostEqual(cdf(3), 0.55555555)
+
+        tail = TailDist.from_seq(t, normalize=False)
+        total = tail.normalize()
+        self.assertAlmostEqual(total, 9)
+        self.assertAlmostEqual(tail[3], 6 / 9)
 
     def testHazard(self):
         t = [1, 2, 2, 3, 5]
@@ -643,6 +697,14 @@ class Test(unittest.TestCase):
 
         pmf3 = haz2.make_pmf()
         self.assertDistAlmostEqual(pmf, pmf3)
+
+        tail = TailDist.from_seq(t)
+        self.assertDistAlmostEqual(tail.make_surv(), surv)
+        self.assertDistAlmostEqual(tail.make_pmf(), pmf)
+        self.assertDistAlmostEqual(tail.make_cdf(), cdf)
+        self.assertDistAlmostEqual(pmf.make_tail(), tail)
+        self.assertDistAlmostEqual(cdf.make_tail(), tail)
+        self.assertDistAlmostEqual(surv.make_tail(), tail)
 
     def testUnnormalized(self):
         t = [1, 2, 2, 4, 5]
@@ -868,6 +930,17 @@ class Test(unittest.TestCase):
         self.assertIsInstance(haz.make_same(surv), Hazard)
         self.assertIsInstance(haz.make_same(haz), Hazard)
 
+        tail = TailDist.from_seq([1, 2, 2, 3, 4, 5])
+        self.assertIsInstance(tail.make_same(pmf), TailDist)
+        self.assertIsInstance(tail.make_same(cdf), TailDist)
+        self.assertIsInstance(tail.make_same(surv), TailDist)
+        self.assertIsInstance(tail.make_same(haz), TailDist)
+        self.assertIsInstance(tail.make_same(tail), TailDist)
+        self.assertDistAlmostEqual(tail, tail.make_same(pmf))
+        self.assertDistAlmostEqual(tail, pmf.make_tail())
+        self.assertDistAlmostEqual(tail, cdf.make_tail())
+        self.assertDistAlmostEqual(tail, surv.make_tail())
+
         # Test that the values are preserved
         self.assertDistAlmostEqual(pmf, pmf.make_same(pmf))
         self.assertDistAlmostEqual(cdf, cdf.make_same(pmf))
@@ -896,6 +969,79 @@ class Test(unittest.TestCase):
         self.assertEqual(cdf.make_same(cdf).attrs["total"], 10)
         self.assertEqual(surv.make_same(surv).attrs["total"], 10)
         self.assertEqual(haz.make_same(haz).attrs["total"], 10)
+
+
+def assert_dist_almost_equal(dist1, dist2, rtol=1e-7, atol=0, err_msg=None):
+    """Assert that two Distribution objects are approximately equal."""
+    np.testing.assert_array_equal(
+        dist1.index.values,
+        dist2.index.values,
+        err_msg=err_msg or "Distributions have different qs",
+    )
+    np.testing.assert_allclose(
+        dist1.values, dist2.values, rtol=rtol, atol=atol, err_msg=err_msg
+    )
+
+
+class TestTailDistEdgeCases(unittest.TestCase):
+    def test_single_observation(self):
+        tail = TailDist.from_seq([3])
+
+        np.testing.assert_array_equal(tail.qs, [3])
+        self.assertAlmostEqual(tail.ps[0], 1.0)
+
+        pmf = tail.make_pmf()
+        self.assertEqual(dict(pmf), {3: 1.0})
+
+        surv = tail.make_surv()
+        self.assertEqual(dict(surv), {3: 0.0})
+
+        cdf = tail.make_cdf()
+        self.assertEqual(dict(cdf), {3: 1.0})
+
+        assert_dist_almost_equal(tail.make_pmf().make_tail(), tail)
+        assert_dist_almost_equal(tail.make_surv().make_tail(), tail)
+        assert_dist_almost_equal(tail.make_cdf().make_tail(), tail)
+
+    def test_two_observations(self):
+        tail = TailDist.from_seq([1, 2])
+        pmf = tail.make_pmf()
+        surv = tail.make_surv()
+
+        self.assertAlmostEqual(tail(1), 1.0)
+        self.assertAlmostEqual(tail(2), 0.5)
+        self.assertAlmostEqual(pmf(1), 0.5)
+        self.assertAlmostEqual(pmf(2), 0.5)
+        self.assertAlmostEqual(surv(1), 0.5)
+        self.assertAlmostEqual(surv(2), 0.0)
+
+        assert_dist_almost_equal(tail, pmf.make_tail())
+
+    def test_repeated_values_round_trips(self):
+        pmf = Pmf.from_seq([1, 2, 2, 3])
+        tail = TailDist.from_seq([1, 2, 2, 3])
+        surv = tail.make_surv()
+
+        self.assertAlmostEqual(tail(2), surv(2) + pmf(2))
+
+        assert_dist_almost_equal(tail, pmf.make_tail())
+        assert_dist_almost_equal(pmf, tail.make_pmf())
+        assert_dist_almost_equal(surv, tail.make_surv())
+        assert_dist_almost_equal(tail, surv.make_tail())
+
+    def test_unnormalized_freqtab(self):
+        ft = FreqTab.from_seq([1, 2, 2, 3])
+        tail = ft.make_tail()
+
+        self.assertEqual(tail.attrs["total"], 4)
+        total = tail.normalize()
+        self.assertAlmostEqual(total, 4)
+        self.assertAlmostEqual(tail.attrs["total"], 1.0)
+        self.assertAlmostEqual(tail.iloc[0], 1.0)
+
+    def test_empty_sequence_raises(self):
+        with self.assertRaisesRegex(ValueError, "empty sequence"):
+            TailDist.from_seq([])
 
 
 if __name__ == "__main__":
